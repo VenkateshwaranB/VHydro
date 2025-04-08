@@ -4,3 +4,8 @@ libgl1-mesa-glx
 libxrender1
 libxext6
 libgomp1
+libjpeg-dev
+libpng-dev
+libfreetype6-dev
+pkg-config
+python3-dev
