@@ -1,7 +1,34 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+
+import streamlit as st
+
+# Set up error handling for dependency imports
+st.set_page_config(
+    page_title="VHydro - Hydrocarbon Potential Prediction",
+    page_icon="🔍",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Try importing dependencies with helpful error messages
+try:
+    import pandas as pd
+    import numpy as np
+    st.write("Successfully imported pandas and numpy")
+except ImportError as e:
+    st.error(f"Error importing pandas or numpy: {e}")
+    st.info("Please check your requirements.txt file")
+    st.stop()
+
+try:
+    import matplotlib.pyplot as plt
+    st.write("Successfully imported matplotlib")
+except ImportError as e:
+    st.error(f"Error importing matplotlib: {e}")
+    st.info("This may be due to missing system dependencies. Please check your packages.txt file.")
+    st.stop()
+
+# Continue with other imports...
 import os
 import tempfile
 import time
@@ -31,13 +58,6 @@ except ImportError as e:
     st.info("Make sure all required files are in the current directory.")
     st.stop()
 
-# Page configuration
-st.set_page_config(
-    page_title="VHydro - Hydrocarbon Potential Prediction",
-    page_icon="🔍",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Custom CSS
 st.markdown("""
