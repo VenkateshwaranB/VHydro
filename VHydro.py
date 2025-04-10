@@ -23,6 +23,296 @@ from stellargraph.layer import GCN
 from tensorflow.keras import layers, optimizers, losses, metrics, Model
 from tensorflow.keras.callbacks import EarlyStopping
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch_geometric.nn import GCNConv
+from torch_geometric.data import Data
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from torch_geometric.loader import DataLoader
+
+class GCN(torch.nn.Module):
+    def __init__(self, num_features, hidden_channels, num_classes):
+        super().__init__()
+        self.conv1 = GCNConv(num_features, hidden_channels)
+        self.conv2 = GCNConv(hidden_channels, hidden_channels)
+        self.out = torch.nn.Linear(hidden_channels, num_classes)
+
+    def forward(self, x, edge_index):
+        # First Graph Convolution
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=0.5, training=self.training)
+        
+        # Second Graph Convolution
+        x = self.conv2(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=0.5, training=self.training)
+        
+        # Output layer
+        x = self.out(x)
+        return x
+
+def build_pyg_gcn_model(self, n_clusters, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, 
+                       hidden_channels=16, run_id=1, num_epochs=200):
+    """
+    Build and train Graph Convolutional Network model using PyTorch Geometric
+    
+    Args:
+        n_clusters (int): Number of clusters
+        train_ratio (float): Ratio of data for training
+        val_ratio (float): Ratio of data for validation
+        test_ratio (float): Ratio of data for testing
+        hidden_channels (int): Number of hidden channels in GCN
+        run_id (int): Run identifier
+        num_epochs (int): Number of training epochs
+        
+    Returns:
+        dict: Dictionary with model and evaluation results
+    """
+    # Create directory for results
+    result_dir = os.path.join(self.output_dir, str(n_clusters), 'results')
+    os.makedirs(result_dir, exist_ok=True)
+    
+    # Load edge data
+    cluster_dir = os.path.join(self.output_dir, str(n_clusters))
+    edge_file = os.path.join(cluster_dir, f'BF_full_edge_{n_clusters}.txt')
+    
+    feature_names = [f'w{i}' for i in range(14)]
+    edge_data = pd.read_csv(
+        edge_file,
+        sep='\t',
+        header=None,
+        names=['DEPTH', *feature_names, 'RESULTS']
+    )
+    
+    # Load node data
+    node_file = os.path.join(cluster_dir, f'BF_full_node_{n_clusters}.txt')
+    node_data = pd.read_csv(
+        node_file,
+        sep='\t',
+        header=None,
+        names=['source', 'target']
+    )
+    
+    # Prepare node features
+    # Create a mapping of node IDs to indices
+    unique_nodes = pd.concat([node_data['source'], node_data['target']]).unique()
+    node_to_idx = {node: i for i, node in enumerate(unique_nodes)}
+    
+    # Create edge index for PyG
+    edge_index = torch.tensor([
+        [node_to_idx[s] for s in node_data['source']],
+        [node_to_idx[t] for t in node_data['target']]
+    ], dtype=torch.long)
+    
+    # Create node features 
+    # For simplicity, we'll use one-hot encoding of node IDs initially
+    # In practice, you should use meaningful node features
+    x = torch.zeros((len(unique_nodes), 14), dtype=torch.float)
+    
+    # Map nodes to their features from edge_data
+    for node, idx in node_to_idx.items():
+        # Find this node in edge_data
+        node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
+        if not node_in_edge.empty:
+            # Extract features (excluding DEPTH and RESULTS)
+            node_features = node_in_edge[feature_names].values[0]
+            x[idx] = torch.tensor(node_features, dtype=torch.float)
+    
+    # Encode labels
+    labels = edge_data['RESULTS'].unique()
+    label_encoder = LabelEncoder()
+    label_encoder.fit(labels)
+    
+    # Create node labels
+    y = torch.zeros(len(unique_nodes), dtype=torch.long)
+    for node, idx in node_to_idx.items():
+        node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
+        if not node_in_edge.empty:
+            label = node_in_edge['RESULTS'].values[0]
+            y[idx] = torch.tensor(label_encoder.transform([label])[0], dtype=torch.long)
+    
+    # Create PyG Data object
+    data = Data(x=x, edge_index=edge_index, y=y)
+    
+    # Split data into train/val/test
+    num_nodes = data.num_nodes
+    node_indices = np.arange(num_nodes)
+    
+    # First split into train and temp
+    train_idx, temp_idx = train_test_split(
+        node_indices, train_size=train_ratio, random_state=42
+    )
+    
+    # Split temp into val and test
+    val_size = val_ratio / (val_ratio + test_ratio)
+    val_idx, test_idx = train_test_split(
+        temp_idx, train_size=val_size, random_state=42
+    )
+    
+    # Convert to tensor masks
+    train_mask = torch.zeros(num_nodes, dtype=torch.bool)
+    val_mask = torch.zeros(num_nodes, dtype=torch.bool)
+    test_mask = torch.zeros(num_nodes, dtype=torch.bool)
+    
+    train_mask[train_idx] = True
+    val_mask[val_idx] = True
+    test_mask[test_idx] = True
+    
+    data.train_mask = train_mask
+    data.val_mask = val_mask
+    data.test_mask = test_mask
+    
+    # Create model
+    model = GCN(
+        num_features=data.num_features,
+        hidden_channels=hidden_channels,
+        num_classes=len(labels)
+    )
+    
+    # Define optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
+    
+    # Training function
+    def train():
+        model.train()
+        optimizer.zero_grad()
+        out = model(data.x, data.edge_index)
+        loss = F.cross_entropy(out[data.train_mask], data.y[data.train_mask])
+        loss.backward()
+        optimizer.step()
+        return loss.item()
+    
+    # Evaluation function
+    @torch.no_grad()
+    def evaluate():
+        model.eval()
+        out = model(data.x, data.edge_index)
+        
+        # Train accuracy
+        train_correct = (out[data.train_mask].argmax(dim=1) == data.y[data.train_mask]).sum()
+        train_acc = train_correct.item() / data.train_mask.sum().item()
+        
+        # Validation accuracy
+        val_correct = (out[data.val_mask].argmax(dim=1) == data.y[data.val_mask]).sum()
+        val_acc = val_correct.item() / data.val_mask.sum().item()
+        
+        # Test accuracy
+        test_correct = (out[data.test_mask].argmax(dim=1) == data.y[data.test_mask]).sum()
+        test_acc = test_correct.item() / data.test_mask.sum().item()
+        
+        return train_acc, val_acc, test_acc, out
+    
+    # Training loop
+    history = {
+        'loss': [],
+        'train_acc': [],
+        'val_acc': [],
+        'test_acc': []
+    }
+    
+    best_val_acc = 0
+    best_model_state = None
+    patience = 50
+    patience_counter = 0
+    
+    for epoch in range(1, num_epochs + 1):
+        loss = train()
+        train_acc, val_acc, test_acc, _ = evaluate()
+        
+        # Save history
+        history['loss'].append(loss)
+        history['train_acc'].append(train_acc)
+        history['val_acc'].append(val_acc)
+        history['test_acc'].append(test_acc)
+        
+        # Print progress
+        if epoch % 10 == 0:
+            print(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Train: {train_acc:.4f}, Val: {val_acc:.4f}, Test: {test_acc:.4f}')
+        
+        # Early stopping
+        if val_acc > best_val_acc:
+            best_val_acc = val_acc
+            best_model_state = {k: v.clone() for k, v in model.state_dict().items()}
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                print(f'Early stopping at epoch {epoch}')
+                break
+    
+    # Restore best model
+    if best_model_state is not None:
+        model.load_state_dict(best_model_state)
+    
+    # Final evaluation
+    _, _, test_acc, out = evaluate()
+    print(f'Final Test Accuracy: {test_acc:.4f}')
+    
+    # Get predictions for all nodes
+    all_predictions = out.argmax(dim=1).cpu().numpy()
+    all_labels = label_encoder.inverse_transform(all_predictions)
+    
+    # Create results dataframe
+    results_data = []
+    for node, idx in node_to_idx.items():
+        results_data.append({
+            'Node': node,
+            'True': label_encoder.inverse_transform([data.y[idx].item()])[0],
+            'Predicted': all_labels[idx]
+        })
+    
+    results_df = pd.DataFrame(results_data)
+    
+    # Save results
+    history_df = pd.DataFrame(history)
+    if run_id == 1:
+        history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}.xlsx'))
+        results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}.xlsx'))
+    else:
+        history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}_new{run_id}.xlsx'))
+        results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}_new{run_id}.xlsx'))
+    
+    # Calculate confusion matrix and classification report
+    from sklearn.metrics import confusion_matrix, classification_report
+    true_labels = results_df['True']
+    pred_labels = results_df['Predicted']
+    
+    cm = confusion_matrix(true_labels, pred_labels)
+    cr = classification_report(true_labels, pred_labels, output_dict=True)
+    
+    # Convert classification report to dataframe
+    cr_df = pd.DataFrame(cr).transpose()
+    
+    if run_id == 1:
+        cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}.xlsx'))
+    else:
+        cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}_new{run_id}.xlsx'))
+    
+    # Return results
+    model_results = {
+        'model': model,
+        'history': history,
+        'history_df': history_df,
+        'test_acc': test_acc,
+        'predictions': all_labels,
+        'results_df': results_df,
+        'confusion_matrix': cm,
+        'classification_report': cr_df,
+        'label_encoder': label_encoder
+    }
+    
+    # Store model results
+    if n_clusters not in self.models:
+        self.models[n_clusters] = {}
+    
+    self.models[n_clusters][run_id] = model_results
+    
+    return model_results
+
 class VHydro:
     def __init__(self, las_file_path, output_dir):
         """
@@ -1153,7 +1443,8 @@ class VHydro:
         test_targets = target_encoding.transform(test_subjects)
         
         # Create generator
-        generator = FullBatchNodeGenerator(G, method="gcn")
+        #generator = FullBatchNodeGenerator(G, method="gcn")
+        generator = FullBatchNodeGenerator(G, method="gcn", sparse=True) 
         
         # Create train, validation, and test generators
         train_gen = generator.flow(train_subjects.index, train_targets)
