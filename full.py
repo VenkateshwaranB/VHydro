@@ -55,8 +55,6 @@ class VHydro:
             from lasio import read as las_read
             las = las_read(self.las_file_path)
             self.df = las.df()
-            self.df = self.df.reset_index()
-            self.df['DEPTH'] = self.df['DEPT']
             print(f"Successfully loaded LAS file: {self.las_file_path}")
             print(f"Available columns: {', '.join(self.df.columns)}")
             return True
@@ -64,40 +62,13 @@ class VHydro:
             print(f"Error loading LAS file: {e}")
             return False
             
-    # def prepare_features(self, feature_columns=None):
-    #     """
-    #     Prepare features for clustering
-        
-    #     Args:
-    #         feature_columns (list): List of column names to use as features.
-    #                                If None, uses default columns
-    #     """
-    #     if feature_columns is None:
-    #         feature_columns = ['VSHALE', 'PHI', 'SW', 'GR', 'DENSITY']
-    #         # Make sure these columns exist in the dataframe
-    #         available_cols = [col for col in feature_columns if col in self.df.columns]
-    #         if not available_cols:
-    #             print(f"None of the specified columns found. Available columns: {', '.join(self.df.columns)}")
-    #             return False
-    #         feature_columns = available_cols
-            
-    #     self.features = self.df[feature_columns].copy()
-    #     self.features = self.features.dropna()
-    #     self.features = self.features.drop_duplicates()
-    #     self.features = self.features.reset_index(drop=True)
-    #     self.x_scaled = scale(self.features)
-        
-    #     print(f"Features prepared with columns: {', '.join(feature_columns)}")
-    #     print(f"Feature shape: {self.features.shape}")
-    #     return True
-    
     def prepare_features(self, feature_columns=None):
         """
         Prepare features for clustering
         
         Args:
             feature_columns (list): List of column names to use as features.
-                                If None, uses default columns
+                                   If None, uses default columns
         """
         if feature_columns is None:
             feature_columns = ['VSHALE', 'PHI', 'SW', 'GR', 'DENSITY']
@@ -108,28 +79,14 @@ class VHydro:
                 return False
             feature_columns = available_cols
             
-        # Copy the full data
-        features_full = self.df[feature_columns].copy()
-        
-        # Store original indices before filtering
-        original_indices = features_full.index.tolist()
-        
-        # Clean the data
-        features_clean = features_full.dropna()
-        features_clean = features_clean.drop_duplicates()
-        
-        # Store which indices were kept
-        self.feature_indices = features_clean.index.tolist()
-        
-        # Reset index to make it more manageable
-        self.features = features_clean.reset_index(drop=True)
+        self.features = self.df[feature_columns].copy()
+        self.features = self.features.dropna()
+        self.features = self.features.drop_duplicates()
+        self.features = self.features.reset_index(drop=True)
         self.x_scaled = scale(self.features)
         
         print(f"Features prepared with columns: {', '.join(feature_columns)}")
         print(f"Feature shape: {self.features.shape}")
-        print(f"Original data shape: {features_full.shape}")
-        print(f"Kept {len(self.feature_indices)} of {len(original_indices)} rows")
-        
         return True
             
     def calculate_petrophysical_properties(self):
@@ -165,10 +122,10 @@ class VHydro:
             print("Warning: RHOB log not found. Cannot calculate porosity.")
             
         # Calculate water saturation (if resistivity log available)
-        if 'LLD' in self.df.columns:
+        if 'ILD' in self.df.columns:
             self.well_data['WSAT'] = self._sw_archie(
                 self.well_data['PHIECALC'], 
-                np.log(self.df['LLD'])
+                np.log(self.df['ILD'])
             )
             
             # Calculate oil saturation
@@ -259,79 +216,6 @@ class VHydro:
         
         return results
     
-    # def create_cluster_dataset(self, n_clusters):
-    #     """
-    #     Create dataset with cluster assignments
-        
-    #     Args:
-    #         n_clusters (int): Number of clusters to use
-        
-    #     Returns:
-    #         DataFrame: DataFrame with cluster assignments
-    #     """
-    #     # Apply KMeans clustering with the specified number of clusters
-    #     kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=10)
-    #     kmeans.fit(self.x_scaled)
-        
-    #     # Add cluster assignments to the dataframe
-    #     self.df['Facies_pred'] = kmeans.predict(self.x_scaled)
-        
-    #     # Save the clustering results
-    #     output_path = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
-    #     self.df.to_excel(output_path, index=False)
-    #     print(f"Saved clustering results to {output_path}")
-        
-    #     return self.df
-    
-    # def create_cluster_dataset(self, n_clusters):
-    #     """
-    #     Create dataset with cluster assignments
-        
-    #     Args:
-    #         n_clusters (int): Number of clusters to use
-        
-    #     Returns:
-    #         DataFrame: DataFrame with cluster assignments
-    #     """
-    #     # Apply KMeans clustering with the specified number of clusters
-    #     kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=10)
-    #     kmeans.fit(self.x_scaled)
-        
-    #     # Create a temporary dataframe with feature indices
-    #     temp_df = self.features.copy()
-    #     temp_df['Facies_pred'] = kmeans.predict(self.x_scaled)
-        
-    #     # Create a copy of the original dataframe to avoid modifying it
-    #     result_df = self.df.copy()
-        
-    #     # Reset the index of both dataframes if needed
-    #     if 'DEPTH' in self.df.columns:
-    #         # If using DEPTH as identifier
-    #         result_df = result_df.set_index('DEPTH')
-    #         temp_df = self.features.set_index(self.features.index)
-    #         temp_df['Facies_pred'] = kmeans.predict(self.x_scaled)
-            
-    #         # Merge the facies predictions back
-    #         # Use appropriate merge strategy based on your data
-    #         result_df['Facies_pred'] = np.nan  # Initialize with NaN
-    #         for idx, row in temp_df.iterrows():
-    #             if idx in result_df.index:
-    #                 result_df.loc[idx, 'Facies_pred'] = row['Facies_pred']
-    #     else:
-    #         # Handle only the indices that exist in both
-    #         indices = temp_df.index
-    #         result_df.loc[indices, 'Facies_pred'] = temp_df['Facies_pred']
-        
-    #     # Save the clustering results
-    #     output_path = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
-    #     result_df.reset_index().to_excel(output_path, index=False)
-    #     print(f"Saved clustering results to {output_path}")
-        
-    #     # Update the class attribute
-    #     self.df = result_df
-        
-    #     return result_df
-    
     def create_cluster_dataset(self, n_clusters):
         """
         Create dataset with cluster assignments
@@ -346,201 +230,32 @@ class VHydro:
         kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=10)
         kmeans.fit(self.x_scaled)
         
-        # Create a new DataFrame with only the clusters
-        cluster_df = self.features.copy()
-        cluster_df['Facies_pred'] = kmeans.predict(self.x_scaled)
-        
-        # Determine how to match back to original data
-        if self.features.index.equals(self.df.index):
-            # If indices match, we can directly assign
-            result_df = self.df.copy()
-            result_df['Facies_pred'] = cluster_df['Facies_pred']
-        else:
-            # If using reset_index in prepare_features, we need to map differently
-            # Create a mapping of index positions
-            result_df = self.df.copy()
-            result_df['Facies_pred'] = np.nan  # Initialize with NaN
-            
-            # Get the original index values before features were processed
-            # This assumes features were created from subset of df
-            if hasattr(self, 'feature_indices'):
-                # If we stored the indices during prepare_features
-                for i, idx in enumerate(self.feature_indices):
-                    result_df.loc[idx, 'Facies_pred'] = cluster_df.iloc[i]['Facies_pred']
-            else:
-                # Create a separate file just with the clustering results
-                # This is safer when we can't reliably map back to original
-                cluster_df.to_excel(os.path.join(self.output_dir, f'facies_clusters_{n_clusters}.xlsx'), 
-                                index=True)
-                
-                # For the complete dataset, we'll try our best to preserve DEPTH
-                if 'DEPTH' in self.df.columns:
-                    # Extract DEPTH and create a new dataframe
-                    facies_df = pd.DataFrame({
-                        'DEPTH': self.df['DEPTH'],
-                        'Facies_pred': np.nan
-                    })
-                    
-                    # Optionally, we could try to match based on feature values
-                    # This is complex and depends on exact data structure
-                    
-                    result_df = facies_df
-                else:
-                    # Just use the cluster_df as result
-                    result_df = cluster_df
+        # Add cluster assignments to the dataframe
+        self.df['Facies_pred'] = kmeans.predict(self.x_scaled)
         
         # Save the clustering results
         output_path = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
-        result_df.to_excel(output_path, index=False)
+        self.df.to_excel(output_path, index=False)
         print(f"Saved clustering results to {output_path}")
         
-        return result_df
-
-    # def create_cluster_dataset(self, n_clusters):
-    #     """
-    #     Create dataset with cluster assignments - safe version that creates separate files
-        
-    #     Args:
-    #         n_clusters (int): Number of clusters to use
-        
-    #     Returns:
-    #         DataFrame: DataFrame with cluster assignments
-    #     """
-    #     # Apply KMeans clustering with the specified number of clusters
-    #     kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=10)
-    #     kmeans.fit(self.x_scaled)
-        
-    #     # Get the predictions
-    #     predictions = kmeans.predict(self.x_scaled)
-        
-    #     # Create separate dataframe just for the clean features with predictions
-    #     cluster_df = self.features.copy()
-    #     cluster_df['Facies_pred'] = predictions
-        
-    #     # Create output directory for this cluster count
-    #     cluster_dir = os.path.join(self.output_dir, str(n_clusters))
-    #     os.makedirs(cluster_dir, exist_ok=True)
-        
-    #     # Save the feature-based clustering results 
-    #     feature_path = os.path.join(cluster_dir, f'facies_features_{n_clusters}.xlsx')
-    #     cluster_df.to_excel(feature_path, index=False)
-        
-    #     print(f"Saved feature clustering results to {feature_path}")
-        
-    #     return cluster_df
-        
-    # def identify_clustering_ranges(self, n_clusters):
-    #     """
-    #     Identify depth ranges for each cluster
-        
-    #     Args:
-    #         n_clusters (int): Number of clusters
-            
-    #     Returns:
-    #         dict: Dictionary with cluster ranges
-    #     """
-    #     if 'Facies_pred' not in self.df.columns:
-    #         print("Error: Cluster assignments not found. Run create_cluster_dataset() first.")
-    #         return False
-            
-    #     # Get the facies predictions as a list
-    #     facies_pred = self.df['Facies_pred'].to_list()
-        
-    #     # Store start and end depths for each cluster
-    #     cluster_ranges = {}
-        
-    #     # For each facies value
-    #     for facies_value in range(n_clusters):
-    #         # Find indices where this facies occurs
-    #         indices = [idx for idx, value in enumerate(facies_pred) if value == facies_value]
-            
-    #         # Group consecutive indices
-    #         grouped_indices = [list(g) for _, g in groupby(indices, key=lambda n, c=count(): n-next(c))]
-            
-    #         # Extract start and end depths for each group
-    #         start_depths = []
-    #         end_depths = []
-    #         for group in grouped_indices:
-    #             start_depths.append(self.df['DEPTH'].iloc[group[0]])
-    #             end_depths.append(self.df['DEPTH'].iloc[group[-1]])
-            
-    #         cluster_ranges[facies_value] = {
-    #             'start_depths': start_depths,
-    #             'end_depths': end_depths,
-    #             'groups': grouped_indices
-    #         }
-        
-    #     # Get all depth ranges in a single list
-    #     all_groups = []
-    #     for facies_value in range(n_clusters):
-    #         all_groups.extend(cluster_ranges[facies_value]['groups'])
-        
-    #     # Sort by depth
-    #     all_groups_sorted = sorted(all_groups)
-        
-    #     # Extract start and end depths
-    #     start_depths = [self.df['DEPTH'].iloc[group[0]] for group in all_groups_sorted]
-    #     end_depths = [self.df['DEPTH'].iloc[group[-1]] for group in all_groups_sorted]
-        
-    #     cluster_ranges['all'] = {
-    #         'start_depths': start_depths,
-    #         'end_depths': end_depths,
-    #         'groups': all_groups_sorted
-    #     }
-        
-    #     self.clustering_ranges[n_clusters] = cluster_ranges
-    #     return cluster_ranges
+        return self.df
     
-    def create_cluster_dataset(self, n_clusters):
-        """
-        Create dataset with cluster assignments
-        
-        Args:
-            n_clusters (int): Number of clusters to use
-        
-        Returns:
-            DataFrame: DataFrame with cluster assignments
-        """
-        # Apply KMeans clustering with the specified number of clusters
-        kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=10)
-        kmeans.fit(self.x_scaled)
-        
-        # Get the predictions
-        predictions = kmeans.predict(self.x_scaled)
-        
-        # Create a new dataframe with predictions and matching depths
-        result_df = pd.DataFrame()
-        result_df['DEPTH'] = self.df['DEPTH'].iloc[self.feature_indices]
-        result_df['Facies_pred'] = predictions
-        
-        # Save the clustering results
-        output_path = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
-        result_df.to_excel(output_path, index=False)
-        print(f"Saved clustering results to {output_path}")
-        
-        # Important: Update the class attribute with this result
-        # This is what identify_clustering_ranges will use
-        self.cluster_df = result_df
-        
-        return result_df
-
     def identify_clustering_ranges(self, n_clusters):
         """
         Identify depth ranges for each cluster
         
         Args:
             n_clusters (int): Number of clusters
-                
+            
         Returns:
             dict: Dictionary with cluster ranges
         """
-        # Check if we have clustering results
-        if not hasattr(self, 'cluster_df') or 'Facies_pred' not in self.cluster_df.columns:
+        if 'Facies_pred' not in self.df.columns:
             print("Error: Cluster assignments not found. Run create_cluster_dataset() first.")
             return False
-                
+            
         # Get the facies predictions as a list
-        facies_pred = self.cluster_df['Facies_pred'].to_list()
+        facies_pred = self.df['Facies_pred'].to_list()
         
         # Store start and end depths for each cluster
         cluster_ranges = {}
@@ -557,8 +272,8 @@ class VHydro:
             start_depths = []
             end_depths = []
             for group in grouped_indices:
-                start_depths.append(self.cluster_df['DEPTH'].iloc[group[0]])
-                end_depths.append(self.cluster_df['DEPTH'].iloc[group[-1]])
+                start_depths.append(self.df['DEPTH'].iloc[group[0]])
+                end_depths.append(self.df['DEPTH'].iloc[group[-1]])
             
             cluster_ranges[facies_value] = {
                 'start_depths': start_depths,
@@ -572,11 +287,11 @@ class VHydro:
             all_groups.extend(cluster_ranges[facies_value]['groups'])
         
         # Sort by depth
-        all_groups_sorted = sorted(all_groups, key=lambda x: self.cluster_df['DEPTH'].iloc[x[0]])
+        all_groups_sorted = sorted(all_groups)
         
         # Extract start and end depths
-        start_depths = [self.cluster_df['DEPTH'].iloc[group[0]] for group in all_groups_sorted]
-        end_depths = [self.cluster_df['DEPTH'].iloc[group[-1]] for group in all_groups_sorted]
+        start_depths = [self.df['DEPTH'].iloc[group[0]] for group in all_groups_sorted]
+        end_depths = [self.df['DEPTH'].iloc[group[-1]] for group in all_groups_sorted]
         
         cluster_ranges['all'] = {
             'start_depths': start_depths,
@@ -586,6 +301,7 @@ class VHydro:
         
         self.clustering_ranges[n_clusters] = cluster_ranges
         return cluster_ranges
+    
     def generate_adjacency_matrix(self, n_clusters, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1):
         """
         Generate adjacency matrix for graph neural network
@@ -1279,7 +995,7 @@ def main():
     args = parser.parse_args()
     
     # Create Well Log Analysis object
-    wla = VHydro(args.las_file, args.output_dir)
+    wla = WellLogAnalysis(args.las_file, args.output_dir)
     
     # Load LAS file
     if not wla.load_las_file():
