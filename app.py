@@ -211,7 +211,7 @@ def home_page():
         """)
     
     # Try to display workflow diagram
-    workflow_image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/src/Workflow.png")
+    workflow_image_path = "src/Workflow.png"
     
     if os.path.exists(workflow_image_path):
         st.markdown("<h2 class='sub-header'>Workflow Overview</h2>", unsafe_allow_html=True)
