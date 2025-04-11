@@ -194,7 +194,7 @@ def create_sidebar():
 
 # Home page
 def home_page():
-    logo_path = "src/VHydro_Logo.png"
+    logo_path = "src/Building a Greener World.png"
     header_with_logo(logo_path)
     
     st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
