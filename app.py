@@ -137,7 +137,7 @@ def header_with_logo(logo_path):
 def create_sidebar():
     try:
         # Try to load logo for sidebar
-        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/src/VHydro_Logo.png")
+        logo_path = "src/VHydro_Logo.png"
         if os.path.exists(logo_path):
             st.sidebar.image(logo_path, width=100)
         else:
@@ -194,7 +194,7 @@ def create_sidebar():
 
 # Home page
 def home_page():
-    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/src/VHydro_Logo.png")
+    logo_path = "src/VHydro_Logo.png"
     header_with_logo(logo_path)
     
     st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
@@ -271,7 +271,7 @@ def dataset_preparation_page():
     """)
     
     # Try to display dataset preparation workflow
-    dataset_workflow_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/src/Graph Data Preparation.png")
+    dataset_workflow_path = "src/Graph Data Preparation.png"
     
     if os.path.exists(dataset_workflow_path):
         display_image_with_caption(dataset_workflow_path, "Dataset Preparation Workflow")
@@ -397,7 +397,7 @@ def model_workflow_page():
     """)
     
     # Try to display model workflow
-    model_workflow_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/src/Model.png")
+    model_workflow_path = "src/Model.png"
     
     if os.path.exists(model_workflow_path):
         display_image_with_caption(model_workflow_path, "VHydro Model Workflow")
