@@ -113,6 +113,110 @@ st.markdown("""
     div.stTabs button {
         font-weight: bold;
     }
+
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0c326f 0%, #1e4d9e 100%);
+    }
+    
+    /* Make ALL sidebar text white */
+    [data-testid="stSidebar"] {
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] div, 
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3 {
+        color: white !important;
+    }
+    
+    /* Style sidebar title explicitly */
+    [data-testid="stSidebar"] .sidebar-content h1 {
+        color: white !important;
+        font-weight: 600;
+    }
+    
+    /* Style radio buttons in sidebar */
+    [data-testid="stSidebar"] .stRadio label {
+        color: white !important;
+    }
+    
+    /* Style sliders in sidebar */
+    [data-testid="stSidebar"] .stSlider label {
+        color: white !important;
+    }
+    
+    /* Style number inputs in sidebar */
+    [data-testid="stSidebar"] .stNumberInput label {
+        color: white !important;
+    }
+    
+    /* Style buttons in sidebar */
+    [data-testid="stSidebar"] button {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    [data-testid="stSidebar"] button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Force white text for expander content */
+    [data-testid="stSidebar"] .st-expander .st-expander-content {
+        color: white !important;
+    }
+    
+    /* About section styling */
+    .info-box {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #0c326f;
+    }
+    
+    /* Main header styling */
+    .main-header {
+        font-size: 2.5rem !important;
+        color: #0c326f;
+        text-align: center;
+        margin-bottom: 1rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .sub-header {
+        font-size: 1.8rem !important;
+        color: #0c326f;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+    }
+    
+    .section-header {
+        font-size: 1.5rem !important;
+        color: #2c3e50;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #0c326f;
+        padding-left: 10px;
+    }
+    
+    /* Footer styling */
+    .footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+        border-top: 1px solid #e9ecef;
+    }
     /* Sidebar styling */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0c326f 0%, #1e4d9e 100%);
@@ -308,7 +412,7 @@ def create_sidebar():
 
 # Home page
 def home_page():
-    logo_path = "src/VHydro_Logo.png"  # Update path as needed
+    logo_path = "src/Building a Greener World.png"  # Update path as needed
     header_with_logo(logo_path)
     
     st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
