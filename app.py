@@ -11,18 +11,27 @@ import sys
 import importlib.util
 import logging
 
+# IMPORTANT: Set page configuration at the very beginning before any other Streamlit call
+st.set_page_config(
+    page_title="VHydro - Hydrocarbon Quality Prediction",
+    page_icon="🧪",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Add current directory to path to import VHydro
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-# Import VHydro class
+# Safely try to import VHydro - handle missing dependencies gracefully
 try:
+    # Add current directory to path to import VHydro
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
     from VHydro_final import VHydro
+    VHYDRO_AVAILABLE = True
     logger.info("Successfully imported VHydro module")
 except ImportError as e:
+    VHYDRO_AVAILABLE = False
     logger.error(f"Error importing VHydro module: {e}")
     st.error(f"Failed to import VHydro module: {e}")
 
@@ -54,14 +63,6 @@ def display_image_with_caption(image_path, caption="", width=None):
     except Exception as e:
         logger.error(f"Error displaying image {image_path}: {e}")
         st.error(f"Could not display image: {e}")
-
-# Set page configuration
-st.set_page_config(
-    page_title="VHydro - Hydrocarbon Quality Prediction",
-    page_icon="🧪",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Custom CSS
 st.markdown("""
@@ -120,11 +121,14 @@ def header_with_logo(logo_path):
     cols = st.columns([1, 2, 1])
     with cols[1]:
         try:
-            logo_image = Image.open(logo_path)
-            st.image(logo_image, width=150)
+            if os.path.exists(logo_path):
+                logo_image = Image.open(logo_path)
+                st.image(logo_image, width=150)
+            else:
+                st.warning("Logo image not found. Expected at: " + logo_path)
         except Exception as e:
             logger.error(f"Error loading logo: {e}")
-            st.warning("Logo image not found")
+            st.warning(f"Error loading logo: {e}")
     
     st.markdown("<h1 class='main-header'>VHydro - Hydrocarbon Quality Prediction</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>Advanced Graph Convolutional Network for Petrophysical Analysis</p>", unsafe_allow_html=True)
@@ -133,9 +137,11 @@ def header_with_logo(logo_path):
 def create_sidebar():
     try:
         # Try to load logo for sidebar
-        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./src/VHydro_Logo.png")
+        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo.png")
         if os.path.exists(logo_path):
             st.sidebar.image(logo_path, width=100)
+        else:
+            st.sidebar.info("Logo not found at: " + logo_path)
     except Exception as e:
         logger.error(f"Error loading sidebar logo: {e}")
 
@@ -163,7 +169,7 @@ def create_sidebar():
     # Adjust test_ratio to make sure ratios sum to 1.0
     total = train_ratio + val_ratio + test_ratio
     if abs(total - 1.0) > 1e-6:
-        test_ratio = 1.0 - train_ratio - val_ratio
+        test_ratio = max(0.05, 1.0 - train_ratio - val_ratio)
         st.sidebar.warning(f"Adjusted test ratio to {test_ratio:.2f} to ensure total equals 1.0")
     
     st.sidebar.markdown("---")
@@ -171,6 +177,9 @@ def create_sidebar():
     **VHydro** predicts hydrocarbon quality zones using petrophysical properties 
     and Graph Convolutional Networks.
     """)
+    
+    if not VHYDRO_AVAILABLE:
+        st.sidebar.warning("⚠️ VHydro module is not available. Some features will be disabled.")
     
     return {
         "page": page,
@@ -185,7 +194,7 @@ def create_sidebar():
 
 # Home page
 def home_page():
-    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./src/VHydro_Logo.png")
+    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo.png")
     header_with_logo(logo_path)
     
     st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
@@ -202,13 +211,13 @@ def home_page():
         """)
     
     # Try to display workflow diagram
-    workflow_image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./src/Workflow.png")
+    workflow_image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "workflow.png")
     
     if os.path.exists(workflow_image_path):
         st.markdown("<h2 class='sub-header'>Workflow Overview</h2>", unsafe_allow_html=True)
         display_image_with_caption(workflow_image_path, "VHydro Workflow")
     else:
-        st.warning("Workflow image not found. Place a 'workflow.png' file in the application directory.")
+        st.warning(f"Workflow image not found. Expected at: {workflow_image_path}")
     
     st.markdown("<h2 class='sub-header'>Key Features</h2>", unsafe_allow_html=True)
     
@@ -262,12 +271,12 @@ def dataset_preparation_page():
     """)
     
     # Try to display dataset preparation workflow
-    dataset_workflow_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./src/Graph Dataset Preparation.png")
+    dataset_workflow_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dataset_preparation_workflow.png")
     
     if os.path.exists(dataset_workflow_path):
         display_image_with_caption(dataset_workflow_path, "Dataset Preparation Workflow")
     else:
-        st.warning("Dataset preparation workflow image not found. Place a 'dataset_preparation_workflow.png' file in the application directory.")
+        st.warning(f"Dataset preparation workflow image not found. Expected at: {dataset_workflow_path}")
     
     st.markdown("<h3 class='section-header'>Required Log Data</h3>", unsafe_allow_html=True)
     
@@ -388,12 +397,12 @@ def model_workflow_page():
     """)
     
     # Try to display model workflow
-    model_workflow_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./src/Model.png")
+    model_workflow_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_workflow.png")
     
     if os.path.exists(model_workflow_path):
         display_image_with_caption(model_workflow_path, "VHydro Model Workflow")
     else:
-        st.warning("Model workflow image not found. Place a 'model_workflow.png' file in the application directory.")
+        st.warning(f"Model workflow image not found. Expected at: {model_workflow_path}")
     
     st.markdown("<h3 class='section-header'>K-means Clustering for Facies Classification</h3>", unsafe_allow_html=True)
     
@@ -484,6 +493,15 @@ def model_workflow_page():
 def analysis_tool_page(config):
     st.markdown("<h2 class='sub-header'>Analysis Tool</h2>", unsafe_allow_html=True)
     
+    if not VHYDRO_AVAILABLE:
+        st.warning("""
+        ⚠️ The VHydro module is not available in this deployment. The analysis tool requires the full 
+        VHydro package with all dependencies (PyTorch, TensorFlow, StellarGraph, etc.).
+        
+        You can still upload your LAS file to preview the data, but model training and prediction 
+        features are disabled.
+        """)
+    
     st.markdown("""
     Upload your LAS file to analyze well log data, perform petrophysical calculations,
     and run the VHydro model to predict hydrocarbon quality zones.
@@ -507,264 +525,311 @@ def analysis_tool_page(config):
         tab1, tab2, tab3, tab4 = st.tabs(["Data Preview", "Petrophysical Properties", "Clustering", "Model Training"])
         
         try:
-            # Create VHydro instance
-            vh = VHydro(las_file_path, temp_dir)
-            
-            # Load LAS file
-            load_success = vh.load_las_file()
-            
-            if not load_success:
-                st.error("Failed to load LAS file. Please check the file format.")
-                return
-            
-            # Preview data
-            with tab1:
-                st.markdown("<h3 class='section-header'>Well Log Data Preview</h3>", unsafe_allow_html=True)
+            if VHYDRO_AVAILABLE:
+                # Create VHydro instance
+                vh = VHydro(las_file_path, temp_dir)
                 
-                # Show first few rows of data
-                st.dataframe(vh.df.head(10))
+                # Load LAS file
+                load_success = vh.load_las_file()
                 
-                # Basic statistics
-                st.markdown("<h4>Basic Statistics</h4>", unsafe_allow_html=True)
-                st.dataframe(vh.df.describe())
+                if not load_success:
+                    st.error("Failed to load LAS file. Please check the file format.")
+                    return
                 
-                # Available columns
-                st.markdown("<h4>Available Log Curves</h4>", unsafe_allow_html=True)
-                st.write(", ".join(vh.df.columns))
+                # Preview data
+                with tab1:
+                    st.markdown("<h3 class='section-header'>Well Log Data Preview</h3>", unsafe_allow_html=True)
+                    
+                    # Show first few rows of data
+                    st.dataframe(vh.df.head(10))
+                    
+                    # Basic statistics
+                    st.markdown("<h4>Basic Statistics</h4>", unsafe_allow_html=True)
+                    st.dataframe(vh.df.describe())
+                    
+                    # Available columns
+                    st.markdown("<h4>Available Log Curves</h4>", unsafe_allow_html=True)
+                    st.write(", ".join(vh.df.columns))
+                    
+                    # Choose columns for analysis
+                    st.markdown("<h4>Select Features for Analysis</h4>", unsafe_allow_html=True)
+                    available_cols = list(vh.df.columns)
+                    default_cols = [col for col in ['GR', 'RHOB', 'LLD', 'NPHI', 'VSHALE', 'PHI', 'SW'] 
+                                    if col in available_cols]
+                    
+                    selected_features = st.multiselect(
+                        "Select features for clustering",
+                        options=available_cols,
+                        default=default_cols
+                    )
                 
-                # Choose columns for analysis
-                st.markdown("<h4>Select Features for Analysis</h4>", unsafe_allow_html=True)
-                available_cols = list(vh.df.columns)
-                default_cols = [col for col in ['GR', 'RHOB', 'LLD', 'NPHI', 'VSHALE', 'PHI', 'SW'] 
-                                if col in available_cols]
-                
-                selected_features = st.multiselect(
-                    "Select features for clustering",
-                    options=available_cols,
-                    default=default_cols
-                )
-            
-            # Calculate petrophysical properties
-            with tab2:
-                st.markdown("<h3 class='section-header'>Petrophysical Properties</h3>", unsafe_allow_html=True)
-                
-                if st.button("Calculate Petrophysical Properties"):
-                    with st.spinner("Calculating properties..."):
-                        vh.calculate_petrophysical_properties()
-                        
-                        if hasattr(vh, 'well_data') and vh.well_data is not None:
-                            st.success("Petrophysical properties calculated successfully!")
+                # Calculate petrophysical properties
+                with tab2:
+                    st.markdown("<h3 class='section-header'>Petrophysical Properties</h3>", unsafe_allow_html=True)
+                    
+                    if st.button("Calculate Petrophysical Properties"):
+                        with st.spinner("Calculating properties..."):
+                            vh.calculate_petrophysical_properties()
                             
-                            # Show calculated properties
-                            st.dataframe(vh.well_data.head(10))
-                            
-                            # Prepare features for clustering
-                            if selected_features:
-                                feature_success = vh.prepare_features(selected_features)
-                                if feature_success:
-                                    st.success(f"Features prepared: {', '.join(selected_features)}")
+                            if hasattr(vh, 'well_data') and vh.well_data is not None:
+                                st.success("Petrophysical properties calculated successfully!")
+                                
+                                # Show calculated properties
+                                st.dataframe(vh.well_data.head(10))
+                                
+                                # Prepare features for clustering
+                                if selected_features:
+                                    feature_success = vh.prepare_features(selected_features)
+                                    if feature_success:
+                                        st.success(f"Features prepared: {', '.join(selected_features)}")
+                                    else:
+                                        st.error("Error preparing features.")
                                 else:
-                                    st.error("Error preparing features.")
+                                    st.warning("Please select features for clustering in the Data Preview tab.")
                             else:
-                                st.warning("Please select features for clustering in the Data Preview tab.")
-                        else:
-                            st.error("Error calculating petrophysical properties.")
-            
-            # Clustering
-            with tab3:
-                st.markdown("<h3 class='section-header'>Facies Classification with K-means Clustering</h3>", unsafe_allow_html=True)
+                                st.error("Error calculating petrophysical properties.")
                 
-                min_clusters = config["min_clusters"]
-                max_clusters = config["max_clusters"]
-                
-                if st.button("Perform K-means Clustering"):
-                    with st.spinner(f"Performing clustering with {min_clusters}-{max_clusters} clusters..."):
-                        # Check if features are prepared
-                        if not hasattr(vh, 'features') or vh.features is None:
-                            st.error("Features not prepared. Please calculate petrophysical properties first.")
-                        else:
-                            # Perform clustering
-                            cluster_results = vh.perform_kmeans_clustering(
-                                min_clusters=min_clusters,
-                                max_clusters=max_clusters,
-                                save_plots=True
-                            )
-                            
-                            if cluster_results:
-                                st.success("Clustering completed successfully!")
-                                
-                                # Show silhouette scores
-                                silhouette_scores = cluster_results['silhouette_scores']
-                                
-                                # Plot silhouette scores
-                                fig, ax = plt.subplots(figsize=(10, 6))
-                                clusters = list(silhouette_scores.keys())
-                                scores = list(silhouette_scores.values())
-                                
-                                ax.plot(clusters, scores, 'o-', linewidth=2, markersize=10)
-                                ax.set_xlabel('Number of Clusters', fontsize=14)
-                                ax.set_ylabel('Silhouette Score', fontsize=14)
-                                ax.set_xticks(clusters)
-                                ax.grid(True, alpha=0.3)
-                                ax.set_title('Silhouette Scores for Different Cluster Counts', fontsize=16)
-                                
-                                st.pyplot(fig)
-                                
-                                # Best cluster count
-                                best_cluster = max(silhouette_scores.items(), key=lambda x: x[1])[0]
-                                st.info(f"Best cluster count based on silhouette score: {best_cluster}")
-                                
-                                # Create cluster dataset for best cluster
-                                st.markdown("<h4>Creating Facies Classification</h4>", unsafe_allow_html=True)
-                                
-                                with st.spinner(f"Creating facies classification with {best_cluster} clusters..."):
-                                    # Create datasets for all clusters
-                                    for n_clusters in range(min_clusters, max_clusters + 1):
-                                        vh.create_cluster_dataset(n_clusters)
-                                        vh.identify_clustering_ranges(n_clusters)
-                                        vh.generate_adjacency_matrix(n_clusters)
-                                    
-                                    st.success(f"Created facies classifications for clusters {min_clusters}-{max_clusters}")
-                                    
-                                    # Try to display elbow method plot if available
-                                    elbow_plot_path = os.path.join(temp_dir, 'elbow_method.png')
-                                    if os.path.exists(elbow_plot_path):
-                                        st.markdown("<h4>Elbow Method for Optimal Cluster Count</h4>", unsafe_allow_html=True)
-                                        display_image_with_caption(elbow_plot_path, "Elbow Method")
+                # Clustering
+                with tab3:
+                    st.markdown("<h3 class='section-header'>Facies Classification with K-means Clustering</h3>", unsafe_allow_html=True)
+                    
+                    min_clusters = config["min_clusters"]
+                    max_clusters = config["max_clusters"]
+                    
+                    if st.button("Perform K-means Clustering"):
+                        with st.spinner(f"Performing clustering with {min_clusters}-{max_clusters} clusters..."):
+                            # Check if features are prepared
+                            if not hasattr(vh, 'features') or vh.features is None:
+                                st.error("Features not prepared. Please calculate petrophysical properties first.")
                             else:
-                                st.error("Error performing clustering.")
-            
-            # Model training
-            with tab4:
-                st.markdown("<h3 class='section-header'>GCN Model Training</h3>", unsafe_allow_html=True)
+                                # Perform clustering
+                                cluster_results = vh.perform_kmeans_clustering(
+                                    min_clusters=min_clusters,
+                                    max_clusters=max_clusters,
+                                    save_plots=True
+                                )
+                                
+                                if cluster_results:
+                                    st.success("Clustering completed successfully!")
+                                    
+                                    # Show silhouette scores
+                                    silhouette_scores = cluster_results['silhouette_scores']
+                                    
+                                    # Plot silhouette scores
+                                    fig, ax = plt.subplots(figsize=(10, 6))
+                                    clusters = list(silhouette_scores.keys())
+                                    scores = list(silhouette_scores.values())
+                                    
+                                    ax.plot(clusters, scores, 'o-', linewidth=2, markersize=10)
+                                    ax.set_xlabel('Number of Clusters', fontsize=14)
+                                    ax.set_ylabel('Silhouette Score', fontsize=14)
+                                    ax.set_xticks(clusters)
+                                    ax.grid(True, alpha=0.3)
+                                    ax.set_title('Silhouette Scores for Different Cluster Counts', fontsize=16)
+                                    
+                                    st.pyplot(fig)
+                                    
+                                    # Best cluster count
+                                    best_cluster = max(silhouette_scores.items(), key=lambda x: x[1])[0]
+                                    st.info(f"Best cluster count based on silhouette score: {best_cluster}")
+                                    
+                                    # Create cluster dataset for best cluster
+                                    st.markdown("<h4>Creating Facies Classification</h4>", unsafe_allow_html=True)
+                                    
+                                    with st.spinner(f"Creating facies classification with {best_cluster} clusters..."):
+                                        # Create datasets for all clusters
+                                        for n_clusters in range(min_clusters, max_clusters + 1):
+                                            vh.create_cluster_dataset(n_clusters)
+                                            vh.identify_clustering_ranges(n_clusters)
+                                            vh.generate_adjacency_matrix(n_clusters)
+                                        
+                                        st.success(f"Created facies classifications for clusters {min_clusters}-{max_clusters}")
+                                        
+                                        # Try to display elbow method plot if available
+                                        elbow_plot_path = os.path.join(temp_dir, 'elbow_method.png')
+                                        if os.path.exists(elbow_plot_path):
+                                            st.markdown("<h4>Elbow Method for Optimal Cluster Count</h4>", unsafe_allow_html=True)
+                                            display_image_with_caption(elbow_plot_path, "Elbow Method")
+                                else:
+                                    st.error("Error performing clustering.")
                 
-                # Get configuration
-                train_ratio = config["train_ratio"]
-                val_ratio = config["val_ratio"]
-                test_ratio = config["test_ratio"]
-                hidden_channels = config["hidden_channels"]
-                num_runs = config["num_runs"]
-                
-                # Select clusters to run models for
-                cluster_options = list(range(min_clusters, max_clusters + 1))
-                selected_clusters = st.multiselect(
-                    "Select clusters to train models for",
-                    options=cluster_options,
-                    default=[cluster_options[0], cluster_options[-1]]
-                )
-                
-                if st.button("Train GCN Models"):
-                    if not selected_clusters:
-                        st.warning("Please select at least one cluster configuration.")
+                # Model training
+                with tab4:
+                    st.markdown("<h3 class='section-header'>GCN Model Training</h3>", unsafe_allow_html=True)
+                    
+                    # Get configuration
+                    train_ratio = config["train_ratio"]
+                    val_ratio = config["val_ratio"]
+                    test_ratio = config["test_ratio"]
+                    hidden_channels = config["hidden_channels"]
+                    num_runs = config["num_runs"]
+                    
+                    # Check if required ML libraries are available
+                    ml_libs_available = True
+                    try:
+                        import torch
+                        from torch_geometric.nn import GCNConv
+                    except ImportError:
+                        ml_libs_available = False
+                        st.warning("""
+                        ⚠️ PyTorch and/or PyTorch Geometric are not available in this deployment.
+                        Full model training is disabled.
+                        """)
+                    
+                    if ml_libs_available:
+                        # Select clusters to run models for
+                        cluster_options = list(range(min_clusters, max_clusters + 1))
+                        selected_clusters = st.multiselect(
+                            "Select clusters to train models for",
+                            options=cluster_options,
+                            default=[cluster_options[0], cluster_options[-1]]
+                        )
+                        
+                        if st.button("Train GCN Models"):
+                            if not selected_clusters:
+                                st.warning("Please select at least one cluster configuration.")
+                            else:
+                                with st.spinner(f"Training models for {len(selected_clusters)} cluster configurations..."):
+                                    try:
+                                        # Initialize progress bar
+                                        progress_bar = st.progress(0)
+                                        status_text = st.empty()
+                                        
+                                        # Train models for selected clusters
+                                        best_models = {}
+                                        for i, n_clusters in enumerate(selected_clusters):
+                                            status_text.text(f"Training model for {n_clusters} clusters...")
+                                            
+                                            # Update progress
+                                            progress = (i) / len(selected_clusters)
+                                            progress_bar.progress(progress)
+                                            
+                                            # Run multiple models for each cluster
+                                            best_accuracy = 0
+                                            best_run = None
+                                            
+                                            for run_id in range(1, num_runs + 1):
+                                                status_text.text(f"Training model for {n_clusters} clusters (Run {run_id}/{num_runs})...")
+                                                
+                                                # Train model
+                                                model_results = vh.build_pyg_gcn_model(
+                                                    n_clusters=n_clusters,
+                                                    train_ratio=train_ratio,
+                                                    val_ratio=val_ratio,
+                                                    test_ratio=test_ratio,
+                                                    hidden_channels=hidden_channels,
+                                                    run_id=run_id
+                                                )
+                                                
+                                                # Check if this run has better accuracy
+                                                if 'test_acc' in model_results and model_results['test_acc'] > best_accuracy:
+                                                    best_accuracy = model_results['test_acc']
+                                                    best_run = run_id
+                                            
+                                            best_models[n_clusters] = {
+                                                'run_id': best_run,
+                                                'accuracy': best_accuracy
+                                            }
+                                        
+                                        # Update progress to completion
+                                        progress_bar.progress(1.0)
+                                        status_text.text("Model training completed!")
+                                        
+                                        # Display results
+                                        st.success("Models trained successfully!")
+                                        
+                                        # Display best model for each cluster
+                                        st.markdown("<h4>Best Models</h4>", unsafe_allow_html=True)
+                                        
+                                        best_results = []
+                                        for n_clusters, info in best_models.items():
+                                            best_results.append({
+                                                "Clusters": n_clusters,
+                                                "Best Run": info["run_id"],
+                                                "Test Accuracy": f"{info['accuracy']:.4f}"
+                                            })
+                                        
+                                        st.table(pd.DataFrame(best_results))
+                                        
+                                        # Generate visualizations
+                                        st.markdown("<h4>Visualizations</h4>", unsafe_allow_html=True)
+                                        
+                                        with st.spinner("Generating visualizations..."):
+                                            # Get best run IDs
+                                            best_run_ids = {n: info['run_id'] for n, info in best_models.items()}
+                                            
+                                            # Visualize loss and accuracy
+                                            vh.visualize_loss_accuracy(
+                                                n_clusters_list=selected_clusters,
+                                                run_ids=best_run_ids
+                                            )
+                                            
+                                            # Visualize facies
+                                            vh.visualize_facies(
+                                                n_clusters_list=selected_clusters
+                                            )
+                                            
+                                            # Visualize predicted results
+                                            vh.visualize_predicted_results(
+                                                n_clusters_list=selected_clusters,
+                                                run_ids=best_run_ids
+                                            )
+                                            
+                                            st.success("Visualizations generated successfully!")
+                                            
+                                            # Display visualizations
+                                            loss_acc_path = os.path.join(temp_dir, 'loss_accuracy_comparison.png')
+                                            facies_path = os.path.join(temp_dir, 'facies_comparison.png')
+                                            pred_path = os.path.join(temp_dir, 'prediction_comparison.png')
+                                            
+                                            if os.path.exists(loss_acc_path):
+                                                st.markdown("<h5>Loss and Accuracy Comparison</h5>", unsafe_allow_html=True)
+                                                display_image_with_caption(loss_acc_path, "Loss and Accuracy Comparison")
+                                            
+                                            if os.path.exists(facies_path):
+                                                st.markdown("<h5>Facies Comparison</h5>", unsafe_allow_html=True)
+                                                display_image_with_caption(facies_path, "Facies Comparison")
+                                            
+                                            if os.path.exists(pred_path):
+                                                st.markdown("<h5>Prediction Comparison</h5>", unsafe_allow_html=True)
+                                                display_image_with_caption(pred_path, "Prediction Comparison")
+                                    
+                                    except Exception as e:
+                                        st.error(f"Error training models: {str(e)}")
+                                        logger.error(f"Error training models: {e}", exc_info=True)
                     else:
-                        with st.spinner(f"Training models for {len(selected_clusters)} cluster configurations..."):
-                            try:
-                                # Initialize progress bar
-                                progress_bar = st.progress(0)
-                                status_text = st.empty()
-                                
-                                # Train models for selected clusters
-                                best_models = {}
-                                for i, n_clusters in enumerate(selected_clusters):
-                                    status_text.text(f"Training model for {n_clusters} clusters...")
-                                    
-                                    # Update progress
-                                    progress = (i) / len(selected_clusters)
-                                    progress_bar.progress(progress)
-                                    
-                                    # Run multiple models for each cluster
-                                    best_accuracy = 0
-                                    best_run = None
-                                    
-                                    for run_id in range(1, num_runs + 1):
-                                        status_text.text(f"Training model for {n_clusters} clusters (Run {run_id}/{num_runs})...")
-                                        
-                                        # Train model
-                                        model_results = vh.build_pyg_gcn_model(
-                                            n_clusters=n_clusters,
-                                            train_ratio=train_ratio,
-                                            val_ratio=val_ratio,
-                                            test_ratio=test_ratio,
-                                            hidden_channels=hidden_channels,
-                                            run_id=run_id
-                                        )
-                                        
-                                        # Check if this run has better accuracy
-                                        if 'test_acc' in model_results and model_results['test_acc'] > best_accuracy:
-                                            best_accuracy = model_results['test_acc']
-                                            best_run = run_id
-                                    
-                                    best_models[n_clusters] = {
-                                        'run_id': best_run,
-                                        'accuracy': best_accuracy
-                                    }
-                                
-                                # Update progress to completion
-                                progress_bar.progress(1.0)
-                                status_text.text("Model training completed!")
-                                
-                                # Display results
-                                st.success("Models trained successfully!")
-                                
-                                # Display best model for each cluster
-                                st.markdown("<h4>Best Models</h4>", unsafe_allow_html=True)
-                                
-                                best_results = []
-                                for n_clusters, info in best_models.items():
-                                    best_results.append({
-                                        "Clusters": n_clusters,
-                                        "Best Run": info["run_id"],
-                                        "Test Accuracy": f"{info['accuracy']:.4f}"
-                                    })
-                                
-                                st.table(pd.DataFrame(best_results))
-                                
-                                # Generate visualizations
-                                st.markdown("<h4>Visualizations</h4>", unsafe_allow_html=True)
-                                
-                                with st.spinner("Generating visualizations..."):
-                                    # Get best run IDs
-                                    best_run_ids = {n: info['run_id'] for n, info in best_models.items()}
-                                    
-                                    # Visualize loss and accuracy
-                                    vh.visualize_loss_accuracy(
-                                        n_clusters_list=selected_clusters,
-                                        run_ids=best_run_ids
-                                    )
-                                    
-                                    # Visualize facies
-                                    vh.visualize_facies(
-                                        n_clusters_list=selected_clusters
-                                    )
-                                    
-                                    # Visualize predicted results
-                                    vh.visualize_predicted_results(
-                                        n_clusters_list=selected_clusters,
-                                        run_ids=best_run_ids
-                                    )
-                                    
-                                    st.success("Visualizations generated successfully!")
-                                    
-                                    # Display visualizations
-                                    loss_acc_path = os.path.join(temp_dir, 'loss_accuracy_comparison.png')
-                                    facies_path = os.path.join(temp_dir, 'facies_comparison.png')
-                                    pred_path = os.path.join(temp_dir, 'prediction_comparison.png')
-                                    
-                                    if os.path.exists(loss_acc_path):
-                                        st.markdown("<h5>Loss and Accuracy Comparison</h5>", unsafe_allow_html=True)
-                                        display_image_with_caption(loss_acc_path, "Loss and Accuracy Comparison")
-                                    
-                                    if os.path.exists(facies_path):
-                                        st.markdown("<h5>Facies Comparison</h5>", unsafe_allow_html=True)
-                                        display_image_with_caption(facies_path, "Facies Comparison")
-                                    
-                                    if os.path.exists(pred_path):
-                                        st.markdown("<h5>Prediction Comparison</h5>", unsafe_allow_html=True)
-                                        display_image_with_caption(pred_path, "Prediction Comparison")
-                            
-                            except Exception as e:
-                                st.error(f"Error training models: {str(e)}")
-                                logger.error(f"Error training models: {e}", exc_info=True)
+                        st.info("""
+                        This section requires PyTorch and PyTorch Geometric libraries to run the GCN models.
+                        
+                        To train models locally:
+                        1. Install the required ML packages: `pip install torch torch-geometric stellargraph tensorflow`
+                        2. Run the VHydro tool on your local machine
+                        """)
+            else:
+                # If VHydro module is not available, show preview only
+                try:
+                    # Try to load the LAS file manually using lasio if available
+                    try:
+                        import lasio
+                        las = lasio.read(las_file_path)
+                        df = las.df()
+                        df = df.reset_index()
+                        
+                        with tab1:
+                            st.markdown("<h3 class='section-header'>Well Log Data Preview</h3>", unsafe_allow_html=True)
+                            st.dataframe(df.head(10))
+                            st.markdown("<h4>Basic Statistics</h4>", unsafe_allow_html=True)
+                            st.dataframe(df.describe())
+                            st.info("The VHydro module is not available for further processing. This is just a data preview.")
+                    except ImportError:
+                        with tab1:
+                            st.error("The lasio library is not available to read LAS files.")
+                    
+                    with tab2, tab3, tab4:
+                        st.warning("VHydro module is not available. These features are disabled in this deployment.")
+                except Exception as e:
+                    st.error(f"Error loading LAS file: {str(e)}")
+                    logger.error(f"Error loading LAS file: {e}", exc_info=True)
         
         except Exception as e:
             st.error(f"Error processing file: {str(e)}")
