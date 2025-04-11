@@ -55,264 +55,6 @@ class GCN(torch.nn.Module):
         x = self.out(x)
         return x
 
-def build_pyg_gcn_model(self, n_clusters, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, 
-                       hidden_channels=16, run_id=1, num_epochs=200):
-    """
-    Build and train Graph Convolutional Network model using PyTorch Geometric
-    
-    Args:
-        n_clusters (int): Number of clusters
-        train_ratio (float): Ratio of data for training
-        val_ratio (float): Ratio of data for validation
-        test_ratio (float): Ratio of data for testing
-        hidden_channels (int): Number of hidden channels in GCN
-        run_id (int): Run identifier
-        num_epochs (int): Number of training epochs
-        
-    Returns:
-        dict: Dictionary with model and evaluation results
-    """
-    # Create directory for results
-    result_dir = os.path.join(self.output_dir, str(n_clusters), 'results')
-    os.makedirs(result_dir, exist_ok=True)
-    
-    # Load edge data
-    cluster_dir = os.path.join(self.output_dir, str(n_clusters))
-    edge_file = os.path.join(cluster_dir, f'BF_full_edge_{n_clusters}.txt')
-    
-    feature_names = [f'w{i}' for i in range(14)]
-    edge_data = pd.read_csv(
-        edge_file,
-        sep='\t',
-        header=None,
-        names=['DEPTH', *feature_names, 'RESULTS']
-    )
-    
-    # Load node data
-    node_file = os.path.join(cluster_dir, f'BF_full_node_{n_clusters}.txt')
-    node_data = pd.read_csv(
-        node_file,
-        sep='\t',
-        header=None,
-        names=['source', 'target']
-    )
-    
-    # Prepare node features
-    # Create a mapping of node IDs to indices
-    unique_nodes = pd.concat([node_data['source'], node_data['target']]).unique()
-    node_to_idx = {node: i for i, node in enumerate(unique_nodes)}
-    
-    # Create edge index for PyG
-    edge_index = torch.tensor([
-        [node_to_idx[s] for s in node_data['source']],
-        [node_to_idx[t] for t in node_data['target']]
-    ], dtype=torch.long)
-    
-    # Create node features 
-    # For simplicity, we'll use one-hot encoding of node IDs initially
-    # In practice, you should use meaningful node features
-    x = torch.zeros((len(unique_nodes), 14), dtype=torch.float)
-    
-    # Map nodes to their features from edge_data
-    for node, idx in node_to_idx.items():
-        # Find this node in edge_data
-        node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
-        if not node_in_edge.empty:
-            # Extract features (excluding DEPTH and RESULTS)
-            node_features = node_in_edge[feature_names].values[0]
-            x[idx] = torch.tensor(node_features, dtype=torch.float)
-    
-    # Encode labels
-    labels = edge_data['RESULTS'].unique()
-    label_encoder = LabelEncoder()
-    label_encoder.fit(labels)
-    
-    # Create node labels
-    y = torch.zeros(len(unique_nodes), dtype=torch.long)
-    for node, idx in node_to_idx.items():
-        node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
-        if not node_in_edge.empty:
-            label = node_in_edge['RESULTS'].values[0]
-            y[idx] = torch.tensor(label_encoder.transform([label])[0], dtype=torch.long)
-    
-    # Create PyG Data object
-    data = Data(x=x, edge_index=edge_index, y=y)
-    
-    # Split data into train/val/test
-    num_nodes = data.num_nodes
-    node_indices = np.arange(num_nodes)
-    
-    # First split into train and temp
-    train_idx, temp_idx = train_test_split(
-        node_indices, train_size=train_ratio, random_state=42
-    )
-    
-    # Split temp into val and test
-    val_size = val_ratio / (val_ratio + test_ratio)
-    val_idx, test_idx = train_test_split(
-        temp_idx, train_size=val_size, random_state=42
-    )
-    
-    # Convert to tensor masks
-    train_mask = torch.zeros(num_nodes, dtype=torch.bool)
-    val_mask = torch.zeros(num_nodes, dtype=torch.bool)
-    test_mask = torch.zeros(num_nodes, dtype=torch.bool)
-    
-    train_mask[train_idx] = True
-    val_mask[val_idx] = True
-    test_mask[test_idx] = True
-    
-    data.train_mask = train_mask
-    data.val_mask = val_mask
-    data.test_mask = test_mask
-    
-    # Create model
-    model = GCN(
-        num_features=data.num_features,
-        hidden_channels=hidden_channels,
-        num_classes=len(labels)
-    )
-    
-    # Define optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
-    
-    # Training function
-    def train():
-        model.train()
-        optimizer.zero_grad()
-        out = model(data.x, data.edge_index)
-        loss = F.cross_entropy(out[data.train_mask], data.y[data.train_mask])
-        loss.backward()
-        optimizer.step()
-        return loss.item()
-    
-    # Evaluation function
-    @torch.no_grad()
-    def evaluate():
-        model.eval()
-        out = model(data.x, data.edge_index)
-        
-        # Train accuracy
-        train_correct = (out[data.train_mask].argmax(dim=1) == data.y[data.train_mask]).sum()
-        train_acc = train_correct.item() / data.train_mask.sum().item()
-        
-        # Validation accuracy
-        val_correct = (out[data.val_mask].argmax(dim=1) == data.y[data.val_mask]).sum()
-        val_acc = val_correct.item() / data.val_mask.sum().item()
-        
-        # Test accuracy
-        test_correct = (out[data.test_mask].argmax(dim=1) == data.y[data.test_mask]).sum()
-        test_acc = test_correct.item() / data.test_mask.sum().item()
-        
-        return train_acc, val_acc, test_acc, out
-    
-    # Training loop
-    history = {
-        'loss': [],
-        'train_acc': [],
-        'val_acc': [],
-        'test_acc': []
-    }
-    
-    best_val_acc = 0
-    best_model_state = None
-    patience = 50
-    patience_counter = 0
-    
-    for epoch in range(1, num_epochs + 1):
-        loss = train()
-        train_acc, val_acc, test_acc, _ = evaluate()
-        
-        # Save history
-        history['loss'].append(loss)
-        history['train_acc'].append(train_acc)
-        history['val_acc'].append(val_acc)
-        history['test_acc'].append(test_acc)
-        
-        # Print progress
-        if epoch % 10 == 0:
-            print(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Train: {train_acc:.4f}, Val: {val_acc:.4f}, Test: {test_acc:.4f}')
-        
-        # Early stopping
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
-            best_model_state = {k: v.clone() for k, v in model.state_dict().items()}
-            patience_counter = 0
-        else:
-            patience_counter += 1
-            if patience_counter >= patience:
-                print(f'Early stopping at epoch {epoch}')
-                break
-    
-    # Restore best model
-    if best_model_state is not None:
-        model.load_state_dict(best_model_state)
-    
-    # Final evaluation
-    _, _, test_acc, out = evaluate()
-    print(f'Final Test Accuracy: {test_acc:.4f}')
-    
-    # Get predictions for all nodes
-    all_predictions = out.argmax(dim=1).cpu().numpy()
-    all_labels = label_encoder.inverse_transform(all_predictions)
-    
-    # Create results dataframe
-    results_data = []
-    for node, idx in node_to_idx.items():
-        results_data.append({
-            'Node': node,
-            'True': label_encoder.inverse_transform([data.y[idx].item()])[0],
-            'Predicted': all_labels[idx]
-        })
-    
-    results_df = pd.DataFrame(results_data)
-    
-    # Save results
-    history_df = pd.DataFrame(history)
-    if run_id == 1:
-        history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}.xlsx'))
-        results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}.xlsx'))
-    else:
-        history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}_new{run_id}.xlsx'))
-        results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}_new{run_id}.xlsx'))
-    
-    # Calculate confusion matrix and classification report
-    from sklearn.metrics import confusion_matrix, classification_report
-    true_labels = results_df['True']
-    pred_labels = results_df['Predicted']
-    
-    cm = confusion_matrix(true_labels, pred_labels)
-    cr = classification_report(true_labels, pred_labels, output_dict=True)
-    
-    # Convert classification report to dataframe
-    cr_df = pd.DataFrame(cr).transpose()
-    
-    if run_id == 1:
-        cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}.xlsx'))
-    else:
-        cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}_new{run_id}.xlsx'))
-    
-    # Return results
-    model_results = {
-        'model': model,
-        'history': history,
-        'history_df': history_df,
-        'test_acc': test_acc,
-        'predictions': all_labels,
-        'results_df': results_df,
-        'confusion_matrix': cm,
-        'classification_report': cr_df,
-        'label_encoder': label_encoder
-    }
-    
-    # Store model results
-    if n_clusters not in self.models:
-        self.models[n_clusters] = {}
-    
-    self.models[n_clusters][run_id] = model_results
-    
-    return model_results
-
 class VHydro:
     def __init__(self, las_file_path, output_dir):
         """
@@ -585,7 +327,6 @@ class VHydro:
         print(f"Saved clustering results to {output_path}")
         
         return result_df
-    
     def create_cluster_dataset(self, n_clusters):
         """
         Create dataset with cluster assignments
@@ -608,16 +349,55 @@ class VHydro:
         result_df['DEPTH'] = self.df['DEPTH'].iloc[self.feature_indices]
         result_df['Facies_pred'] = predictions
         
-        # Save the clustering results
-        output_path = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
-        result_df.to_excel(output_path, index=False)
-        print(f"Saved clustering results to {output_path}")
+        # Create directory for this cluster if it doesn't exist
+        cluster_dir = os.path.join(self.output_dir, str(n_clusters))
+        os.makedirs(cluster_dir, exist_ok=True)
+        
+        # Save the clustering results in two locations for compatibility
+        output_path1 = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
+        output_path2 = os.path.join(cluster_dir, f'facies_for_{n_clusters}.xlsx')
+        
+        result_df.to_excel(output_path1, index=False)
+        result_df.to_excel(output_path2, index=False)
+        print(f"Saved clustering results to {output_path1} and {output_path2}")
         
         # Important: Update the class attribute with this result
         # This is what identify_clustering_ranges will use
         self.cluster_df = result_df
         
         return result_df
+    # def create_cluster_dataset(self, n_clusters):
+    #     """
+    #     Create dataset with cluster assignments
+        
+    #     Args:
+    #         n_clusters (int): Number of clusters to use
+        
+    #     Returns:
+    #         DataFrame: DataFrame with cluster assignments
+    #     """
+    #     # Apply KMeans clustering with the specified number of clusters
+    #     kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=10)
+    #     kmeans.fit(self.x_scaled)
+        
+    #     # Get the predictions
+    #     predictions = kmeans.predict(self.x_scaled)
+        
+    #     # Create a new dataframe with predictions and matching depths
+    #     result_df = pd.DataFrame()
+    #     result_df['DEPTH'] = self.df['DEPTH'].iloc[self.feature_indices]
+    #     result_df['Facies_pred'] = predictions
+        
+    #     # Save the clustering results
+    #     output_path = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
+    #     result_df.to_excel(output_path, index=False)
+    #     print(f"Saved clustering results to {output_path}")
+        
+    #     # Important: Update the class attribute with this result
+    #     # This is what identify_clustering_ranges will use
+    #     self.cluster_df = result_df
+        
+    #     return result_df
 
     def identify_clustering_ranges(self, n_clusters):
         """
@@ -967,12 +747,7 @@ class VHydro:
             history = model_results['history']
             
             # Plot loss
-            axes[0, i].plot(history.history['loss'], 'b-', label='train', linewidth=2)
-            axes[0, i].plot(history.history['val_loss'], 'r-', label='validation', linewidth=2)
-            axes[0, i].fill_between(range(len(history.history['loss'])), 
-                                   history.history['loss'], 
-                                   history.history['val_loss'], 
-                                   color='b', alpha=0.2)
+            axes[0, i].plot(history['loss'], 'b-', label='train', linewidth=2)
             axes[0, i].set_title(f"Loss (Clusters: {n_clusters})", fontsize=14)
             axes[0, i].set_xlabel("Epoch", fontsize=12)
             if i == 0:
@@ -981,12 +756,9 @@ class VHydro:
             axes[0, i].grid(True, alpha=0.3)
             
             # Plot accuracy
-            axes[1, i].plot(history.history['acc'], 'b-', label='train', linewidth=2)
-            axes[1, i].plot(history.history['val_acc'], 'r-', label='validation', linewidth=2)
-            axes[1, i].fill_between(range(len(history.history['acc'])), 
-                                   history.history['acc'], 
-                                   history.history['val_acc'], 
-                                   color='b', alpha=0.2)
+            axes[1, i].plot(history['train_acc'], 'b-', label='train', linewidth=2)
+            axes[1, i].plot(history['val_acc'], 'r-', label='validation', linewidth=2)
+            axes[1, i].plot(history['test_acc'], 'g-', label='test', linewidth=2)
             axes[1, i].set_title(f"Accuracy (Clusters: {n_clusters})", fontsize=14)
             axes[1, i].set_xlabel("Epoch", fontsize=12)
             if i == 0:
@@ -997,7 +769,7 @@ class VHydro:
         plt.tight_layout()
         plt.savefig(os.path.join(self.output_dir, 'loss_accuracy_comparison.png'), dpi=300)
         plt.close()
-        
+
     def visualize_facies(self, n_clusters_list=None):
         """
         Visualize facies clusters for multiple cluster configurations
@@ -1010,43 +782,136 @@ class VHydro:
                                     if os.path.isdir(os.path.join(self.output_dir, d)) 
                                     and d.isdigit()])
             
+        # Check if we have valid clusters to visualize
+        valid_clusters = []
+        for n_clusters in n_clusters_list:
+            # Try both possible file naming patterns
+            facies_file1 = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
+            facies_file2 = os.path.join(self.output_dir, str(n_clusters), f'facies_for_{n_clusters}.xlsx')
+            facies_file3 = os.path.join(self.output_dir, str(n_clusters), 'results', f'Results_{n_clusters}.xlsx')
+            
+            if os.path.exists(facies_file1):
+                valid_clusters.append((n_clusters, facies_file1))
+            elif os.path.exists(facies_file2):
+                valid_clusters.append((n_clusters, facies_file2))
+            elif os.path.exists(facies_file3):
+                valid_clusters.append((n_clusters, facies_file3))
+        
+        if not valid_clusters:
+            print("No facies files found for any of the specified clusters.")
+            return
+            
         # Set up figure
-        fig, axes = plt.subplots(1, len(n_clusters_list), figsize=(5*len(n_clusters_list), 15), sharey=True)
+        fig, axes = plt.subplots(1, len(valid_clusters), figsize=(5*len(valid_clusters), 15), sharey=True)
+        
+        # Handle the case where there's only one cluster (axes is not an array)
+        if len(valid_clusters) == 1:
+            axes = [axes]
         
         # Set up colormap
         cmap = plt.cm.viridis
+        im = None  # Initialize im variable
         
         # Plot facies for each cluster configuration
-        for i, n_clusters in enumerate(n_clusters_list):
-            # Load facies data
-            facies_file = os.path.join(self.output_dir, str(n_clusters), f'facies_for_{n_clusters}.xlsx')
-            if not os.path.exists(facies_file):
-                print(f"Facies file for {n_clusters} clusters not found.")
-                continue
+        for i, (n_clusters, facies_file) in enumerate(valid_clusters):
+            try:
+                # Load facies data
+                facies_df = pd.read_excel(facies_file)
                 
-            facies_df = pd.read_excel(facies_file)
-            
-            # Create a 2D array for imshow
-            facies_array = np.vstack((facies_df['Facies_pred'].values, facies_df['Facies_pred'].values)).T
-            
-            # Plot facies
-            im = axes[i].imshow(facies_array, aspect='auto', cmap=cmap, 
-                              extent=[0, 1, facies_df['DEPTH'].max(), facies_df['DEPTH'].min()])
-            axes[i].set_title(f"Cluster {n_clusters}", fontsize=14)
-            axes[i].set_xlim(0, 1)
-            axes[i].set_xticks([])
-            
-            if i == 0:
-                axes[i].set_ylabel("Depth", fontsize=14)
+                # Check for different column naming patterns
+                if 'Facies_pred' in facies_df.columns:
+                    facies_col = 'Facies_pred'
+                elif 'Predicted' in facies_df.columns:
+                    facies_col = 'Predicted'
+                else:
+                    print(f"Could not find facies column in {facies_file}")
+                    continue
+                    
+                # Check for DEPTH column
+                if 'DEPTH' not in facies_df.columns and 'Node' in facies_df.columns:
+                    facies_df['DEPTH'] = facies_df['Node']
                 
-        # Add colorbar
-        cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
-        cbar = fig.colorbar(im, cax=cbar_ax)
-        cbar.set_label('Facies', fontsize=14)
+                if 'DEPTH' not in facies_df.columns:
+                    print(f"Could not find DEPTH column in {facies_file}")
+                    continue
+                    
+                # Create a 2D array for imshow
+                facies_array = np.vstack((facies_df[facies_col].values, facies_df[facies_col].values)).T
+                
+                # Plot facies
+                im = axes[i].imshow(facies_array, aspect='auto', cmap=cmap, 
+                                extent=[0, 1, facies_df['DEPTH'].max(), facies_df['DEPTH'].min()])
+                axes[i].set_title(f"Cluster {n_clusters}", fontsize=14)
+                axes[i].set_xlim(0, 1)
+                axes[i].set_xticks([])
+                
+                if i == 0:
+                    axes[i].set_ylabel("Depth", fontsize=14)
+                    
+            except Exception as e:
+                print(f"Error plotting cluster {n_clusters}: {e}")
         
-        plt.tight_layout(rect=[0, 0, 0.9, 1])
-        plt.savefig(os.path.join(self.output_dir, 'facies_comparison.png'), dpi=300)
-        plt.close()
+        # Add colorbar if we have at least one successful plot
+        if im is not None:
+            cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+            cbar = fig.colorbar(im, cax=cbar_ax)
+            cbar.set_label('Facies', fontsize=14)
+            
+            plt.tight_layout(rect=[0, 0, 0.9, 1])
+            plt.savefig(os.path.join(self.output_dir, 'facies_comparison.png'), dpi=300)
+            plt.close()
+        else:
+            plt.close()
+            print("No valid facies data could be plotted.") 
+    # def visualize_facies(self, n_clusters_list=None):
+    #     """
+    #     Visualize facies clusters for multiple cluster configurations
+        
+    #     Args:
+    #         n_clusters_list (list): List of cluster numbers to visualize
+    #     """
+    #     if n_clusters_list is None:
+    #         n_clusters_list = sorted([int(d) for d in os.listdir(self.output_dir) 
+    #                                 if os.path.isdir(os.path.join(self.output_dir, d)) 
+    #                                 and d.isdigit()])
+            
+    #     # Set up figure
+    #     fig, axes = plt.subplots(1, len(n_clusters_list), figsize=(5*len(n_clusters_list), 15), sharey=True)
+        
+    #     # Set up colormap
+    #     cmap = plt.cm.viridis
+        
+    #     # Plot facies for each cluster configuration
+    #     for i, n_clusters in enumerate(n_clusters_list):
+    #         # Load facies data
+    #         facies_file = os.path.join(self.output_dir, str(n_clusters), f'facies_for_{n_clusters}.xlsx')
+    #         if not os.path.exists(facies_file):
+    #             print(f"Facies file for {n_clusters} clusters not found.")
+    #             continue
+                
+    #         facies_df = pd.read_excel(facies_file)
+            
+    #         # Create a 2D array for imshow
+    #         facies_array = np.vstack((facies_df['Facies_pred'].values, facies_df['Facies_pred'].values)).T
+            
+    #         # Plot facies
+    #         im = axes[i].imshow(facies_array, aspect='auto', cmap=cmap, 
+    #                           extent=[0, 1, facies_df['DEPTH'].max(), facies_df['DEPTH'].min()])
+    #         axes[i].set_title(f"Cluster {n_clusters}", fontsize=14)
+    #         axes[i].set_xlim(0, 1)
+    #         axes[i].set_xticks([])
+            
+    #         if i == 0:
+    #             axes[i].set_ylabel("Depth", fontsize=14)
+                
+    #     # Add colorbar
+    #     cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+    #     cbar = fig.colorbar(im, cax=cbar_ax)
+    #     cbar.set_label('Facies', fontsize=14)
+        
+    #     plt.tight_layout(rect=[0, 0, 0.9, 1])
+    #     plt.savefig(os.path.join(self.output_dir, 'facies_comparison.png'), dpi=300)
+    #     plt.close()
         
     def visualize_predicted_results(self, n_clusters_list=None, run_ids=None):
         """
@@ -1063,41 +928,72 @@ class VHydro:
             
         if run_ids is None:
             run_ids = {n: 1 for n in n_clusters_list}
+        
+        # Check for any valid results files    
+        valid_clusters = []
+        for n_clusters in n_clusters_list:
+            results_file = os.path.join(self.output_dir, str(n_clusters), 'results', 
+                                    f'Results_{n_clusters}{"" if run_ids[n_clusters] == 1 else "_new" + str(run_ids[n_clusters])}.xlsx')
             
-        # Load facies data for depth values
-        facies_file = os.path.join(self.output_dir, str(n_clusters_list[0]), f'facies_for_{n_clusters_list[0]}.xlsx')
-        if not os.path.exists(facies_file):
-            print(f"Facies file for {n_clusters_list[0]} clusters not found.")
+            if os.path.exists(results_file):
+                valid_clusters.append((n_clusters, results_file))
+        
+        if not valid_clusters:
+            print("No results files found for any of the specified clusters.")
+            return
+        
+        # Get base depth data - try different possible files
+        depth_df = None
+        for n_clusters in n_clusters_list:
+            # Try to find a facies file to get depths
+            facies_file1 = os.path.join(self.output_dir, f'facies_for_{n_clusters}.xlsx')
+            facies_file2 = os.path.join(self.output_dir, str(n_clusters), f'facies_for_{n_clusters}.xlsx')
+            
+            if os.path.exists(facies_file1):
+                depth_df = pd.read_excel(facies_file1)
+                break
+            elif os.path.exists(facies_file2):
+                depth_df = pd.read_excel(facies_file2)
+                break
+        
+        # If we couldn't find depth information, use the first results file
+        if depth_df is None and valid_clusters:
+            depth_df = pd.read_excel(valid_clusters[0][1])
+            # Use Node column as DEPTH if available
+            if 'DEPTH' not in depth_df.columns and 'Node' in depth_df.columns:
+                depth_df['DEPTH'] = depth_df['Node']
+        
+        if depth_df is None or 'DEPTH' not in depth_df.columns:
+            print("No depth information found. Cannot visualize results.")
             return
             
-        facies_df = pd.read_excel(facies_file)
-        
         # Create dataframe to hold all predictions
-        results_df = pd.DataFrame(index=facies_df.index)
-        results_df['DEPTH'] = facies_df['DEPTH']
+        results_df = pd.DataFrame()
+        results_df['DEPTH'] = depth_df['DEPTH']
         
         # Add true labels and predictions for each cluster configuration
         true_label_set = set()
-        for n_clusters in n_clusters_list:
-            results_file = os.path.join(self.output_dir, str(n_clusters), 'results', 
-                                      f'Results_{n_clusters}{"" if run_ids[n_clusters] == 1 else "_new" + str(run_ids[n_clusters])}.xlsx')
-            
-            if not os.path.exists(results_file):
-                print(f"Results file for {n_clusters} clusters (run {run_ids[n_clusters]}) not found.")
-                continue
+        for n_clusters, results_file in valid_clusters:
+            try:
+                # Load results
+                cluster_results = pd.read_excel(results_file)
                 
-            cluster_results = pd.read_excel(results_file)
-            
-            # Add predicted labels
-            results_df[f'Pred_{n_clusters}'] = cluster_results['Predicted']
-            
-            # Add true labels (should be the same for all configurations)
-            if 'True_Label' not in results_df.columns:
-                results_df['True_Label'] = cluster_results['True']
+                # Add predicted labels
+                results_df[f'Pred_{n_clusters}'] = cluster_results['Predicted']
                 
-            # Collect unique label values
-            true_label_set.update(cluster_results['True'].unique())
-            
+                # Add true labels (should be the same for all configurations)
+                if 'True_Label' not in results_df.columns:
+                    results_df['True_Label'] = cluster_results['True']
+                    
+                # Collect unique label values
+                true_label_set.update(cluster_results['True'].unique())
+            except Exception as e:
+                print(f"Error processing results for cluster {n_clusters}: {e}")
+        
+        if 'True_Label' not in results_df.columns:
+            print("No valid result data found.")
+            return
+                
         # Convert labels to numeric values for visualization
         label_to_num = {label: i for i, label in enumerate(sorted(true_label_set))}
         
@@ -1105,12 +1001,22 @@ class VHydro:
         results_df['True_Num'] = results_df['True_Label'].map(label_to_num)
         
         # Convert predicted labels
-        for n_clusters in n_clusters_list:
+        for n_clusters, _ in valid_clusters:
             if f'Pred_{n_clusters}' in results_df.columns:
                 results_df[f'Pred_{n_clusters}_Num'] = results_df[f'Pred_{n_clusters}'].map(label_to_num)
-            
+        
+        # Count how many valid predictions we have
+        valid_pred_cols = [col for col in results_df.columns if col.startswith('Pred_') and col.endswith('_Num')]
+        if not valid_pred_cols:
+            print("No valid prediction data found.")
+            return
+                
         # Set up figure
-        fig, axes = plt.subplots(1, len(n_clusters_list) + 1, figsize=(5*(len(n_clusters_list) + 1), 15), sharey=True)
+        fig, axes = plt.subplots(1, len(valid_pred_cols) + 1, figsize=(5*(len(valid_pred_cols) + 1), 15), sharey=True)
+        
+        # Handle the case where there's only one cluster (axes is not an array)
+        if len(valid_pred_cols) == 1:
+            axes = [axes, axes]
         
         # Set up colormap
         cmap = plt.cm.viridis
@@ -1118,21 +1024,20 @@ class VHydro:
         # Plot true labels
         true_array = np.vstack((results_df['True_Num'].values, results_df['True_Num'].values)).T
         im = axes[0].imshow(true_array, aspect='auto', cmap=cmap, 
-                         extent=[0, 1, results_df['DEPTH'].max(), results_df['DEPTH'].min()])
+                        extent=[0, 1, results_df['DEPTH'].max(), results_df['DEPTH'].min()])
         axes[0].set_title("True Labels", fontsize=14)
         axes[0].set_xlim(0, 1)
         axes[0].set_xticks([])
         axes[0].set_ylabel("Depth", fontsize=14)
         
         # Plot predicted labels for each cluster configuration
-        for i, n_clusters in enumerate(n_clusters_list):
-            if f'Pred_{n_clusters}_Num' not in results_df.columns:
-                continue
-                
-            pred_array = np.vstack((results_df[f'Pred_{n_clusters}_Num'].values, 
-                                  results_df[f'Pred_{n_clusters}_Num'].values)).T
+        for i, pred_col in enumerate(valid_pred_cols):
+            n_clusters = int(pred_col.split('_')[1])
+            
+            pred_array = np.vstack((results_df[pred_col].values, 
+                                results_df[pred_col].values)).T
             im = axes[i+1].imshow(pred_array, aspect='auto', cmap=cmap, 
-                               extent=[0, 1, results_df['DEPTH'].max(), results_df['DEPTH'].min()])
+                                extent=[0, 1, results_df['DEPTH'].max(), results_df['DEPTH'].min()])
             axes[i+1].set_title(f"Predicted (Clusters: {n_clusters})", fontsize=14)
             axes[i+1].set_xlim(0, 1)
             axes[i+1].set_xticks([])
@@ -1146,10 +1051,109 @@ class VHydro:
         plt.tight_layout(rect=[0, 0, 0.9, 1])
         plt.savefig(os.path.join(self.output_dir, 'prediction_comparison.png'), dpi=300)
         plt.close()
+
+    # def visualize_predicted_results(self, n_clusters_list=None, run_ids=None):
+    #     """
+    #     Visualize predicted results for multiple cluster configurations
+        
+    #     Args:
+    #         n_clusters_list (list): List of cluster numbers to visualize
+    #         run_ids (dict): Dictionary mapping cluster numbers to run IDs to use (default: use run_id=1)
+    #     """
+    #     if n_clusters_list is None:
+    #         n_clusters_list = sorted([int(d) for d in os.listdir(self.output_dir) 
+    #                                 if os.path.isdir(os.path.join(self.output_dir, d)) 
+    #                                 and d.isdigit()])
+            
+    #     if run_ids is None:
+    #         run_ids = {n: 1 for n in n_clusters_list}
+            
+    #     # Load facies data for depth values
+    #     facies_file = os.path.join(self.output_dir, str(n_clusters_list[0]), f'facies_for_{n_clusters_list[0]}.xlsx')
+    #     if not os.path.exists(facies_file):
+    #         print(f"Facies file for {n_clusters_list[0]} clusters not found.")
+    #         return
+            
+    #     facies_df = pd.read_excel(facies_file)
+        
+    #     # Create dataframe to hold all predictions
+    #     results_df = pd.DataFrame(index=facies_df.index)
+    #     results_df['DEPTH'] = facies_df['DEPTH']
+        
+    #     # Add true labels and predictions for each cluster configuration
+    #     true_label_set = set()
+    #     for n_clusters in n_clusters_list:
+    #         results_file = os.path.join(self.output_dir, str(n_clusters), 'results', 
+    #                                   f'Results_{n_clusters}{"" if run_ids[n_clusters] == 1 else "_new" + str(run_ids[n_clusters])}.xlsx')
+            
+    #         if not os.path.exists(results_file):
+    #             print(f"Results file for {n_clusters} clusters (run {run_ids[n_clusters]}) not found.")
+    #             continue
+                
+    #         cluster_results = pd.read_excel(results_file)
+            
+    #         # Add predicted labels
+    #         results_df[f'Pred_{n_clusters}'] = cluster_results['Predicted']
+            
+    #         # Add true labels (should be the same for all configurations)
+    #         if 'True_Label' not in results_df.columns:
+    #             results_df['True_Label'] = cluster_results['True']
+                
+    #         # Collect unique label values
+    #         true_label_set.update(cluster_results['True'].unique())
+            
+    #     # Convert labels to numeric values for visualization
+    #     label_to_num = {label: i for i, label in enumerate(sorted(true_label_set))}
+        
+    #     # Convert true labels
+    #     results_df['True_Num'] = results_df['True_Label'].map(label_to_num)
+        
+    #     # Convert predicted labels
+    #     for n_clusters in n_clusters_list:
+    #         if f'Pred_{n_clusters}' in results_df.columns:
+    #             results_df[f'Pred_{n_clusters}_Num'] = results_df[f'Pred_{n_clusters}'].map(label_to_num)
+            
+    #     # Set up figure
+    #     fig, axes = plt.subplots(1, len(n_clusters_list) + 1, figsize=(5*(len(n_clusters_list) + 1), 15), sharey=True)
+        
+    #     # Set up colormap
+    #     cmap = plt.cm.viridis
+        
+    #     # Plot true labels
+    #     true_array = np.vstack((results_df['True_Num'].values, results_df['True_Num'].values)).T
+    #     im = axes[0].imshow(true_array, aspect='auto', cmap=cmap, 
+    #                      extent=[0, 1, results_df['DEPTH'].max(), results_df['DEPTH'].min()])
+    #     axes[0].set_title("True Labels", fontsize=14)
+    #     axes[0].set_xlim(0, 1)
+    #     axes[0].set_xticks([])
+    #     axes[0].set_ylabel("Depth", fontsize=14)
+        
+    #     # Plot predicted labels for each cluster configuration
+    #     for i, n_clusters in enumerate(n_clusters_list):
+    #         if f'Pred_{n_clusters}_Num' not in results_df.columns:
+    #             continue
+                
+    #         pred_array = np.vstack((results_df[f'Pred_{n_clusters}_Num'].values, 
+    #                               results_df[f'Pred_{n_clusters}_Num'].values)).T
+    #         im = axes[i+1].imshow(pred_array, aspect='auto', cmap=cmap, 
+    #                            extent=[0, 1, results_df['DEPTH'].max(), results_df['DEPTH'].min()])
+    #         axes[i+1].set_title(f"Predicted (Clusters: {n_clusters})", fontsize=14)
+    #         axes[i+1].set_xlim(0, 1)
+    #         axes[i+1].set_xticks([])
+            
+    #     # Add colorbar with label mapping
+    #     cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+    #     cbar = fig.colorbar(im, cax=cbar_ax, ticks=list(range(len(label_to_num))))
+    #     cbar.set_ticklabels([label for label, _ in sorted(label_to_num.items(), key=lambda x: x[1])])
+    #     cbar.set_label('Rock Quality', fontsize=14)
+        
+    #     plt.tight_layout(rect=[0, 0, 0.9, 1])
+    #     plt.savefig(os.path.join(self.output_dir, 'prediction_comparison.png'), dpi=300)
+    #     plt.close()
     
     def run_multiple_models(self, n_clusters_list, num_runs=4):
         """
-        Train multiple models for each cluster configuration
+        Train multiple models for each cluster configuration using PyTorch Geometric
         
         Args:
             n_clusters_list (list): List of cluster numbers to use
@@ -1167,12 +1171,11 @@ class VHydro:
             # Run multiple models
             for run_id in range(1, num_runs + 1):
                 print(f"\n=== Training model for {n_clusters} clusters (Run {run_id}/{num_runs}) ===")
-                model_results = self.build_gcn_model(n_clusters=n_clusters, run_id=run_id)
+                model_results = self.build_pyg_gcn_model(n_clusters=n_clusters, run_id=run_id)
                 
                 # Check if this run has better accuracy
-                current_accuracy = model_results['test_metrics'][1]  # Accuracy is usually the second metric
-                if current_accuracy > best_accuracy:
-                    best_accuracy = current_accuracy
+                if 'test_acc' in model_results and model_results['test_acc'] > best_accuracy:
+                    best_accuracy = model_results['test_acc']
                     best_run = run_id
             
             best_models[n_clusters] = {
@@ -1183,6 +1186,593 @@ class VHydro:
             print(f"\n=== Best model for {n_clusters} clusters: Run {best_run} (Accuracy: {best_accuracy:.4f}) ===")
             
         return best_models
+    
+    # def build_pyg_gcn_model(self, n_clusters, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, 
+    #                    hidden_channels=16, run_id=1, num_epochs=200):
+    #     """
+    #     Build and train Graph Convolutional Network model using PyTorch Geometric
+        
+    #     Args:
+    #         n_clusters (int): Number of clusters
+    #         train_ratio (float): Ratio of data for training
+    #         val_ratio (float): Ratio of data for validation
+    #         test_ratio (float): Ratio of data for testing
+    #         hidden_channels (int): Number of hidden channels in GCN
+    #         run_id (int): Run identifier
+    #         num_epochs (int): Number of training epochs
+            
+    #     Returns:
+    #         dict: Dictionary with model and evaluation results
+    #     """
+    #     # Create directory for results
+    #     result_dir = os.path.join(self.output_dir, str(n_clusters), 'results')
+    #     os.makedirs(result_dir, exist_ok=True)
+        
+    #     # Load edge data
+    #     cluster_dir = os.path.join(self.output_dir, str(n_clusters))
+    #     edge_file = os.path.join(cluster_dir, f'BF_full_edge_{n_clusters}.txt')
+        
+    #     feature_names = [f'w{i}' for i in range(14)]
+    #     edge_data = pd.read_csv(
+    #         edge_file,
+    #         sep='\t',
+    #         header=None,
+    #         names=['DEPTH', *feature_names, 'RESULTS']
+    #     )
+        
+    #     # Load node data
+    #     node_file = os.path.join(cluster_dir, f'BF_full_node_{n_clusters}.txt')
+    #     node_data = pd.read_csv(
+    #         node_file,
+    #         sep='\t',
+    #         header=None,
+    #         names=['source', 'target']
+    #     )
+        
+    #     # Prepare node features
+    #     # Create a mapping of node IDs to indices
+    #     unique_nodes = pd.concat([node_data['source'], node_data['target']]).unique()
+    #     node_to_idx = {node: i for i, node in enumerate(unique_nodes)}
+        
+    #     # Create edge index for PyG
+    #     edge_index = torch.tensor([
+    #         [node_to_idx[s] for s in node_data['source']],
+    #         [node_to_idx[t] for t in node_data['target']]
+    #     ], dtype=torch.long)
+        
+    #     # Create node features 
+    #     # For simplicity, we'll use one-hot encoding of node IDs initially
+    #     # In practice, you should use meaningful node features
+    #     x = torch.zeros((len(unique_nodes), 14), dtype=torch.float)
+        
+    #     # Map nodes to their features from edge_data
+    #     for node, idx in node_to_idx.items():
+    #         # Find this node in edge_data
+    #         node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
+    #         if not node_in_edge.empty:
+    #             # Extract features (excluding DEPTH and RESULTS)
+    #             node_features = node_in_edge[feature_names].values[0]
+    #             x[idx] = torch.tensor(node_features, dtype=torch.float)
+        
+    #     # Encode labels
+    #     labels = edge_data['RESULTS'].unique()
+    #     label_encoder = LabelEncoder()
+    #     label_encoder.fit(labels)
+        
+    #     # Create node labels
+    #     y = torch.zeros(len(unique_nodes), dtype=torch.long)
+    #     for node, idx in node_to_idx.items():
+    #         node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
+    #         if not node_in_edge.empty:
+    #             label = node_in_edge['RESULTS'].values[0]
+    #             y[idx] = torch.tensor(label_encoder.transform([label])[0], dtype=torch.long)
+        
+    #     # Create PyG Data object
+    #     data = Data(x=x, edge_index=edge_index, y=y)
+        
+    #     # Split data into train/val/test
+    #     num_nodes = data.num_nodes
+    #     node_indices = np.arange(num_nodes)
+        
+    #     # First split into train and temp
+    #     train_idx, temp_idx = train_test_split(
+    #         node_indices, train_size=train_ratio, random_state=42
+    #     )
+        
+    #     # Split temp into val and test
+    #     val_size = val_ratio / (val_ratio + test_ratio)
+    #     val_idx, test_idx = train_test_split(
+    #         temp_idx, train_size=val_size, random_state=42
+    #     )
+        
+    #     # Convert to tensor masks
+    #     train_mask = torch.zeros(num_nodes, dtype=torch.bool)
+    #     val_mask = torch.zeros(num_nodes, dtype=torch.bool)
+    #     test_mask = torch.zeros(num_nodes, dtype=torch.bool)
+        
+    #     train_mask[train_idx] = True
+    #     val_mask[val_idx] = True
+    #     test_mask[test_idx] = True
+        
+    #     data.train_mask = train_mask
+    #     data.val_mask = val_mask
+    #     data.test_mask = test_mask
+        
+    #     # Create model
+    #     model = GCN(
+    #         num_features=data.num_features,
+    #         hidden_channels=hidden_channels,
+    #         num_classes=len(labels)
+    #     )
+        
+    #     # Define optimizer
+    #     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
+        
+    #     # Training function
+    #     def train():
+    #         model.train()
+    #         optimizer.zero_grad()
+    #         out = model(data.x, data.edge_index)
+    #         loss = F.cross_entropy(out[data.train_mask], data.y[data.train_mask])
+    #         loss.backward()
+    #         optimizer.step()
+    #         return loss.item()
+        
+    #     # Evaluation function
+    #     @torch.no_grad()
+    #     def evaluate():
+    #         model.eval()
+    #         out = model(data.x, data.edge_index)
+            
+    #         # Train accuracy
+    #         train_correct = (out[data.train_mask].argmax(dim=1) == data.y[data.train_mask]).sum()
+    #         train_acc = train_correct.item() / data.train_mask.sum().item()
+            
+    #         # Validation accuracy
+    #         val_correct = (out[data.val_mask].argmax(dim=1) == data.y[data.val_mask]).sum()
+    #         val_acc = val_correct.item() / data.val_mask.sum().item()
+            
+    #         # Test accuracy
+    #         test_correct = (out[data.test_mask].argmax(dim=1) == data.y[data.test_mask]).sum()
+    #         test_acc = test_correct.item() / data.test_mask.sum().item()
+            
+    #         return train_acc, val_acc, test_acc, out
+        
+    #     # Training loop
+    #     history = {
+    #         'loss': [],
+    #         'train_acc': [],
+    #         'val_acc': [],
+    #         'test_acc': []
+    #     }
+        
+    #     best_val_acc = 0
+    #     best_model_state = None
+    #     patience = 50
+    #     patience_counter = 0
+        
+    #     for epoch in range(1, num_epochs + 1):
+    #         loss = train()
+    #         train_acc, val_acc, test_acc, _ = evaluate()
+            
+    #         # Save history
+    #         history['loss'].append(loss)
+    #         history['train_acc'].append(train_acc)
+    #         history['val_acc'].append(val_acc)
+    #         history['test_acc'].append(test_acc)
+            
+    #         # Print progress
+    #         if epoch % 10 == 0:
+    #             print(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Train: {train_acc:.4f}, Val: {val_acc:.4f}, Test: {test_acc:.4f}')
+            
+    #         # Early stopping
+    #         if val_acc > best_val_acc:
+    #             best_val_acc = val_acc
+    #             best_model_state = {k: v.clone() for k, v in model.state_dict().items()}
+    #             patience_counter = 0
+    #         else:
+    #             patience_counter += 1
+    #             if patience_counter >= patience:
+    #                 print(f'Early stopping at epoch {epoch}')
+    #                 break
+        
+    #     # Restore best model
+    #     if best_model_state is not None:
+    #         model.load_state_dict(best_model_state)
+        
+    #     # Final evaluation
+    #     _, _, test_acc, out = evaluate()
+    #     print(f'Final Test Accuracy: {test_acc:.4f}')
+        
+    #     # Get predictions for all nodes
+    #     all_predictions = out.argmax(dim=1).cpu().numpy()
+    #     all_labels = label_encoder.inverse_transform(all_predictions)
+        
+    #     # Create results dataframe
+    #     results_data = []
+    #     for node, idx in node_to_idx.items():
+    #         results_data.append({
+    #             'Node': node,
+    #             'True': label_encoder.inverse_transform([data.y[idx].item()])[0],
+    #             'Predicted': all_labels[idx]
+    #         })
+        
+    #     results_df = pd.DataFrame(results_data)
+        
+    #     # Save results
+    #     history_df = pd.DataFrame(history)
+    #     if run_id == 1:
+    #         history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}.xlsx'))
+    #         results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}.xlsx'))
+    #     else:
+    #         history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}_new{run_id}.xlsx'))
+    #         results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}_new{run_id}.xlsx'))
+        
+    #     # Calculate confusion matrix and classification report
+    #     from sklearn.metrics import confusion_matrix, classification_report
+    #     true_labels = results_df['True']
+    #     pred_labels = results_df['Predicted']
+        
+    #     cm = confusion_matrix(true_labels, pred_labels)
+    #     cr = classification_report(true_labels, pred_labels, output_dict=True)
+        
+    #     # Convert classification report to dataframe
+    #     cr_df = pd.DataFrame(cr).transpose()
+        
+    #     if run_id == 1:
+    #         cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}.xlsx'))
+    #     else:
+    #         cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}_new{run_id}.xlsx'))
+        
+    #     # Return results
+    #     model_results = {
+    #         'model': model,
+    #         'history': history,
+    #         'history_df': history_df,
+    #         'test_acc': test_acc,
+    #         'predictions': all_labels,
+    #         'results_df': results_df,
+    #         'confusion_matrix': cm,
+    #         'classification_report': cr_df,
+    #         'label_encoder': label_encoder
+    #     }
+        
+    #     # Store model results
+    #     if n_clusters not in self.models:
+    #         self.models[n_clusters] = {}
+        
+    #     self.models[n_clusters][run_id] = model_results
+        
+    #     return model_results
+    
+    def build_pyg_gcn_model(self, n_clusters, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, 
+                       hidden_channels=16, run_id=1, num_epochs=200):
+        """
+        Build and train Graph Convolutional Network model using PyTorch Geometric
+        
+        Args:
+            n_clusters (int): Number of clusters
+            train_ratio (float): Ratio of data for training
+            val_ratio (float): Ratio of data for validation
+            test_ratio (float): Ratio of data for testing
+            hidden_channels (int): Number of hidden channels in GCN
+            run_id (int): Run identifier
+            num_epochs (int): Number of training epochs
+            
+        Returns:
+            dict: Dictionary with model and evaluation results
+        """
+        # Create directory for results
+        result_dir = os.path.join(self.output_dir, str(n_clusters), 'results')
+        os.makedirs(result_dir, exist_ok=True)
+        
+        # Load edge data
+        cluster_dir = os.path.join(self.output_dir, str(n_clusters))
+        edge_file = os.path.join(cluster_dir, f'BF_full_edge_{n_clusters}.txt')
+        
+        feature_names = [f'w{i}' for i in range(14)]
+        edge_data = pd.read_csv(
+            edge_file,
+            sep='\t',
+            header=None,
+            names=['DEPTH', *feature_names, 'RESULTS']
+        )
+        
+        # Load node data
+        node_file = os.path.join(cluster_dir, f'BF_full_node_{n_clusters}.txt')
+        node_data = pd.read_csv(
+            node_file,
+            sep='\t',
+            header=None,
+            names=['source', 'target']
+        )
+        
+        # Prepare node features
+        # Create a mapping of node IDs to indices
+        unique_nodes = pd.concat([node_data['source'], node_data['target']]).unique()
+        node_to_idx = {node: i for i, node in enumerate(unique_nodes)}
+        
+        # Create edge index for PyG
+        edge_index = torch.tensor([
+            [node_to_idx[s] for s in node_data['source']],
+            [node_to_idx[t] for t in node_data['target']]
+        ], dtype=torch.long)
+        
+        # Create node features 
+        # For simplicity, we'll use one-hot encoding of node IDs initially
+        # In practice, you should use meaningful node features
+        x = torch.zeros((len(unique_nodes), 14), dtype=torch.float)
+        
+        # Map nodes to their features from edge_data
+        for node, idx in node_to_idx.items():
+            # Find this node in edge_data
+            node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
+            if not node_in_edge.empty:
+                # Extract features (excluding DEPTH and RESULTS)
+                node_features = node_in_edge[feature_names].values[0]
+                x[idx] = torch.tensor(node_features, dtype=torch.float)
+        
+        # Encode labels
+        labels = edge_data['RESULTS'].unique()
+        label_encoder = LabelEncoder()
+        label_encoder.fit(labels)
+        
+        # Create node labels
+        y = torch.zeros(len(unique_nodes), dtype=torch.long)
+        for node, idx in node_to_idx.items():
+            node_in_edge = edge_data[edge_data['DEPTH'].astype(str) == node]
+            if not node_in_edge.empty:
+                label = node_in_edge['RESULTS'].values[0]
+                y[idx] = torch.tensor(label_encoder.transform([label])[0], dtype=torch.long)
+        
+        # Create PyG Data object
+        data = Data(x=x, edge_index=edge_index, y=y)
+        
+        # MODIFICATION: Split data more strategically - use stratified sampling
+        # This helps ensure each split has a representative distribution of classes
+        from sklearn.model_selection import StratifiedShuffleSplit
+
+        # Get indices for each class
+        class_indices = {}
+        for cls in range(len(labels)):
+            class_indices[cls] = (y == cls).nonzero(as_tuple=True)[0].numpy()
+        
+        # Ensure splits maintain class distribution
+        train_idx = []
+        val_idx = []
+        test_idx = []
+        
+        for cls, indices in class_indices.items():
+            # Calculate split sizes for this class
+            n_train = int(len(indices) * train_ratio)
+            n_val = int(len(indices) * val_ratio)
+            
+            # Shuffle indices
+            np.random.shuffle(indices)
+            
+            # Split
+            train_idx.extend(indices[:n_train].tolist())
+            val_idx.extend(indices[n_train:n_train + n_val].tolist())
+            test_idx.extend(indices[n_train + n_val:].tolist())
+        
+        # Convert to tensor masks
+        train_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
+        val_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
+        test_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
+        
+        train_mask[train_idx] = True
+        val_mask[val_idx] = True
+        test_mask[test_idx] = True
+        
+        data.train_mask = train_mask
+        data.val_mask = val_mask
+        data.test_mask = test_mask
+        
+        # MODIFICATION: Add a modified GCN implementation with increased regularization
+        class RegularizedGCN(torch.nn.Module):
+            def __init__(self, num_features, hidden_channels, num_classes, dropout_rate=0.6):
+                super().__init__()
+                self.dropout_rate = dropout_rate
+                
+                # First layer with batch normalization
+                self.conv1 = GCNConv(num_features, hidden_channels)
+                self.bn1 = torch.nn.BatchNorm1d(hidden_channels)
+                
+                # Second layer with batch normalization
+                self.conv2 = GCNConv(hidden_channels, hidden_channels)
+                self.bn2 = torch.nn.BatchNorm1d(hidden_channels)
+                
+                # Output layer
+                self.out = torch.nn.Linear(hidden_channels, num_classes)
+
+            def forward(self, x, edge_index):
+                # First Graph Convolution with batch normalization
+                x = self.conv1(x, edge_index)
+                x = self.bn1(x)
+                x = F.relu(x)
+                x = F.dropout(x, p=self.dropout_rate, training=self.training)
+                
+                # Second Graph Convolution with batch normalization
+                x = self.conv2(x, edge_index)
+                x = self.bn2(x)
+                x = F.relu(x)
+                x = F.dropout(x, p=self.dropout_rate, training=self.training)
+                
+                # Output layer
+                x = self.out(x)
+                return x
+        
+        # Create model with increased regularization
+        model = RegularizedGCN(
+            num_features=data.num_features,
+            hidden_channels=hidden_channels,
+            num_classes=len(labels),
+            dropout_rate=0.6  # Increased dropout rate to combat overfitting
+        )
+        
+        # Define optimizer with stronger weight decay (L2 regularization)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=5e-3)
+        
+        # MODIFICATION: Add learning rate scheduler
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode='max', factor=0.5, patience=20, min_lr=0.0001
+        )
+        
+        # Training function
+        def train():
+            model.train()
+            optimizer.zero_grad()
+            out = model(data.x, data.edge_index)
+            loss = F.cross_entropy(out[data.train_mask], data.y[data.train_mask])
+            
+            # MODIFICATION: Add L2 regularization manually for more control
+            l2_reg = 0
+            for param in model.parameters():
+                l2_reg += torch.norm(param, 2)
+            loss += 1e-4 * l2_reg
+            
+            loss.backward()
+            optimizer.step()
+            return loss.item()
+        
+        # Evaluation function
+        @torch.no_grad()
+        def evaluate():
+            model.eval()
+            out = model(data.x, data.edge_index)
+            
+            # Train accuracy
+            train_correct = (out[data.train_mask].argmax(dim=1) == data.y[data.train_mask]).sum()
+            train_acc = train_correct.item() / data.train_mask.sum().item()
+            
+            # Validation accuracy
+            val_correct = (out[data.val_mask].argmax(dim=1) == data.y[data.val_mask]).sum()
+            val_acc = val_correct.item() / data.val_mask.sum().item()
+            
+            # Test accuracy
+            test_correct = (out[data.test_mask].argmax(dim=1) == data.y[data.test_mask]).sum()
+            test_acc = test_correct.item() / data.test_mask.sum().item()
+            
+            return train_acc, val_acc, test_acc, out
+        
+        # Training loop
+        history = {
+            'loss': [],
+            'train_acc': [],
+            'val_acc': [],
+            'test_acc': []
+        }
+        
+        best_val_acc = 0
+        best_test_acc = 0
+        best_model_state = None
+        patience = 50
+        patience_counter = 0
+        
+        for epoch in range(1, num_epochs + 1):
+            loss = train()
+            train_acc, val_acc, test_acc, _ = evaluate()
+            
+            # MODIFICATION: Update scheduler based on validation accuracy
+            scheduler.step(val_acc)
+            
+            # Save history
+            history['loss'].append(loss)
+            history['train_acc'].append(train_acc)
+            history['val_acc'].append(val_acc)
+            history['test_acc'].append(test_acc)
+            
+            # MODIFICATION: Better early stopping criteria
+            # Use validation accuracy for early stopping, but track best test accuracy too
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                # Only update test_acc and model state if val_acc improves
+                best_test_acc = test_acc
+                best_model_state = {k: v.clone() for k, v in model.state_dict().items()}
+                patience_counter = 0
+            else:
+                patience_counter += 1
+            
+            # Print progress
+            if epoch % 10 == 0:
+                print(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Train: {train_acc:.4f}, Val: {val_acc:.4f}, Test: {test_acc:.4f}')
+                # Add some diagnostics about overfitting
+                if train_acc - val_acc > 0.2:
+                    print(f"⚠️ Warning: Potential overfitting detected (train-val gap: {train_acc - val_acc:.4f})")
+            
+            # Early stopping with patience
+            if patience_counter >= patience:
+                print(f'Early stopping at epoch {epoch}')
+                break
+        
+        # Restore best model
+        if best_model_state is not None:
+            model.load_state_dict(best_model_state)
+        
+        # Final evaluation
+        _, _, test_acc, out = evaluate()
+        print(f'Final Test Accuracy: {test_acc:.4f}')
+        
+        # Get predictions for all nodes
+        all_predictions = out.argmax(dim=1).cpu().numpy()
+        all_labels = label_encoder.inverse_transform(all_predictions)
+        
+        # Create results dataframe
+        results_data = []
+        for node, idx in node_to_idx.items():
+            results_data.append({
+                'Node': node,
+                'True': label_encoder.inverse_transform([data.y[idx].item()])[0],
+                'Predicted': all_labels[idx]
+            })
+        
+        results_df = pd.DataFrame(results_data)
+        
+        # Save results
+        history_df = pd.DataFrame(history)
+        if run_id == 1:
+            history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}.xlsx'))
+            results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}.xlsx'))
+        else:
+            history_df.to_excel(os.path.join(result_dir, f'History_{n_clusters}_new{run_id}.xlsx'))
+            results_df.to_excel(os.path.join(result_dir, f'Results_{n_clusters}_new{run_id}.xlsx'))
+        
+        # Calculate confusion matrix and classification report
+        from sklearn.metrics import confusion_matrix, classification_report
+        true_labels = results_df['True']
+        pred_labels = results_df['Predicted']
+        
+        cm = confusion_matrix(true_labels, pred_labels)
+        cr = classification_report(true_labels, pred_labels, output_dict=True)
+        
+        # Convert classification report to dataframe
+        cr_df = pd.DataFrame(cr).transpose()
+        
+        if run_id == 1:
+            cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}.xlsx'))
+        else:
+            cr_df.to_excel(os.path.join(result_dir, f'ClassReport_{n_clusters}_new{run_id}.xlsx'))
+        
+        # Return results
+        model_results = {
+            'model': model,
+            'history': history,
+            'history_df': history_df,
+            'test_acc': test_acc,
+            'predictions': all_labels,
+            'results_df': results_df,
+            'confusion_matrix': cm,
+            'classification_report': cr_df,
+            'label_encoder': label_encoder
+        }
+        
+        # Store model results
+        if n_clusters not in self.models:
+            self.models[n_clusters] = {}
+        
+        self.models[n_clusters][run_id] = model_results
+        
+        return model_results
         
     def build_gcn_model(self, n_clusters, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, layer_sizes=None, run_id=1):
         """
@@ -1360,7 +1950,7 @@ class VHydro:
         return model_results
         
 def main():
-    """Main function to demonstrate the workflow"""
+    """Main function to demonstrate the workflow with PyTorch Geometric"""
     import argparse
     
     # Parse command line arguments
@@ -1412,7 +2002,7 @@ def main():
         # Generate adjacency matrix
         wla.generate_adjacency_matrix(n_clusters)
     
-    # Run multiple models for each cluster configuration
+    # Run multiple models for each cluster configuration using PyTorch Geometric
     best_models = wla.run_multiple_models(
         n_clusters_list=range(args.min_clusters, args.max_clusters + 1),
         num_runs=args.num_runs
