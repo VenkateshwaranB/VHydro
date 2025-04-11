@@ -123,7 +123,7 @@ def header_with_logo(logo_path):
         try:
             if os.path.exists(logo_path):
                 logo_image = Image.open(logo_path)
-                st.image(logo_image)
+                st.image(logo_image, width='full')
             else:
                 st.warning("Logo image not found. Expected at: " + logo_path)
         except Exception as e:
