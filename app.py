@@ -113,26 +113,140 @@ st.markdown("""
     div.stTabs button {
         font-weight: bold;
     }
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0c326f 0%, #1e4d9e 100%);
+        color: white;
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown p {
+        color: rgba(255, 255, 255, 0.85);
+    }
+    
+    [data-testid="stSidebar"] .stRadio label {
+        color: white;
+    }
+    
+    [data-testid="stSidebar"] .stSlider label {
+        color: white;
+    }
+    
+    [data-testid="stSidebar"] button {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    [data-testid="stSidebar"] button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* About section styling */
+    .info-box {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #0c326f;
+    }
+    
+    /* Main header styling */
+    .main-header {
+        font-size: 2.5rem !important;
+        color: #0c326f;
+        text-align: center;
+        margin-bottom: 1rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .sub-header {
+        font-size: 1.8rem !important;
+        color: #0c326f;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+    }
+    
+    .section-header {
+        font-size: 1.5rem !important;
+        color: #2c3e50;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #0c326f;
+        padding-left: 10px;
+    }
+    
+    /* Footer styling */
+    .footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
 </style>
 """, unsafe_allow_html=True)
 
-# Function to create layout with logo and title
+# # Function to create layout with logo and title
+# def header_with_logo(logo_path):
+#     cols = st.columns([1, 2, 1])
+#     with cols[1]:
+#         try:
+#             if os.path.exists(logo_path):
+#                 logo_image = Image.open(logo_path)
+#                 st.image(logo_image, width='full')
+#             else:
+#                 st.warning("Logo image not found. Expected at: " + logo_path)
+#         except Exception as e:
+#             logger.error(f"Error loading logo: {e}")
+#             st.warning(f"Error loading logo: {e}")
+    
+#     st.markdown("<h1 class='main-header'>VHydro - Hydrocarbon Quality Prediction</h1>", unsafe_allow_html=True)
+#     st.markdown("<p style='text-align: center;'>Advanced Graph Convolutional Network for Petrophysical Analysis</p>", unsafe_allow_html=True)
+
 def header_with_logo(logo_path):
-    cols = st.columns([1, 2, 1])
-    with cols[1]:
-        try:
-            if os.path.exists(logo_path):
-                logo_image = Image.open(logo_path)
-                st.image(logo_image, width='full')
-            else:
-                st.warning("Logo image not found. Expected at: " + logo_path)
-        except Exception as e:
-            logger.error(f"Error loading logo: {e}")
-            st.warning(f"Error loading logo: {e}")
+    # Custom CSS for the header area
+    st.markdown("""
+    <style>
+    .banner-container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    .banner-container img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    try:
+        if os.path.exists(logo_path):
+            # Display the logo as a full-width banner using HTML
+            st.markdown(f"""
+            <div class="banner-container">
+                <img src="data:image/png;base64,{get_image_base64(logo_path)}" alt="VHydro Banner">
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.warning(f"Logo image not found. Expected at: {logo_path}")
+    except Exception as e:
+        logger.error(f"Error loading logo: {e}")
+        st.warning(f"Error loading logo: {e}")
     
     st.markdown("<h1 class='main-header'>VHydro - Hydrocarbon Quality Prediction</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>Advanced Graph Convolutional Network for Petrophysical Analysis</p>", unsafe_allow_html=True)
 
+# Helper function to convert an image to base64 for inline HTML display
+def get_image_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
 # Sidebar navigation
 def create_sidebar():
     try:
@@ -194,21 +308,44 @@ def create_sidebar():
 
 # Home page
 def home_page():
-    logo_path = "src/Building a Greener World.png"
+    logo_path = "src/VHydro_Logo.png"  # Update path as needed
     header_with_logo(logo_path)
     
     st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
     
-    with st.expander("What is VHydro?", expanded=True):
-        st.markdown("""
-        **VHydro** is an advanced tool for hydrocarbon quality prediction using well log data.
+    st.markdown("""
+    <div class="info-box">
+        <h3>What is VHydro?</h3>
+        <p>
+        <b>VHydro</b> is an advanced tool for hydrocarbon quality prediction using well log data.
         It combines traditional petrophysical analysis with modern machine learning techniques
         to provide accurate predictions of reservoir quality.
-        
+        </p>
+        <p>
         The tool uses Graph Convolutional Networks (GCN) to model the complex relationships
         between different petrophysical properties and depth values, enabling more accurate
         classification of hydrocarbon potential zones.
-        """)
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+#     # Rest of the home page code...
+# def home_page():
+#     logo_path = "src/Building a Greener World.png"
+#     header_with_logo(logo_path)
+    
+#     st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
+    
+#     with st.expander("What is VHydro?", expanded=True):
+#         st.markdown("""
+#         **VHydro** is an advanced tool for hydrocarbon quality prediction using well log data.
+#         It combines traditional petrophysical analysis with modern machine learning techniques
+#         to provide accurate predictions of reservoir quality.
+        
+#         The tool uses Graph Convolutional Networks (GCN) to model the complex relationships
+#         between different petrophysical properties and depth values, enabling more accurate
+#         classification of hydrocarbon potential zones.
+#         """)
     
     # Try to display workflow diagram
     workflow_image_path = "src/Workflow.png"
