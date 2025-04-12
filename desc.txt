@@ -1,0 +1,178 @@
+1. Dataset Preparation and Graph Construction
+In the paper:
+
+You describe creating a graph where depth values and Petrophysical Entities (PET) serve as nodes
+For each depth value, you create a graph with corresponding PET nodes
+Graph edges connect depth nodes to other depth nodes in the same cluster group
+PET nodes connect to depth nodes but not to other PET nodes
+
+In your code:
+
+The load_las_file() method loads well log data
+prepare_features() extracts and processes features for clustering
+calculate_petrophysical_properties() computes petrophysical attributes:
+
+Shale Volume (_shale_volume())
+Density Porosity (_density_porosity())
+Water Saturation (_sw_archie())
+Oil Saturation (_ow_archie())
+Permeability (_permeability())
+
+
+create_cluster_dataset() creates facies classifications using KMeans clustering
+identify_clustering_ranges() finds depth ranges for each cluster
+generate_adjacency_matrix() creates the graph structure with:
+
+_create_node_connections() for depth-to-depth edges
+_create_edge_dataset() for PET nodes and connections
+
+
+
+This implements exactly the graph structure described on pages 244-247 of your paper, where you explain depth nodes connect to other depth nodes in the same cluster, and PET nodes connect to depth nodes.
+2. K-means Clustering (KMC) for Facies Classification
+In the paper:
+
+You describe using KMC as an unsupervised learning algorithm
+Clusters are evaluated using silhouette scores
+Six clusters were generated, with medians of 5, 6, 7, 8, 9, and 10
+
+In your code:
+
+perform_kmeans_clustering() implements the KMC algorithm
+The method computes silhouette scores for different cluster counts
+The range of clusters (5-10) matches what's described in the paper
+create_cluster_dataset() applies KMC to create cluster assignments
+
+This matches Section "KMC" on page 393 where you describe the mathematical expression of KMC and using it to classify facies.
+3. Petrophysical Entities (PET) Definition and Label Generation
+In the paper:
+
+Table 1 shows petrophysical entity ranges for classification
+You classify properties like permeability, porosity, volume shale, water saturation, and oil saturation
+Each property has specific ranges that determine quality (Very Low, Low, Moderate, High, Very High)
+
+In your code:
+
+_create_edge_dataset() creates binary classifications for each petrophysical property:
+
+Permeability (PE_1 through PE_5)
+Porosity (PO_1 through PO_3)
+Volume shale (VS_1, VS_2)
+Water saturation (SW_1, SW_2)
+Oil saturation (OW_1, OW_2)
+
+
+These are combined to form a 14-feature binary vector for each depth
+The method assigns labels ('RESULTS') based on PET combinations
+
+This implements the classification scheme shown in Table 1 on page 395 of your paper.
+4. Graph Convolutional Network (GCN) Implementation
+In the paper:
+
+You describe GCN as a method for node classification
+The model uses two hidden layers with ReLU and SoftMax activation functions
+Each hidden layer contains 16 units
+The model includes dropout layers to prevent overfitting
+
+In your code:
+
+Two GCN implementations:
+
+build_gcn_model() - The StellarGraph implementation
+build_pyg_gcn_model() - The PyTorch Geometric implementation
+
+
+Both implement:
+
+Two hidden layers with 16 units each
+ReLU activation
+Dropout layers (0.5 dropout rate)
+A final dense layer with softmax activation
+Early stopping to prevent overfitting
+
+
+
+This matches Figure 8 on page 402 of your paper where you show the StellarGraph GCN architecture.
+5. Dataset Splitting and Model Training
+In the paper:
+
+You describe using 80% of data for training, 10% for validation, and 10% for testing
+Early stopping was implemented to prevent overfitting
+Epochs varied by cluster configuration
+
+In your code:
+
+Both GCN implementations use train_ratio=0.8, val_ratio=0.1, test_ratio=0.1
+Early stopping is implemented with patience=50
+Epochs and results are recorded in a history dictionary and saved to Excel
+Results include accuracy, loss, and classification reports
+
+This corresponds to what you describe on pages 517-520 where you discuss the dataset splitting procedures.
+6. Evaluation and Visualization
+In the paper:
+
+You present visualizations of facies classification results
+You show loss and accuracy plots for different clusters
+You classify hydrocarbon potential zones as Very Low, Low, Moderate, High, and Very High
+
+In your code:
+
+visualize_facies() creates visualizations of facies clusters
+visualize_loss_accuracy() plots training loss and accuracy
+visualize_predicted_results() shows true vs. predicted classifications
+Results are saved as PNG files and Excel spreadsheets
+
+This matches the visualization approach shown in Figures 10-15 of your paper, where you display the distribution of hydrocarbon quality zones.
+Step-by-Step Workflow Based on the Paper
+
+Data Loading and Preparation:
+
+Load LAS file data from the McKee oil field wells (McKee-16a, McKee-4, McKee-5a)
+Prepare features for clustering by selecting relevant columns
+
+
+Petrophysical Calculation:
+
+Calculate Volume of Shale (Vsh) using neutron-density logs
+Calculate Effective Porosity (φeff) from density logs
+Calculate Water Saturation (Sw) using Archie's equation
+Calculate Oil Saturation (Sh) as 100% - Sw
+Calculate Permeability (K) from porosity
+
+
+Facies Classification with KMC:
+
+Perform KMeans clustering with 5-10 clusters
+Evaluate cluster quality using silhouette scores
+Create facies maps for each cluster configuration
+
+
+Graph Construction:
+
+Create nodes representing depths and PET values
+Create depth-to-depth edges based on KMC clustering
+Create depth-to-PET edges based on petrophysical properties
+Assign binary feature vectors (14 features) to each depth node
+
+
+Label Generation:
+
+Map PET values to hydrocarbon quality labels (Very Low to Very High)
+Assign these labels to depth nodes
+
+
+GCN Model Training:
+
+Split data: 80% training, 10% validation, 10% testing
+Build GCN model with two hidden layers of 16 units
+Apply dropout (0.5) for regularization
+Train with early stopping
+Evaluate on test set
+
+
+Results Analysis and Visualization:
+
+Analyze classification accuracy and loss
+Visualize facies distributions
+Compare true labels with predicted labels
+Identify high-potential hydrocarbon zones
