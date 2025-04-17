@@ -7,10 +7,10 @@ scikit-learn>=1.2.0
 lasio>=0.29.0
 Pillow>=9.5.0
 plotly>=5.14.0
-#torch==2.0.1
-#stellargraph==1.2.1
-#tensorflow==2.12.0
-#torch-geometric==2.3.1
+pyrebase4>=4.6.0
+python-jwt>=4.1.0
+gcloud>=0.18.3
+pycryptodome>=3.19.0
 
 # Optional dependencies - comment these out if they cause installation issues
 torch>=2.0.0
