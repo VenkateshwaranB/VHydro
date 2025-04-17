@@ -6,15 +6,25 @@ import time
 from datetime import datetime, timedelta
 
 # Firebase configuration - you'll need to replace this with your own Firebase project credentials
+# firebaseConfig = {
+#     "apiKey": "YOUR_API_KEY",
+#     "authDomain": "YOUR_PROJECT_ID.firebaseapp.com",
+#     "projectId": "YOUR_PROJECT_ID",
+#     "storageBucket": "YOUR_PROJECT_ID.appspot.com",
+#     "messagingSenderId": "YOUR_MESSAGING_SENDER_ID",
+#     "appId": "YOUR_APP_ID",
+#     "databaseURL": "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com/"  # Required for database interaction
+# }
+
 firebaseConfig = {
-    "apiKey": "YOUR_API_KEY",
-    "authDomain": "YOUR_PROJECT_ID.firebaseapp.com",
-    "projectId": "YOUR_PROJECT_ID",
-    "storageBucket": "YOUR_PROJECT_ID.appspot.com",
-    "messagingSenderId": "YOUR_MESSAGING_SENDER_ID",
-    "appId": "YOUR_APP_ID",
-    "databaseURL": "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com/"  # Required for database interaction
-}
+    "apiKey": "AIzaSyDZnM6nJDP6_aEIfDuHE9Nt-Q7fIxshsI4",
+    "authDomain": "vhydro-852ae.firebaseapp.com",
+    "projectId": "vhydro-852ae",
+    "storageBucket": "vhydro-852ae.firebasestorage.app",
+    "messagingSenderId": "539968125295",
+    "appId": "1:539968125295:web:af5c5ee6c7ac5e906b509a",
+    "measurementId": "G-YTPEB08T3T"
+  };
 
 # Initialize Firebase
 firebase = pyrebase.initialize_app(firebaseConfig)
