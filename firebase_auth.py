@@ -24,6 +24,7 @@ firebaseConfig = {
     "messagingSenderId": "539968125295",
     "appId": "1:539968125295:web:af5c5ee6c7ac5e906b509a",
     "measurementId": "G-YTPEB08T3T"
+    "databaseURL": "https://vhydro-852ae-default-rtdb.firebaseio.com/"
   };
 
 # Initialize Firebase
