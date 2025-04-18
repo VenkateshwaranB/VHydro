@@ -184,16 +184,6 @@ st.markdown("""
         color: white !important;
     }
     
-    /* About section styling */
-    .info-box {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 10px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-left: 5px solid #0c326f;
-    }
-    
     /* User account section styling */
     .user-account {
         background-color: rgba(255, 255, 255, 0.1);
@@ -208,47 +198,6 @@ st.markdown("""
         margin-bottom: 5px;
     }
     
-    .user-actions {
-        display: flex;
-        justify-content: space-between;
-    }
-    
-    /* Main header styling */
-    .main-header {
-        font-size: 2.5rem !important;
-        color: #0c326f;
-        text-align: center;
-        margin-bottom: 1rem;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    }
-    
-    .sub-header {
-        font-size: 1.8rem !important;
-        color: #0c326f;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #e9ecef;
-        padding-bottom: 0.5rem;
-    }
-    
-    .section-header {
-        font-size: 1.5rem !important;
-        color: #2c3e50;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-        border-left: 3px solid #0c326f;
-        padding-left: 10px;
-    }
-    
-    /* Footer styling */
-    .footer {
-        text-align: center;
-        margin-top: 4rem;
-        padding-top: 1rem;
-        color: #6c757d;
-        font-size: 0.9rem;
-        border-top: 1px solid #e9ecef;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -313,11 +262,11 @@ def create_sidebar():
     with col1:
         if st.button("Logout", key="sidebar_logout"):
             logout()
-            st.experimental_rerun()
+            st.rerun()
     with col2:
         if st.button("Account", key="sidebar_account"):
             st.session_state['current_page'] = "Account"
-            st.experimental_rerun()
+            st.rerun()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
     st.sidebar.title("Navigation")
@@ -375,6 +324,79 @@ def create_sidebar():
         "num_runs": num_runs
     }
 
+# Home page
+def home_page():
+    logo_path = "src/Building a Greener World.png"  # Update path as needed
+    header_with_logo(logo_path)
+    
+    st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="info-box">
+        <h3>What is VHydro?</h3>
+        <p>
+        <b>VHydro</b> is an advanced tool for hydrocarbon quality prediction using well log data.
+        It combines traditional petrophysical analysis with modern machine learning techniques
+        to provide accurate predictions of reservoir quality.
+        </p>
+        <p>
+        The tool uses Graph Convolutional Networks (GCN) to model the complex relationships
+        between different petrophysical properties and depth values, enabling more accurate
+        classification of hydrocarbon potential zones.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Try to display workflow diagram
+    workflow_image_path = "src/Workflow.png"
+    
+    if os.path.exists(workflow_image_path):
+        st.markdown("<h2 class='sub-header'>Workflow Overview</h2>", unsafe_allow_html=True)
+        display_image_with_caption(workflow_image_path, "VHydro Workflow")
+    else:
+        st.warning(f"Workflow image not found. Expected at: {workflow_image_path}")
+    
+    st.markdown("<h2 class='sub-header'>Key Features</h2>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        - **Petrophysical Property Calculation**
+          - Shale Volume
+          - Porosity
+          - Water/Oil Saturation
+          - Permeability
+        
+        - **Facies Classification**
+          - K-means Clustering
+          - Silhouette Score Optimization
+          - Depth-based Facies Mapping
+        """)
+        
+    with col2:
+        st.markdown("""
+        - **Graph-based Machine Learning**
+          - Graph Convolutional Networks
+          - Node and Edge Feature Extraction
+          - Hydrocarbon Quality Classification
+        
+        - **Visualization and Reporting**
+          - Facies Visualization
+          - Prediction Accuracy Metrics
+          - Classification Reports
+        """)
+    
+    st.markdown("<h2 class='sub-header'>Getting Started</h2>", unsafe_allow_html=True)
+    st.markdown("""
+    1. Navigate to the **Dataset Preparation** section to understand the data requirements
+    2. Use the **Analysis Tool** to upload and process your well log data
+    3. Run the model with your preferred configuration
+    4. Explore the results in the **Results Visualization** section
+    
+    Use the sidebar to navigate between different sections of the application.
+    """)
+
 # Account page
 def account_page():
     """Render the user account page"""
@@ -382,38 +404,55 @@ def account_page():
     
     # Show user account page from the firebase_auth module
     user_account_page()
+
+# Dataset preparation page
+def dataset_preparation_page():
+    """Render the dataset preparation page"""
+    st.markdown('<h1 class="main-header">Dataset Preparation</h1>', unsafe_allow_html=True)
+    
+    st.markdown('<p class="description">Upload your LAS file containing well log data. The file will be processed to calculate petrophysical properties necessary for hydrocarbon potential prediction.</p>', unsafe_allow_html=True)
+    
+    # Rest of your dataset preparation page code...
+    st.markdown("This page would contain information about dataset preparation.")
+
+# Model workflow page
+def model_workflow_page():
+    """Render the model workflow page"""
+    st.markdown('<h1 class="main-header">Model Workflow</h1>', unsafe_allow_html=True)
+    
+    # Rest of your model workflow page code...
+    st.markdown("This page would contain information about the model workflow.")
+
+# Analysis tool page
+def analysis_tool_page(config):
+    """Render the analysis tool page"""
+    st.markdown('<h1 class="main-header">Analysis Tool</h1>', unsafe_allow_html=True)
+    
+    # Rest of your analysis tool page code...
+    st.markdown("This page would contain the analysis tool.")
+
+# Results visualization page
+def results_visualization_page():
+    """Render the results visualization page"""
+    st.markdown('<h1 class="main-header">Results Visualization</h1>', unsafe_allow_html=True)
+    
+    # Rest of your results visualization page code...
+    st.markdown("This page would contain results visualization.")
+
+# Main function
 def main():
-    # Check if user is authenticated
-    is_authenticated = authenticate()
-    
-    if not is_authenticated:
-        # If not authenticated, stop execution (auth page was already shown by authenticate())
-        st.stop()
-    
-    # User is authenticated, continue with app
+    # Create sidebar and get configuration
     config = create_sidebar()
     
-    # Display selected page based on sidebar selection
+    # Display selected page
     if config["page"] == "Home":
         home_page()
     elif config["page"] == "Dataset Preparation":
-        dataset_preparation_page()  # This function must be defined or imported
+        dataset_preparation_page()
     elif config["page"] == "Model Workflow":
         model_workflow_page()
-# # Main function
-# def main():
-#     # Create sidebar and get configuration
-#     config = create_sidebar()
-    
-#     # Display selected page
-#     if config["page"] == "Home":
-#         home_page()
-#     elif config["page"] == "Dataset Preparation":
-#         dataset_preparation_page()
-#     elif config["page"] == "Model Workflow":
-#         model_workflow_page()
-#     elif config["page"] == "Analysis Tool":
-#         analysis_tool_page(config)
+    elif config["page"] == "Analysis Tool":
+        analysis_tool_page(config)
     elif config["page"] == "Results Visualization":
         results_visualization_page()
     elif config["page"] == "Account":
@@ -421,9 +460,6 @@ def main():
     
     # Footer
     st.markdown("<div class='footer'>VHydro - Advanced Hydrocarbon Quality Prediction © 2025</div>", unsafe_allow_html=True)
-
-# Rest of your functions (home_page, dataset_preparation_page, etc.) remain the same
-# ...
 
 if __name__ == "__main__":
     main()
