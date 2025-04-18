@@ -80,177 +80,193 @@ def display_image_with_caption(image_path, caption="", width=None):
 # Custom CSS
 st.markdown("""
 <style>
-    /* Modern Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0a2855 0%, #164584 100%);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 3px 0px 10px rgba(0, 0, 0, 0.2);
+    /* Main app background and colors */
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4ecfb 100%);
+        border-radius: 10px;
     }
     
-    /* Sidebar content styling */
-    [data-testid="stSidebar"] > div:first-child {
-        padding: 1.5rem 1rem;
+    /* Colorful section headers */
+    .main-header {
+        font-size: 2.5rem !important;
+        background: linear-gradient(90deg, #0e4194, #3a7bd5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .sub-header {
+        font-size: 1.8rem !important;
+        color: #0e4194;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+    }
+    
+    .section-header {
+        font-size: 1.5rem !important;
+        background: linear-gradient(90deg, #2c3e50, #4a6491);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #0e4194;
+        padding-left: 10px;
+    }
+    
+    /* Card styling for content sections */
+    .content-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-top: 4px solid;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .content-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-blue {
+        border-top-color: #0e4194;
+    }
+    
+    .card-teal {
+        border-top-color: #00bcd4;
+    }
+    
+    .card-purple {
+        border-top-color: #673ab7;
+    }
+    
+    .card-orange {
+        border-top-color: #ff9800;
+    }
+    
+    /* Modern sidebar styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0a2855 0%, #164584 100%);
+        box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Sidebar sections */
+    .sidebar-section {
+        margin-bottom: 2rem;
+    }
+    
+    .sidebar-header {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     /* Logo container */
     .sidebar-logo {
         text-align: center;
         margin-bottom: 1.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .sidebar-logo img {
-        max-width: 80%;
+        width: 80%;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        padding: 10px;
         background: white;
-        padding: 8px;
-        transition: transform 0.3s ease;
     }
     
-    .sidebar-logo img:hover {
-        transform: scale(1.05);
+    /* User section */
+    .user-info {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
     }
     
-    /* Section headers */
-    .sidebar-header {
+    .user-avatar {
+        background: #3a7bd5;
         color: white;
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin: 1.5rem 0 1rem 0;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    /* User account panel */
-    .user-account {
-        background-color: rgba(255, 255, 255, 0.07);
-        border-radius: 10px;
-        padding: 15px;
-        margin: 0 0 1.5rem 0;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-    }
-    
-    .user-account:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-    
-    .user-email {
-        font-weight: 600;
-        font-size: 1rem;
-        color: white !important;
-        margin-bottom: 12px;
-        text-align: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        margin-right: 10px;
+        font-weight: bold;
     }
     
-    .user-email svg {
-        margin-right: 8px;
-        color: rgba(255, 255, 255, 0.8);
+    .user-name {
+        color: white;
+        font-weight: 500;
     }
     
-    /* User buttons */
-    .user-buttons {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .sidebar-button {
-        flex: 1;
+    /* Toggle button styling */
+    .toggle-button {
         background: rgba(255, 255, 255, 0.1);
         color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: none;
         border-radius: 6px;
-        padding: 8px 15px;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-        text-align: center;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        width: 100%;
+        text-align: left;
         cursor: pointer;
-        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: background 0.3s ease;
     }
     
-    .sidebar-button:hover {
+    .toggle-button:hover {
         background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
     
-    .sidebar-button-primary {
-        background: rgba(59, 130, 246, 0.4);
+    .toggle-button-active {
+        background: rgba(58, 123, 213, 0.6);
     }
     
-    .sidebar-button-secondary {
-        background: rgba(255, 255, 255, 0.1);
+    .toggle-button-icon {
+        width: 20px;
+        text-align: center;
     }
     
-    /* Navigation dropdown styling */
-    [data-testid="stSidebar"] .stSelectbox {
-        margin-bottom: 1.5rem;
+    /* Configuration sliders */
+    [data-testid="stSidebar"] .stSlider > div {
+        margin-bottom: 1rem;
     }
     
-    [data-testid="stSidebar"] .stSelectbox > div > div {
-        background-color: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        border-radius: 8px;
-    }
-    
-    [data-testid="stSidebar"] .stSelectbox > div > div > div {
-        color: white !important;
-    }
-    
-    /* Slider styling */
     [data-testid="stSidebar"] .stSlider > div > div > div {
         background-color: rgba(255, 255, 255, 0.2);
     }
     
     [data-testid="stSidebar"] .stSlider > div > div > div > div {
-        background-color: #4285f4;
+        background-color: #3a7bd5;
     }
     
-    /* Separator line */
-    .sidebar-separator {
-        height: 1px;
-        background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-        margin: 1.5rem 0;
-    }
-    
-    /* Info box styling */
-    .sidebar-info {
-        background: rgba(66, 133, 244, 0.1);
-        border-left: 3px solid #4285f4;
-        padding: 12px;
-        border-radius: 6px;
-        margin-top: 1rem;
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-    
-    /* Settings expander styling */
-    [data-testid="stSidebar"] .streamlit-expanderHeader {
-        background-color: rgba(255, 255, 255, 0.07);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: white !important;
-        padding: 10px 15px;
-        font-weight: 500;
-    }
-    
-    [data-testid="stSidebar"] .streamlit-expanderContent {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 0 0 8px 8px;
-        padding: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-top: none;
-        margin-top: -1rem;
+    /* Footer area */
+    .sidebar-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.8rem;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.1);
     }
     
     /* Make sure all text in sidebar is white */
@@ -261,13 +277,124 @@ st.markdown("""
         color: rgba(255, 255, 255, 0.9) !important;
     }
     
-    /* Warning styling */
-    [data-testid="stSidebar"] .stAlert {
-        background-color: rgba(255, 183, 77, 0.2) !important;
-        color: rgba(255, 255, 255, 0.9) !important;
-        border: 1px solid rgba(255, 183, 77, 0.3) !important;
+    /* Colorful buttons */
+    .stButton>button {
+        background: linear-gradient(90deg, #0e4194, #3a7bd5);
+        color: white;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        transition: all 0.3s ease;
     }
     
+    .stButton>button:hover {
+        background: linear-gradient(90deg, #0c3880, #3373c8);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Info boxes */
+    .info-box {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-left: 5px solid #0e4194;
+    }
+    
+    /* Metrics and KPIs */
+    .metric-container {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #0e4194;
+    }
+    
+    .metric-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    /* Footer styling */
+    .footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    /* Login form styling */
+    .login-container {
+        max-width: 400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-form label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .login-form input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+    
+    .login-button {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(90deg, #0e4194, #3a7bd5);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    
+    .login-button:hover {
+        background: linear-gradient(90deg, #0c3880, #3373c8);
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: #f8f9fa;
+        border-radius: 4px 4px 0 0;
+        padding: 10px 16px;
+        border: 1px solid #e9ecef;
+        border-bottom: none;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: white;
+        border-bottom: 2px solid #0e4194;
+    }
 </style>
 """, unsafe_allow_html=True)
 
