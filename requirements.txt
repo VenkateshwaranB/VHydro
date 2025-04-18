@@ -11,7 +11,7 @@ pyrebase4>=4.6.0
 python-jwt>=4.1.0
 gcloud>=0.18.3
 pycryptodome>=3.19.0
-
+firebase-admin
 # Optional dependencies - comment these out if they cause installation issues
 torch>=2.0.0
 tensorflow>=2.10.0
