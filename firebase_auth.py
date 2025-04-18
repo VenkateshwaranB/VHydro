@@ -102,214 +102,92 @@ def auth_page():
     st.markdown("""
     <style>
     .auth-form {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e4ecfb 100%);
-        padding: 30px;
-        border-radius: 15px;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
         margin-bottom: 20px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        border-top: 4px solid #0e4194;
     }
     .auth-header {
-        background: linear-gradient(90deg, #0e4194, #3a7bd5);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         text-align: center;
         margin-bottom: 20px;
-        font-size: 1.8rem;
-    }
-    
-    .auth-input {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 10px 15px;
-        margin-bottom: 15px;
-        transition: all 0.3s ease;
-    }
-    
-    .auth-input:focus {
-        border-color: #0e4194;
-        box-shadow: 0 0 0 2px rgba(14, 65, 148, 0.2);
-    }
-    
-    .auth-button {
-        background: linear-gradient(90deg, #0e4194, #3a7bd5);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 12px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 10px;
-    }
-    
-    .auth-button:hover {
-        background: linear-gradient(90deg, #0c3880, #3373c8);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .auth-toggle {
-        text-align: center;
-        margin-top: 15px;
-        color: #666;
-    }
-    
-    .auth-toggle a {
-        color: #0e4194;
-        text-decoration: none;
-        font-weight: 500;
-    }
-    
-    .auth-toggle a:hover {
-        text-decoration: underline;
-    }
-    
-    .auth-logo {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    
-    .auth-logo img {
-        max-width: 120px;
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-        100% {
-            transform: scale(1);
-        }
     }
     </style>
     """, unsafe_allow_html=True)
     
-    # Add animated logo and title
-    st.markdown("""
-    <div class="auth-logo">
-        <div style="font-size: 4rem; margin-bottom: 10px;">🧪</div>
-        <h1 style="color: #0e4194; margin: 0; font-size: 2.2rem;">VHydro</h1>
-        <p style="color: #666; margin-top: 5px;">Hydrocarbon Quality Prediction</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Add title and description
+    st.markdown("<h1 style='text-align: center; color: #0c326f;'>VHydro Login</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Hydrocarbon Quality Prediction</p>", unsafe_allow_html=True)
     
-    # Create centered container for authentication
-    col1, col2, col3 = st.columns([1, 2, 1])
+    # Create tabs for Login and Sign Up
+    tab1, tab2 = st.tabs(["Login", "Sign Up"])
     
-    with col2:
-        # Initialize login/signup mode
-        if "auth_mode" not in st.session_state:
-            st.session_state["auth_mode"] = "login"
-            
-        # Toggle function
-        def toggle_auth_mode():
-            st.session_state["auth_mode"] = "signup" if st.session_state["auth_mode"] == "login" else "login"
-            
-        # Login form
-        if st.session_state["auth_mode"] == "login":
-            st.markdown('<div class="auth-form">', unsafe_allow_html=True)
-            st.markdown('<h2 class="auth-header">Welcome Back</h2>', unsafe_allow_html=True)
-            
-            email = st.text_input("Email", key="login_email")
-            password = st.text_input("Password", type="password", key="login_password")
-            
-            login_button = st.button("Login", key="login_button", use_container_width=True)
-            
-            if login_button:
-                success, message = login(email, password)
-                if success:
-                    st.success(message)
-                    time.sleep(1)  # Wait for a second to show success message
-                    st.rerun()
-                else:
-                    st.error(message)
-                    
-            # Forgot password
-            forgot_password_expand = st.expander("Forgot Password?")
-            with forgot_password_expand:
-                reset_email = st.text_input("Enter your email to reset password", key="reset_email")
-                if st.button("Send Reset Link", key="reset_button"):
-                    if reset_email:
-                        success, message = reset_password(reset_email)
-                        if success:
-                            st.success(message)
-                        else:
-                            st.error(message)
-                    else:
-                        st.warning("Please enter your email")
-            
-            st.markdown("""
-            <div class="auth-toggle">
-                Don't have an account? <a href="#" onclick="
-                    document.getElementById('switch_to_signup').click(); 
-                    return false;">Sign up</a>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Hidden button for toggling
-            if st.button("Switch to Signup", key="switch_to_signup", help="Switch to signup form"):
-                toggle_auth_mode()
-                st.rerun()
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+    # Login tab
+    with tab1:
+        st.markdown('<div class="auth-form">', unsafe_allow_html=True)
+        st.markdown('<h2 class="auth-header">Login</h2>', unsafe_allow_html=True)
         
-        # Signup form
-        else:
-            st.markdown('<div class="auth-form">', unsafe_allow_html=True)
-            st.markdown('<h2 class="auth-header">Create Account</h2>', unsafe_allow_html=True)
-            
-            new_email = st.text_input("Email", key="signup_email")
-            new_password = st.text_input("Password", type="password", key="signup_password")
-            confirm_password = st.text_input("Confirm Password", type="password", key="confirm_password")
-            
-            # Password requirements notice
-            st.markdown("""
-            <div style="font-size: 0.8em; color: #6c757d; margin-bottom: 15px;">
-            Password must be at least 8 characters with 1 uppercase letter, 1 lowercase letter, and 1 digit.
-            </div>
-            """, unsafe_allow_html=True)
-            
-            signup_button = st.button("Sign Up", key="signup_button", use_container_width=True)
-            
-            if signup_button:
-                success, message = signup(new_email, new_password, confirm_password)
-                if success:
-                    st.success(message)
-                    time.sleep(1)  # Wait for a second to show success message
-                    st.rerun()
-                else:
-                    st.error(message)
-            
-            st.markdown("""
-            <div class="auth-toggle">
-                Already have an account? <a href="#" onclick="
-                    document.getElementById('switch_to_login').click(); 
-                    return false;">Log in</a>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Hidden button for toggling
-            if st.button("Switch to Login", key="switch_to_login", help="Switch to login form"):
-                toggle_auth_mode()
+        email = st.text_input("Email", key="login_email")
+        password = st.text_input("Password", type="password", key="login_password")
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            login_button = st.button("Login", use_container_width=True)
+        
+        if login_button:
+            success, message = login(email, password)
+            if success:
+                st.success(message)
+                time.sleep(1)  # Wait for a second to show success message
                 st.rerun()
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+            else:
+                st.error(message)
+                
+        forgot_password = st.button("Forgot Password?", key="forgot_password")
+        
+        if forgot_password:
+            reset_email = st.text_input("Enter your email to reset password", key="reset_email")
+            if st.button("Send Reset Link"):
+                if reset_email:
+                    success, message = reset_password(reset_email)
+                    if success:
+                        st.success(message)
+                    else:
+                        st.error(message)
+                else:
+                    st.warning("Please enter your email")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    # Add demo credentials for easy testing
-    st.markdown("""
-    <div style="text-align: center; margin-top: 15px; background: rgba(0, 0, 0, 0.05); 
-                padding: 10px; border-radius: 10px; max-width: 400px; margin-left: auto; margin-right: auto;">
-        <p style="margin-bottom: 5px; font-weight: bold; color: #666;">Demo Credentials:</p>
-        <code>Email: user@example.com<br>Password: Password123</code>
-    </div>
-    """, unsafe_allow_html=True)
+    # Sign Up tab
+    with tab2:
+        st.markdown('<div class="auth-form">', unsafe_allow_html=True)
+        st.markdown('<h2 class="auth-header">Create Account</h2>', unsafe_allow_html=True)
+        
+        new_email = st.text_input("Email", key="signup_email")
+        new_password = st.text_input("Password", type="password", key="signup_password")
+        confirm_password = st.text_input("Confirm Password", type="password", key="confirm_password")
+        
+        # Password requirements notice
+        st.markdown("""
+        <div style="font-size: 0.8em; color: #6c757d; margin-bottom: 15px;">
+        Password must be at least 8 characters with 1 uppercase letter, 1 lowercase letter, and 1 digit.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            signup_button = st.button("Sign Up", use_container_width=True)
+        
+        if signup_button:
+            success, message = signup(new_email, new_password, confirm_password)
+            if success:
+                st.success(message)
+                time.sleep(1)  # Wait for a second to show success message
+                st.rerun()
+            else:
+                st.error(message)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
     
     return False
 
@@ -327,110 +205,46 @@ def user_account_page():
     st.markdown("""
     <style>
     .user-card {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e4ecfb 100%);
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        border-top: 4px solid #0e4194;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .user-header {
         border-bottom: 1px solid #e9ecef;
-        padding-bottom: 15px;
+        padding-bottom: 10px;
         margin-bottom: 20px;
     }
     .user-field {
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
+        margin-bottom: 15px;
     }
     .field-label {
         font-weight: bold;
         color: #0e4194;
-        width: 120px;
-        flex-shrink: 0;
-    }
-    .field-value {
-        flex-grow: 1;
-        padding: 10px 15px;
-        background: white;
-        border-radius: 6px;
-        border: 1px solid #e9ecef;
-    }
-    .user-avatar {
-        width: 80px;
-        height: 80px;
-        background: #3a7bd5;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 auto 15px auto;
-        color: white;
-        font-size: 2rem;
-        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
     
     st.markdown('<div class="user-card">', unsafe_allow_html=True)
     st.markdown('<div class="user-header">', unsafe_allow_html=True)
-    
-    # Get first initial for avatar
-    email = st.session_state.get('email', 'User')
-    initial = email[0].upper() if email and len(email) > 0 else 'U'
-    
-    st.markdown(f"""
-    <div class="user-avatar">{initial}</div>
-    <h3 style="text-align: center; margin: 0;">{email}</h3>
-    """, unsafe_allow_html=True)
-    
+    st.markdown(f"<h3>👤 {st.session_state.get('email', 'User')}</h3>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="user-field">', unsafe_allow_html=True)
     st.markdown('<span class="field-label">Email:</span>', unsafe_allow_html=True)
-    st.markdown(f'<span class="field-value">{email}</span>', unsafe_allow_html=True)
+    st.write(st.session_state.get('email', 'Unknown'))
     st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="user-field">', unsafe_allow_html=True)
-    st.markdown('<span class="field-label">Role:</span>', unsafe_allow_html=True)
-    st.markdown('<span class="field-value">Analyst</span>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="user-field">', unsafe_allow_html=True)
-    st.markdown('<span class="field-label">Last Login:</span>', unsafe_allow_html=True)
-    st.markdown(f'<span class="field-value">{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</span>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Password change section
-    st.markdown('<div class="user-card">', unsafe_allow_html=True)
-    st.markdown('<h3 style="margin-top: 0;">Change Password</h3>', unsafe_allow_html=True)
-    
-    current_password = st.text_input("Current Password", type="password", key="current_pw")
-    new_password = st.text_input("New Password", type="password", key="new_pw")
-    confirm_password = st.text_input("Confirm New Password", type="password", key="confirm_pw")
-    
-    # Password requirements notice
-    st.markdown("""
-    <div style="font-size: 0.8em; color: #6c757d; margin-bottom: 15px;">
-    Password must be at least 8 characters with 1 uppercase letter, 1 lowercase letter, and 1 digit.
-    </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("Update Password", use_container_width=True):
-        # This is a demo, so just show a success message
-        st.success("Password updated successfully! (Demo only)")
     
     st.markdown('</div>', unsafe_allow_html=True)
     
     # Logout section
+    st.markdown("<h3 class='section-header'>Logout</h3>", unsafe_allow_html=True)
+    
     st.markdown('<div class="user-card">', unsafe_allow_html=True)
-    st.markdown("<h3 style='margin-top: 0;'>Logout</h3>", unsafe_allow_html=True)
     st.write("Click the button below to log out of your account.")
     
-    if st.button("Logout", key="logout_button", use_container_width=True):
+    if st.button("Logout"):
         logout()
         st.success("You have been logged out!")
         time.sleep(1)
