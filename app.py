@@ -576,13 +576,13 @@ def create_sidebar():
     # Create toggle buttons for each page
     for page_name, page_info in pages.items():
         button_class = "toggle-button toggle-button-active" if page_info["active"] else "toggle-button"
-        if st.markdown(f"""
+        if st.markdown(f'''
         <button class="{button_class}" onclick="
             this.closest('section').querySelector('[data-testid=stFormSubmitButton] button').click();">
             <span>{page_name}</span>
             <span class="toggle-button-icon">{page_info["icon"]}</span>
         </button>
-        """, unsafe_allow_html=True):
+        ''', unsafe_allow_html=True):
             st.session_state['current_page'] = page_name
             st.rerun()
     
