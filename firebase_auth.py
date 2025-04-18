@@ -138,7 +138,7 @@ def auth_page():
             if success:
                 st.success(message)
                 time.sleep(1)  # Wait for a second to show success message
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error(message)
                 
@@ -183,7 +183,7 @@ def auth_page():
             if success:
                 st.success(message)
                 time.sleep(1)  # Wait for a second to show success message
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error(message)
         
@@ -198,7 +198,7 @@ def user_account_page():
     if not st.session_state.get("logged_in", False):
         st.warning("Your session has expired. Please log in again.")
         logout()
-        st.experimental_rerun()
+        st.rerun()
         return
     
     # Create a card-like interface for user info
@@ -248,6 +248,6 @@ def user_account_page():
         logout()
         st.success("You have been logged out!")
         time.sleep(1)
-        st.experimental_rerun()
+        st.rerun()
     
     st.markdown('</div>', unsafe_allow_html=True)
