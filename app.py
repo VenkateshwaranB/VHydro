@@ -2,9 +2,10 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import time
 
-# IMPORTANT: Set page configuration at the beginning
+# Configure the page
 st.set_page_config(
     page_title="VHydro - Hydrocarbon Quality Prediction",
     page_icon="🧪",
@@ -16,137 +17,109 @@ st.set_page_config(
 if 'current_page' not in st.session_state:
     st.session_state['current_page'] = 'Home'
 
-# Custom CSS - simplified version
-st.markdown("""
-<style>
-    /* Main app background and colors */
-    .main .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+# Simple login functionality
+def show_login_page():
+    st.title("Login to VHydro")
+    
+    # Demo credentials
+    demo_users = {
+        "user@example.com": "Password123",
+        "admin@vhydro.com": "Admin123"
     }
     
-    /* Colorful section headers */
-    .main-header {
-        font-size: 2.5rem !important;
-        color: #0e4194;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    
-    .sub-header {
-        font-size: 1.8rem !important;
-        color: #0e4194;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-    }
-    
-    /* Toggle button styling */
-    .toggle-button {
-        background: rgba(14, 65, 148, 0.1);
-        color: #0e4194;
-        border: none;
-        border-radius: 6px;
-        padding: 10px 15px;
-        margin-bottom: 8px;
-        width: 100%;
-        text-align: left;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .toggle-button:hover {
-        background: rgba(14, 65, 148, 0.2);
-    }
-    
-    .toggle-button-active {
-        background: rgba(14, 65, 148, 0.3);
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Simplified sidebar with navigation
-def create_sidebar():
-    """Create the sidebar with toggle buttons"""
-    st.sidebar.title("VHydro")
-    st.sidebar.markdown("---")
-    
-    # Navigation section
-    st.sidebar.markdown("### Navigation")
-    
-    # Page options with icons
-    pages = {
-        "Home": {"icon": "🏠", "active": False},
-        "Dataset Preparation": {"icon": "📊", "active": False},
-        "Model Workflow": {"icon": "🔄", "active": False},
-        "Analysis Tool": {"icon": "🔍", "active": False},
-        "Results Visualization": {"icon": "📈", "active": False},
-    }
-    
-    # Set active page based on session state
-    current_page = st.session_state.get('current_page', 'Home')
-    if current_page in pages:
-        pages[current_page]["active"] = True
-    
-    # Create buttons for each page
-    for page_name, page_info in pages.items():
-        button_class = "toggle-button toggle-button-active" if page_info["active"] else "toggle-button"
+    with st.form("login_form"):
+        email = st.text_input("Email")
+        password = st.text_input("Password", type="password")
+        submit = st.form_submit_button("Login")
         
-        # Create button with HTML for styling
-        if st.sidebar.markdown(f"""
-        <div class="{button_class}">
-            <span>{page_name}</span>
-            <span>{page_info["icon"]}</span>
-        </div>
-        """, unsafe_allow_html=True):
-            st.session_state['current_page'] = page_name
+        if submit:
+            if email in demo_users and demo_users[email] == password:
+                st.session_state['logged_in'] = True
+                st.session_state['email'] = email
+                st.success("Login successful!")
+                time.sleep(1)
+                st.rerun()
+            else:
+                st.error("Invalid email or password")
+    
+    # Demo credentials hint
+    st.info("Demo credentials: user@example.com / Password123")
+
+# Sidebar navigation - using standard Streamlit components
+def sidebar_navigation():
+    st.sidebar.title("VHydro")
+    st.sidebar.subheader("Navigation")
+    
+    # User info if logged in
+    if st.session_state.get('logged_in', False):
+        st.sidebar.info(f"Logged in as: {st.session_state.get('email', 'User')}")
+        if st.sidebar.button("Logout"):
+            for key in ['logged_in', 'email']:
+                if key in st.session_state:
+                    del st.session_state[key]
             st.rerun()
     
-    # Model configuration section
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### Model Configuration")
+    # Navigation buttons
+    pages = {
+        "Home": "🏠",
+        "Dataset Preparation": "📊",
+        "Model Workflow": "🔄",
+        "Analysis Tool": "🔍",
+        "Results Visualization": "📈"
+    }
     
-    # Cluster configuration
+    # Create navigation buttons with icons
+    for page, icon in pages.items():
+        # Highlight current page
+        if st.session_state['current_page'] == page:
+            button_label = f"**{icon} {page}**"
+        else:
+            button_label = f"{icon} {page}"
+            
+        if st.sidebar.button(button_label, key=f"nav_{page}"):
+            st.session_state['current_page'] = page
+            st.rerun()
+    
+    # Configuration section
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("Model Configuration")
+    
     min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
     max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
     
-    # Advanced settings in an expander
     with st.sidebar.expander("Advanced Settings"):
         train_ratio = st.slider("Training Ratio", 0.5, 0.9, 0.8, 0.05)
-        val_ratio = st.slider("Validation Ratio", 0.05, 0.3, 0.1, 0.05)
+        validation_ratio = st.slider("Validation Ratio", 0.05, 0.3, 0.1, 0.05)
         test_ratio = st.slider("Test Ratio", 0.05, 0.3, 0.1, 0.05)
         
-        # Calculate the total and adjust if needed
-        total = train_ratio + val_ratio + test_ratio
+        # Adjust ratios if they don't sum to 1
+        total = train_ratio + validation_ratio + test_ratio
         if abs(total - 1.0) > 1e-6:
-            test_ratio = max(0.05, 1.0 - train_ratio - val_ratio)
-            st.warning(f"Adjusted test ratio to {test_ratio:.2f}")
+            st.warning(f"Ratios sum to {total:.2f}, should be 1.0")
             
         hidden_channels = st.number_input("Hidden Channels", 4, 64, 16, 4)
         num_runs = st.number_input("Number of Runs", 1, 10, 4, 1)
     
     return {
-        "page": current_page,
         "min_clusters": min_clusters,
         "max_clusters": max_clusters,
         "train_ratio": train_ratio,
-        "val_ratio": val_ratio,
+        "validation_ratio": validation_ratio,
         "test_ratio": test_ratio,
         "hidden_channels": hidden_channels,
         "num_runs": num_runs
     }
 
-# Home page - simplified
+# Home page
 def home_page():
-    st.markdown('<h1 class="main-header">VHydro - Hydrocarbon Quality Prediction</h1>', unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Advanced Graph Convolutional Network for Petrophysical Analysis</p>", unsafe_allow_html=True)
+    st.title("VHydro - Hydrocarbon Quality Prediction")
+    st.subheader("Advanced Graph Convolutional Network for Petrophysical Analysis")
     
-    st.markdown("<h2 class='sub-header'>About VHydro</h2>", unsafe_allow_html=True)
-    
+    # About section
+    st.markdown("### About VHydro")
     st.info("""
     **VHydro** is an advanced tool for hydrocarbon quality prediction using well log data.
-    It combines traditional petrophysical analysis with modern machine learning techniques
+    It combines traditional petrophysical analysis with machine learning techniques
     to provide accurate predictions of reservoir quality.
     
     The tool uses Graph Convolutional Networks (GCN) to model the complex relationships
@@ -155,7 +128,7 @@ def home_page():
     """)
     
     # Key features
-    st.markdown("<h2 class='sub-header'>Key Features</h2>", unsafe_allow_html=True)
+    st.markdown("### Key Features")
     
     col1, col2 = st.columns(2)
     
@@ -186,47 +159,43 @@ def home_page():
         - Classification Reports
         """)
     
-    # Getting started section
-    st.markdown("<h2 class='sub-header'>Getting Started</h2>", unsafe_allow_html=True)
+    # Getting started
+    st.markdown("### Getting Started")
+    st.write("Use the sidebar to navigate between different sections of the application.")
     
-    if st.button("Start Analysis", key="start_analysis_btn"):
+    if st.button("Start Analysis", key="start_btn"):
         st.session_state['current_page'] = "Dataset Preparation"
         st.rerun()
 
-# Dataset preparation page - simplified
+# Dataset preparation page
 def dataset_preparation_page():
-    """Render the dataset preparation page"""
-    st.markdown('<h1 class="main-header">Dataset Preparation</h1>', unsafe_allow_html=True)
-    
-    st.markdown('Upload your LAS file containing well log data. The file will be processed to calculate petrophysical properties necessary for hydrocarbon potential prediction.', unsafe_allow_html=True)
+    st.title("Dataset Preparation")
+    st.write("Upload your LAS file containing well log data.")
     
     uploaded_file = st.file_uploader("Upload LAS file", type=["las"])
-    
-    # Provide option for sample data
     use_sample = st.checkbox("Use sample data instead", value=False)
     
     # Parameters section
-    st.markdown("<h2 class='sub-header'>Calculation Parameters</h2>", unsafe_allow_html=True)
+    st.markdown("### Calculation Parameters")
     
-    # Create two columns for parameters
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("**Fluid Parameters**")
+        st.subheader("Fluid Parameters")
         matrix_density = st.number_input("Matrix Density (g/cc)", min_value=2.0, max_value=3.0, value=2.65, step=0.01)
         fluid_density = st.number_input("Fluid Density (g/cc)", min_value=0.5, max_value=1.5, value=1.0, step=0.01)
     
     with col2:
-        st.markdown("**Archie Parameters**")
+        st.subheader("Archie Parameters")
         a_param = st.number_input("Tortuosity Factor (a)", min_value=0.5, max_value=2.0, value=1.0, step=0.1)
         m_param = st.number_input("Cementation Exponent (m)", min_value=1.0, max_value=3.0, value=2.0, step=0.1)
         n_param = st.number_input("Saturation Exponent (n)", min_value=1.0, max_value=3.0, value=2.0, step=0.1)
     
-    # Feature selection section
-    st.markdown("<h2 class='sub-header'>Feature Selection</h2>", unsafe_allow_html=True)
+    # Feature selection
+    st.markdown("### Feature Selection")
     
-    # Simulate available logs
-    available_logs = {
+    # Available logs
+    logs = {
         "GR": "Gamma Ray",
         "RHOB": "Bulk Density",
         "NPHI": "Neutron Porosity",
@@ -237,92 +206,100 @@ def dataset_preparation_page():
         "SW": "Calculated Water Saturation"
     }
     
-    # Create columns for log selection
-    cols = st.columns(4)
+    # Organize checkboxes in columns
+    col1, col2, col3, col4 = st.columns(4)
+    columns = [col1, col2, col3, col4]
     
-    # Distribute logs across columns
-    for i, (log_code, log_name) in enumerate(available_logs.items()):
-        with cols[i % 4]:
-            st.checkbox(f"{log_code}: {log_name}", value=log_code in ["GR", "RHOB", "VSHALE", "PHI", "SW"])
+    selected_logs = []
+    for i, (log_code, log_name) in enumerate(logs.items()):
+        with columns[i % 4]:
+            if st.checkbox(f"{log_code}: {log_name}", value=log_code in ["GR", "RHOB", "VSHALE", "PHI", "SW"]):
+                selected_logs.append(log_code)
     
     # Process button
-    if uploaded_file or use_sample:
-        if st.button("Process Data", type="primary"):
-            with st.spinner('Processing data...'):
-                # Simulate processing with a progress bar
-                progress_bar = st.progress(0)
-                for i in range(100):
-                    time.sleep(0.01)  # Simulate work being done
-                    progress_bar.progress(i + 1)
-                
-                # Show success message
-                st.success("Data processed successfully!")
-                
-                # Continue button
-                if st.button("Continue to Model Workflow"):
-                    st.session_state['current_page'] = "Model Workflow"
-                    st.rerun()
+    if (uploaded_file or use_sample) and st.button("Process Data"):
+        with st.spinner('Processing data...'):
+            # Simulate processing with a progress bar
+            progress_bar = st.progress(0)
+            for i in range(100):
+                time.sleep(0.01)
+                progress_bar.progress(i + 1)
+            
+            # Show success message
+            st.success("Data processed successfully!")
+            
+            # Show sample data
+            st.markdown("### Processed Data Preview")
+            
+            # Create sample dataframe
+            sample_data = {
+                "DEPTH": [1000.0, 1000.5, 1001.0, 1001.5, 1002.0],
+                "GR": [75.2, 78.5, 80.1, 76.3, 72.8],
+                "RHOB": [2.45, 2.48, 2.52, 2.47, 2.44],
+                "VSHALE": [0.35, 0.38, 0.42, 0.36, 0.32],
+                "PHI": [0.18, 0.16, 0.14, 0.17, 0.19],
+                "SW": [0.45, 0.48, 0.52, 0.47, 0.43]
+            }
+            
+            sample_df = pd.DataFrame(sample_data)
+            st.dataframe(sample_df)
+            
+            # Continue button
+            if st.button("Continue to Model Workflow"):
+                st.session_state['current_page'] = "Model Workflow"
+                st.rerun()
     else:
         st.info("Please upload a LAS file or use the sample data to continue.")
 
-# Model workflow page - simplified
+# Model workflow page
 def model_workflow_page():
-    """Render the model workflow page"""
-    st.markdown('<h1 class="main-header">Model Workflow</h1>', unsafe_allow_html=True)
+    st.title("Model Workflow")
     
-    # Create a modern intro section
     st.info("""
     **Graph Convolutional Network (GCN) Workflow**
     
-    This page outlines the workflow for creating a Graph Convolutional Network model for hydrocarbon quality prediction.
-    The process includes dataset creation, graph construction, model training, and evaluation.
+    This page outlines the workflow for creating a Graph Convolutional Network model for
+    hydrocarbon quality prediction. The process includes dataset creation, graph construction,
+    model training, and evaluation.
     """)
     
-    # Create workflow steps
+    # Workflow steps
     steps = [
-        {"title": "1. Dataset Preparation", "icon": "📋", "status": "completed", "desc": "Process well log data and calculate petrophysical properties"},
-        {"title": "2. K-means Clustering", "icon": "🧩", "status": "active", "desc": "Perform K-means clustering to identify facies"},
-        {"title": "3. Graph Construction", "icon": "🔗", "status": "pending", "desc": "Create nodes and edges for the graph dataset"},
-        {"title": "4. GCN Training", "icon": "🧠", "status": "pending", "desc": "Train the Graph Convolutional Network model"},
-        {"title": "5. Model Evaluation", "icon": "📊", "status": "pending", "desc": "Evaluate model performance and visualize results"}
+        {"title": "Dataset Preparation", "status": "completed", "desc": "Process well log data and calculate petrophysical properties"},
+        {"title": "K-means Clustering", "status": "active", "desc": "Perform K-means clustering to identify facies"},
+        {"title": "Graph Construction", "status": "pending", "desc": "Create nodes and edges for the graph dataset"},
+        {"title": "GCN Training", "status": "pending", "desc": "Train the Graph Convolutional Network model"},
+        {"title": "Model Evaluation", "status": "pending", "desc": "Evaluate model performance and visualize results"}
     ]
     
-    # Display steps
-    for step in steps:
+    # Display workflow steps
+    for i, step in enumerate(steps):
         status_color = "green" if step["status"] == "completed" else "blue" if step["status"] == "active" else "gray"
-        status_text = "Completed" if step["status"] == "completed" else "In Progress" if step["status"] == "active" else "Pending"
         
-        st.markdown(f"""
-        <div style="display: flex; margin-bottom: 20px; align-items: flex-start;">
-            <div style="margin-right: 15px; font-size: 24px;">
-                {step["icon"]}
-            </div>
-            <div style="flex-grow: 1;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <h3 style="margin: 0;">{step["title"]}</h3>
-                    <span style="color: {status_color};">{status_text}</span>
-                </div>
-                <p style="margin-top: 5px; color: #666;">{step["desc"]}</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        col1, col2 = st.columns([1, 10])
+        with col1:
+            st.markdown(f"**{i+1}.**")
+        with col2:
+            st.markdown(f"**{step['title']}** - *{step['status']}*")
+            st.markdown(f"{step['desc']}")
+        
+        if i < len(steps) - 1:  # Don't add space after the last step
+            st.markdown("---")
     
     # K-means Clustering section (active step)
-    st.markdown("<h2 class='sub-header'>K-means Clustering for Facies Classification</h2>", unsafe_allow_html=True)
+    st.markdown("### K-means Clustering for Facies Classification")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        n_clusters = st.slider("Number of Clusters", min_value=3, max_value=15, value=7)
-        random_state = st.number_input("Random State", min_value=0, max_value=100, value=42)
+        n_clusters = st.slider("Number of Clusters", min_value=3, max_value=15, value=7, key="kmeans_clusters")
+        random_state = st.number_input("Random State", min_value=0, max_value=100, value=42, key="kmeans_random")
     
     with col2:
-        st.markdown("**Feature Scaling**")
-        scaling_method = st.radio("Select scaling method", 
+        scaling_method = st.radio("Feature Scaling Method", 
                                ["StandardScaler", "MinMaxScaler", "RobustScaler"],
                                horizontal=True)
         
-        st.markdown("**Silhouette Score Optimization**")
         optimize_silhouette = st.checkbox("Automatically determine optimal cluster count", value=True)
     
     # Run clustering button
@@ -331,36 +308,61 @@ def model_workflow_page():
             # Simulate clustering with a progress bar
             progress_bar = st.progress(0)
             for i in range(100):
-                time.sleep(0.01)  # Simulate work being done
+                time.sleep(0.01)
                 progress_bar.progress(i + 1)
             
             # Show clustering results
             st.success("Clustering completed successfully!")
             
+            # Show some results
+            st.markdown("### Silhouette Score Analysis")
+            
+            # Create a simple chart
+            fig, ax = plt.subplots(figsize=(8, 5))
+            
+            cluster_range = range(3, 11)
+            silhouette_scores = [0.42, 0.48, 0.52, 0.58, 0.55, 0.51, 0.47, 0.43]
+            
+            ax.plot(cluster_range, silhouette_scores, 'o-', linewidth=2, color='blue')
+            ax.set_xlabel("Number of Clusters")
+            ax.set_ylabel("Silhouette Score")
+            ax.grid(True, linestyle='--', alpha=0.7)
+            
+            # Find the best score
+            best_idx = silhouette_scores.index(max(silhouette_scores))
+            best_n = cluster_range[best_idx]
+            ax.axvline(x=best_n, color='red', linestyle='--', alpha=0.7)
+            ax.text(best_n + 0.1, max(silhouette_scores) - 0.02, 
+                   f"Optimal: {best_n} clusters", 
+                   color='red')
+            
+            st.pyplot(fig)
+            
             # Continue button
             if st.button("Continue to Graph Construction"):
                 st.info("Next: Graph Construction")
 
-# Analysis tool page - simplified
+# Analysis tool page
 def analysis_tool_page(config):
-    """Render the analysis tool page"""
-    st.markdown('<h1 class="main-header">Analysis Tool</h1>', unsafe_allow_html=True)
+    # Check if user is logged in
+    if not st.session_state.get('logged_in', False):
+        show_login_page()
+        return
     
-    st.markdown('Analyze your well log data using the VHydro Graph Convolutional Network model.', unsafe_allow_html=True)
+    st.title("Analysis Tool")
+    st.write("Analyze your well log data using the VHydro Graph Convolutional Network model.")
     
     # Create tabs for different analysis steps
     tab1, tab2, tab3, tab4 = st.tabs(["Upload & Process", "Graph Creation", "Model Training", "Results"])
     
     with tab1:
-        st.markdown("### 1. Data Upload and Processing")
+        st.header("Data Upload and Processing")
         
-        uploaded_file = st.file_uploader("Upload LAS file", type=["las"])
-        
-        # Option to use sample data
-        use_sample = st.checkbox("Use sample data instead", value=not uploaded_file)
+        uploaded_file = st.file_uploader("Upload LAS file", type=["las"], key="analysis_uploader")
+        use_sample = st.checkbox("Use sample data instead", value=not uploaded_file, key="analysis_sample")
         
         # Process button
-        if (uploaded_file or use_sample) and st.button("Process Data", key="process_data_btn"):
+        if (uploaded_file or use_sample) and st.button("Process Data", key="analysis_process"):
             with st.spinner('Processing well log data...'):
                 # Simulate processing with a progress bar
                 progress_bar = st.progress(0)
@@ -369,32 +371,32 @@ def analysis_tool_page(config):
                     progress_bar.progress(i + 1)
                 
                 # Show success message
-                st.success("Data processed successfully! Well log data loaded and petrophysical properties calculated.")
+                st.success("Data processed successfully!")
     
     with tab2:
-        st.markdown("### 2. Graph Dataset Creation")
+        st.header("Graph Dataset Creation")
         
         # Show options for graph creation
         col1, col2 = st.columns(2)
         
         with col1:
             n_clusters = st.slider("Number of Clusters", min_value=5, max_value=10, value=7, 
-                                key="graph_clusters")
+                                key="gcn_clusters")
             train_test_split = st.slider("Train/Test Split", min_value=0.6, max_value=0.9, value=0.8,
-                                      key="graph_train_split")
+                                      key="gcn_split")
         
         with col2:
-            st.markdown("**Node Connection Strategy**")
-            connection_strategy = st.radio("Select how nodes are connected:",
+            connection_strategy = st.radio("Node Connection Strategy",
                                        ["K-Nearest Neighbors", "Distance Threshold", "Facies-based"],
-                                       index=2)
+                                       index=2,
+                                       key="gcn_connection")
             
             connection_param = st.slider("Connection Parameter", 
                                       min_value=1, max_value=10, value=5,
-                                      help="K value for KNN, distance threshold, or maximum inter-facies connections")
+                                      key="gcn_param")
         
         # Create graph button
-        if st.button("Generate Graph Dataset", key="generate_graph_btn"):
+        if st.button("Generate Graph Dataset", key="graph_generate"):
             with st.spinner('Creating graph dataset...'):
                 # Simulate processing with a progress bar
                 progress_bar = st.progress(0)
@@ -404,29 +406,36 @@ def analysis_tool_page(config):
                 
                 # Success message
                 st.success("Graph dataset created successfully!")
+                
+                # Show statistics
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Nodes", "458")
+                col2.metric("Edges", "1,245")
+                col3.metric("Facies", "7")
+                col4.metric("Quality Classes", "4")
     
     with tab3:
-        st.markdown("### 3. GCN Model Training")
+        st.header("GCN Model Training")
         
         # Model configuration options
         col1, col2 = st.columns(2)
         
         with col1:
             hidden_channels = st.slider("Hidden Channels", min_value=8, max_value=64, value=16, step=8,
-                                     key="model_hidden_channels")
+                                     key="gcn_channels")
             learning_rate = st.select_slider("Learning Rate", 
                                          options=[0.001, 0.005, 0.01, 0.05, 0.1], 
                                          value=0.01,
-                                         key="model_learning_rate")
+                                         key="gcn_lr")
         
         with col2:
             epochs = st.slider("Training Epochs", min_value=50, max_value=500, value=200, step=50,
-                            key="model_epochs")
+                            key="gcn_epochs")
             dropout = st.slider("Dropout Rate", min_value=0.1, max_value=0.7, value=0.5, step=0.1,
-                             key="model_dropout")
+                             key="gcn_dropout")
         
         # Train model button
-        if st.button("Train GCN Model", key="train_model_btn"):
+        if st.button("Train GCN Model", key="model_train"):
             with st.spinner('Training Graph Convolutional Network model...'):
                 # Simulate training with a progress bar
                 progress_bar = st.progress(0)
@@ -436,39 +445,67 @@ def analysis_tool_page(config):
                 
                 # Show success message
                 st.success("Model training completed successfully!")
+                
+                # Show metrics
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Test Accuracy", "87.3%")
+                col2.metric("Precision", "85.2%")
+                col3.metric("Recall", "83.7%")
+                col4.metric("F1 Score", "84.4%")
     
     with tab4:
-        st.markdown("### 4. Results Analysis")
+        st.header("Results Analysis")
         
-        # Add tabs for different visualizations
-        result_tab1, result_tab2 = st.tabs(["Hydrocarbon Potential", "Depth Profile"])
+        # Sample visualization
+        fig, ax = plt.subplots(figsize=(10, 6))
         
-        with result_tab1:
-            st.markdown("#### Hydrocarbon Potential Distribution")
-            
-            # Create a simple chart
-            fig, ax = plt.subplots(figsize=(8, 5))
-            
-            categories = ["Very Low", "Low", "Moderate", "High"]
-            values = [25, 35, 30, 10]
-            
-            ax.bar(categories, values, color=["#e74c3c", "#f39c12", "#3498db", "#2ecc71"])
-            ax.set_ylabel('Percentage')
-            ax.set_title('Distribution of Hydrocarbon Potential')
-            
-            st.pyplot(fig)
+        categories = ["Very Low", "Low", "Moderate", "High"]
+        values = [22, 35, 30, 13]
         
-        with result_tab2:
-            st.markdown("#### Depth vs. Hydrocarbon Potential")
-            
-            st.info("Depth profile visualization would appear here.")
+        ax.bar(categories, values, color=["#e74c3c", "#f39c12", "#3498db", "#2ecc71"])
+        ax.set_ylabel('Percentage')
+        ax.set_title('Distribution of Hydrocarbon Potential')
+        
+        st.pyplot(fig)
+        
+        # Export options
+        st.subheader("Export Options")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.download_button(
+                label="Download CSV",
+                data="sample,data",
+                file_name="hydrocarbon_predictions.csv",
+                mime="text/csv"
+            )
+        
+        with col2:
+            st.download_button(
+                label="Download Report",
+                data="sample report",
+                file_name="hydrocarbon_report.pdf",
+                mime="application/pdf"
+            )
+        
+        with col3:
+            st.download_button(
+                label="Download Visualization",
+                data="sample image",
+                file_name="hydrocarbon_visualization.png",
+                mime="image/png"
+            )
 
-# Results visualization page - simplified
+# Results visualization page
 def results_visualization_page():
-    """Render the results visualization page"""
-    st.markdown('<h1 class="main-header">Results Visualization</h1>', unsafe_allow_html=True)
+    # Check if user is logged in
+    if not st.session_state.get('logged_in', False):
+        show_login_page()
+        return
     
-    st.markdown('Interactive visualization of hydrocarbon potential prediction results.', unsafe_allow_html=True)
+    st.title("Results Visualization")
+    st.write("Interactive visualization of hydrocarbon potential prediction results.")
     
     # Create a sample dataset for visualization
     depths = np.arange(1000, 1100, 0.5)
@@ -489,8 +526,8 @@ def results_visualization_page():
     
     df = pd.DataFrame(data)
     
-    # Sidebar controls for visualization
-    st.sidebar.markdown("### Visualization Controls")
+    # Visualization controls
+    st.sidebar.subheader("Visualization Controls")
     
     # Depth range slider
     depth_min = float(df["DEPTH"].min())
@@ -501,7 +538,7 @@ def results_visualization_page():
         min_value=depth_min,
         max_value=depth_max,
         value=(depth_min, depth_min + 50),
-        step=10.0
+        step=5.0
     )
     
     # Filter data by depth range
@@ -518,10 +555,10 @@ def results_visualization_page():
     
     # Display visualization based on type
     if viz_type == "Well Log View":
-        st.markdown("### Well Log View")
+        st.subheader("Well Log View")
         
         # Create well log visualization
-        fig, axes = plt.subplots(1, 4, figsize=(12, 8), sharey=True)
+        fig, axes = plt.subplots(1, 5, figsize=(15, 8), sharey=True)
         
         # Plot GR
         axes[0].plot(filtered_data["GR"], filtered_data["DEPTH"], 'b-')
@@ -545,20 +582,32 @@ def results_visualization_page():
         axes[3].set_title('SW')
         axes[3].set_xlabel('v/v')
         
+        # Plot Quality
+        cmap = mcolors.ListedColormap(["#e74c3c", "#f39c12", "#3498db", "#2ecc71"])
+        quality_2d = np.vstack((filtered_data["QUALITY_NUMERIC"], filtered_data["QUALITY_NUMERIC"])).T
+        im = axes[4].imshow(quality_2d, aspect='auto', cmap=cmap,
+                          extent=[0, 1, filtered_data["DEPTH"].max(), filtered_data["DEPTH"].min()])
+        axes[4].set_title('HC Potential')
+        axes[4].set_xticks([])
+        
+        # Add colorbar
+        cbar = plt.colorbar(im, ax=axes[4], ticks=[0.125, 0.375, 0.625, 0.875])
+        cbar.set_ticklabels(["Very Low", "Low", "Moderate", "High"])
+        
         plt.tight_layout()
         st.pyplot(fig)
         
     elif viz_type == "Cross-Plot":
-        st.markdown("### Cross-Plot Analysis")
+        st.subheader("Cross-Plot Analysis")
         
-        # Create sidebar for cross-plot parameters
-        x_property = st.sidebar.selectbox(
+        # Select properties for cross-plot
+        x_property = st.selectbox(
             "X-Axis Property",
             ["PHI", "GR", "RHOB", "SW"],
             index=0
         )
         
-        y_property = st.sidebar.selectbox(
+        y_property = st.selectbox(
             "Y-Axis Property",
             ["PHI", "GR", "RHOB", "SW"],
             index=1
@@ -567,11 +616,12 @@ def results_visualization_page():
         # Create cross-plot
         fig, ax = plt.subplots(figsize=(10, 6))
         
+        # Create scatter plot with color based on quality
         scatter = ax.scatter(
             filtered_data[x_property],
             filtered_data[y_property],
             c=filtered_data["QUALITY_NUMERIC"],
-            cmap="viridis",
+            cmap=mcolors.ListedColormap(["#e74c3c", "#f39c12", "#3498db", "#2ecc71"]),
             s=50,
             alpha=0.7
         )
@@ -582,50 +632,81 @@ def results_visualization_page():
         ax.set_title(f'{x_property} vs {y_property} Cross-Plot')
         
         # Add colorbar
-        cbar = plt.colorbar(scatter, ax=ax)
+        cbar = plt.colorbar(scatter, ax=ax, ticks=[0.125, 0.375, 0.625, 0.875])
+        cbar.set_ticklabels(["Very Low", "Low", "Moderate", "High"])
         cbar.set_label('Hydrocarbon Potential')
+        
+        # Add grid
+        ax.grid(True, alpha=0.3)
         
         plt.tight_layout()
         st.pyplot(fig)
         
     elif viz_type == "Statistical Summary":
-        st.markdown("### Statistical Summary")
+        st.subheader("Statistical Summary")
         
-        # Display dataframe
+        # Display statistics
         st.dataframe(filtered_data.describe())
         
-        # Create a simple bar chart
-        st.markdown("#### Quality Distribution")
+        # Quality distribution
+        st.subheader("Hydrocarbon Potential Distribution")
         
         quality_counts = filtered_data["QUALITY"].value_counts()
         
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.bar(quality_counts.index, quality_counts.values, color=["#e74c3c", "#f39c12", "#3498db", "#2ecc71"])
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Create bar chart
+        ax.bar(
+            quality_counts.index,
+            quality_counts.values,
+            color=["#e74c3c", "#f39c12", "#3498db", "#2ecc71"]
+        )
+        
         ax.set_ylabel('Count')
         ax.set_title('Hydrocarbon Potential Distribution')
         
+        # Add count labels
+        for i, count in enumerate(quality_counts.values):
+            ax.text(i, count + 1, str(count), ha='center')
+        
         st.pyplot(fig)
+        
+        # Show key metrics
+        st.subheader("Key Metrics")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        # Calculate metrics
+        high_quality_count = filtered_data[filtered_data["QUALITY"].isin(["High", "Moderate"])].shape[0]
+        total_count = filtered_data.shape[0]
+        quality_ratio = high_quality_count / total_count
+        
+        col1.metric("Quality Ratio (High+Moderate)", f"{quality_ratio:.1%}")
+        col2.metric("Net Pay", f"{high_quality_count * 0.5:.1f}m")
+        
+        avg_porosity = filtered_data[filtered_data["QUALITY"].isin(["High", "Moderate"])]["PHI"].mean()
+        col3.metric("Average Porosity (High+Moderate)", f"{avg_porosity:.1%}")
 
 # Main function
 def main():
-    # Create sidebar
-    config = create_sidebar()
+    # Get config from sidebar
+    config = sidebar_navigation()
     
     # Display the selected page
-    if config["page"] == "Home":
+    if st.session_state['current_page'] == "Home":
         home_page()
-    elif config["page"] == "Dataset Preparation":
+    elif st.session_state['current_page'] == "Dataset Preparation":
         dataset_preparation_page()
-    elif config["page"] == "Model Workflow":
+    elif st.session_state['current_page'] == "Model Workflow":
         model_workflow_page()
-    elif config["page"] == "Analysis Tool":
+    elif st.session_state['current_page'] == "Analysis Tool":
         analysis_tool_page(config)
-    elif config["page"] == "Results Visualization":
+    elif st.session_state['current_page'] == "Results Visualization":
         results_visualization_page()
     
     # Footer
-    st.markdown("<div style='text-align:center; margin-top:30px; color:#666; font-size:0.8rem;'>VHydro - Hydrocarbon Potential Prediction Application © 2025</div>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("<div style='text-align:center;'>VHydro - Hydrocarbon Potential Prediction Application © 2025</div>", unsafe_allow_html=True)
 
-# Entry point for the application
 if __name__ == "__main__":
     main()
