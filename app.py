@@ -80,122 +80,192 @@ def display_image_with_caption(image_path, caption="", width=None):
 # Custom CSS
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem !important;
-        color: #0c326f;
+    /* Modern Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0a2855 0%, #164584 100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 3px 0px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Sidebar content styling */
+    [data-testid="stSidebar"] > div:first-child {
+        padding: 1.5rem 1rem;
+    }
+    
+    /* Logo container */
+    .sidebar-logo {
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     }
-    .sub-header {
-        font-size: 1.8rem !important;
-        color: #0c326f;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-    }
-    .section-header {
-        font-size: 1.5rem !important;
-        color: #2c3e50;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-    }
-    .info-box {
-        background-color: #f0f2f6;
+    
+    .sidebar-logo img {
+        max-width: 80%;
         border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        background: white;
+        padding: 8px;
+        transition: transform 0.3s ease;
     }
-    .stButton>button {
-        background-color: #0c326f;
+    
+    .sidebar-logo img:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Section headers */
+    .sidebar-header {
         color: white;
-        font-weight: 500;
-    }
-    .stButton>button:hover {
-        background-color: #1e4d9e;
-        color: white;
-    }
-    .logo-container {
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    .footer {
-        text-align: center;
-        margin-top: 3rem;
-        color: #888;
-        font-size: 0.8rem;
-    }
-    div.stTabs button {
-        font-weight: bold;
-    }
-
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0c326f 0%, #1e4d9e 100%);
-    }
-    
-    /* Make ALL sidebar text white */
-    [data-testid="stSidebar"] {
-        color: white !important;
-    }
-    
-    [data-testid="stSidebar"] p, 
-    [data-testid="stSidebar"] span, 
-    [data-testid="stSidebar"] label, 
-    [data-testid="stSidebar"] div, 
-    [data-testid="stSidebar"] h1, 
-    [data-testid="stSidebar"] h2, 
-    [data-testid="stSidebar"] h3 {
-        color: white !important;
-    }
-    
-    /* Style sidebar title explicitly */
-    [data-testid="stSidebar"] .sidebar-content h1 {
-        color: white !important;
+        font-size: 1.3rem;
         font-weight: 600;
+        margin: 1.5rem 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     
-    /* Style radio buttons in sidebar */
-    [data-testid="stSidebar"] .stRadio label {
-        color: white !important;
-    }
-    
-    /* Style sliders in sidebar */
-    [data-testid="stSidebar"] .stSlider label {
-        color: white !important;
-    }
-    
-    /* Style number inputs in sidebar */
-    [data-testid="stSidebar"] .stNumberInput label {
-        color: white !important;
-    }
-    
-    /* Style buttons in sidebar */
-    [data-testid="stSidebar"] button {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white !important;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    [data-testid="stSidebar"] button:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-    
-    /* Force white text for expander content */
-    [data-testid="stSidebar"] .st-expander .st-expander-content {
-        color: white !important;
-    }
-    
-    /* User account section styling */
+    /* User account panel */
     .user-account {
+        background-color: rgba(255, 255, 255, 0.07);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 0 0 1.5rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .user-account:hover {
         background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 5px;
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
     
     .user-email {
-        font-weight: bold;
-        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 1rem;
+        color: white !important;
+        margin-bottom: 12px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .user-email svg {
+        margin-right: 8px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* User buttons */
+    .user-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .sidebar-button {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        text-align: center;
+        cursor: pointer;
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    .sidebar-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .sidebar-button-primary {
+        background: rgba(59, 130, 246, 0.4);
+    }
+    
+    .sidebar-button-secondary {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Navigation dropdown styling */
+    [data-testid="stSidebar"] .stSelectbox {
+        margin-bottom: 1.5rem;
+    }
+    
+    [data-testid="stSidebar"] .stSelectbox > div > div {
+        background-color: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 8px;
+    }
+    
+    [data-testid="stSidebar"] .stSelectbox > div > div > div {
+        color: white !important;
+    }
+    
+    /* Slider styling */
+    [data-testid="stSidebar"] .stSlider > div > div > div {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    [data-testid="stSidebar"] .stSlider > div > div > div > div {
+        background-color: #4285f4;
+    }
+    
+    /* Separator line */
+    .sidebar-separator {
+        height: 1px;
+        background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+        margin: 1.5rem 0;
+    }
+    
+    /* Info box styling */
+    .sidebar-info {
+        background: rgba(66, 133, 244, 0.1);
+        border-left: 3px solid #4285f4;
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Settings expander styling */
+    [data-testid="stSidebar"] .streamlit-expanderHeader {
+        background-color: rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: white !important;
+        padding: 10px 15px;
+        font-weight: 500;
+    }
+    
+    [data-testid="stSidebar"] .streamlit-expanderContent {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 0 0 8px 8px;
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: none;
+        margin-top: -1rem;
+    }
+    
+    /* Make sure all text in sidebar is white */
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] div {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Warning styling */
+    [data-testid="stSidebar"] .stAlert {
+        background-color: rgba(255, 183, 77, 0.2) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(255, 183, 77, 0.3) !important;
     }
     
 </style>
@@ -243,38 +313,56 @@ def get_image_base64(image_path):
 
 # Sidebar navigation
 def create_sidebar():
+    # Add user icon SVG
+    user_icon = """
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+    </svg>
+    """
+    
+    # Logo section with enhanced styling
+    st.markdown('<div class="sidebar-logo">', unsafe_allow_html=True)
     try:
-        # Try to load logo for sidebar
         logo_path = "src/VHydro_Logo.png"
         if os.path.exists(logo_path):
-            st.sidebar.image(logo_path, width=100)
+            st.image(logo_path, width=160)
         else:
-            st.sidebar.info("Logo not found at: " + logo_path)
+            # Fallback if logo not found
+            st.markdown("""
+            <div style="width:100%; text-align:center; background:white; border-radius:10px; padding:20px; margin-bottom:15px;">
+                <h2 style="color:#0a2855; margin:0;">VHydro</h2>
+                <p style="color:#0a2855; margin:5px 0 0 0; font-size:0.8rem;">Hydrocarbon Quality Prediction</p>
+            </div>
+            """, unsafe_allow_html=True)
     except Exception as e:
         logger.error(f"Error loading sidebar logo: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Display user account info in sidebar
-    st.sidebar.markdown('<div class="user-account">', unsafe_allow_html=True)
-    st.sidebar.markdown(f'<div class="user-email">👤 {st.session_state.get("email", "User")}</div>', unsafe_allow_html=True)
+    # User account section
+    st.markdown('<div class="user-account">', unsafe_allow_html=True)
+    st.markdown(f'<div class="user-email">{user_icon} {st.session_state.get("email", "User")}</div>', unsafe_allow_html=True)
     
-    # Add logout and account buttons
-    col1, col2 = st.sidebar.columns(2)
+    st.markdown('<div class="user-buttons">', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
     with col1:
-        if st.button("Logout", key="sidebar_logout"):
+        if st.button("Logout", key="sidebar_logout", use_container_width=True):
             logout()
             st.rerun()
     with col2:
-        if st.button("Account", key="sidebar_account"):
+        if st.button("Account", key="sidebar_account", use_container_width=True):
             st.session_state['current_page'] = "Account"
             st.rerun()
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.sidebar.title("Navigation")
+    # Navigation section
+    st.markdown('<div class="sidebar-header">Navigation</div>', unsafe_allow_html=True)
+    
     page_options = ["Home", "Dataset Preparation", "Model Workflow", "Analysis Tool", 
                     "Results Visualization", "Account"]
     
-    # Use selectbox instead of radio for better mobile experience
-    page = st.sidebar.selectbox(
+    # Use selectbox with enhanced styling for navigation
+    page = st.selectbox(
         "Select a Section",
         page_options,
         index=page_options.index(st.session_state.get('current_page', 'Home'))
@@ -283,18 +371,22 @@ def create_sidebar():
     # Update current page in session state
     st.session_state['current_page'] = page
     
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### Model Configuration")
+    # Model configuration section
+    st.markdown('<div class="sidebar-header">Model Configuration</div>', unsafe_allow_html=True)
     
-    # Cluster configuration
-    min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
-    max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    # Cluster configuration sliders
+    min_clusters = st.slider("Min Clusters", 2, 15, 5)
+    max_clusters = st.slider("Max Clusters", min_clusters, 15, 10)
     
-    # Advanced settings
-    with st.sidebar.expander("Advanced Settings"):
+    # Advanced settings in an expander
+    with st.expander("Advanced Settings"):
         train_ratio = st.slider("Training Data Ratio", 0.5, 0.9, 0.8, 0.05)
         val_ratio = st.slider("Validation Data Ratio", 0.05, 0.3, 0.1, 0.05)
         test_ratio = st.slider("Test Data Ratio", 0.05, 0.3, 0.1, 0.05)
+        
+        # Add a visual separator
+        st.markdown('<div class="sidebar-separator"></div>', unsafe_allow_html=True)
+        
         hidden_channels = st.number_input("Hidden Channels", 4, 64, 16, 4)
         num_runs = st.number_input("Number of Runs", 1, 10, 4, 1)
     
@@ -302,16 +394,20 @@ def create_sidebar():
     total = train_ratio + val_ratio + test_ratio
     if abs(total - 1.0) > 1e-6:
         test_ratio = max(0.05, 1.0 - train_ratio - val_ratio)
-        st.sidebar.warning(f"Adjusted test ratio to {test_ratio:.2f} to ensure total equals 1.0")
+        st.warning(f"Adjusted test ratio to {test_ratio:.2f} to ensure total equals 1.0")
     
-    st.sidebar.markdown("---")
-    st.sidebar.info("""
+    # Add a styled info box
+    st.markdown('<div class="sidebar-separator"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-info">', unsafe_allow_html=True)
+    st.markdown("""
     **VHydro** predicts hydrocarbon quality zones using petrophysical properties 
     and Graph Convolutional Networks.
     """)
+    st.markdown('</div>', unsafe_allow_html=True)
     
+    # Warning for missing VHydro module
     if not VHYDRO_AVAILABLE:
-        st.sidebar.warning("⚠️ VHydro module is not available. Some features will be disabled.")
+        st.warning("⚠️ VHydro module is not available. Some features will be disabled.")
     
     return {
         "page": page,
@@ -323,7 +419,6 @@ def create_sidebar():
         "hidden_channels": hidden_channels,
         "num_runs": num_runs
     }
-
 # Home page
 def home_page():
     logo_path = "src/Building a Greener World.png"  # Update path as needed
