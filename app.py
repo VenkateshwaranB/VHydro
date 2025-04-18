@@ -382,21 +382,38 @@ def account_page():
     
     # Show user account page from the firebase_auth module
     user_account_page()
-
-# Main function
 def main():
-    # Create sidebar and get configuration
+    # Check if user is authenticated
+    is_authenticated = authenticate()
+    
+    if not is_authenticated:
+        # If not authenticated, stop execution (auth page was already shown by authenticate())
+        st.stop()
+    
+    # User is authenticated, continue with app
     config = create_sidebar()
     
-    # Display selected page
+    # Display selected page based on sidebar selection
     if config["page"] == "Home":
         home_page()
     elif config["page"] == "Dataset Preparation":
-        dataset_preparation_page()
+        dataset_preparation_page()  # This function must be defined or imported
     elif config["page"] == "Model Workflow":
         model_workflow_page()
-    elif config["page"] == "Analysis Tool":
-        analysis_tool_page(config)
+# # Main function
+# def main():
+#     # Create sidebar and get configuration
+#     config = create_sidebar()
+    
+#     # Display selected page
+#     if config["page"] == "Home":
+#         home_page()
+#     elif config["page"] == "Dataset Preparation":
+#         dataset_preparation_page()
+#     elif config["page"] == "Model Workflow":
+#         model_workflow_page()
+#     elif config["page"] == "Analysis Tool":
+#         analysis_tool_page(config)
     elif config["page"] == "Results Visualization":
         results_visualization_page()
     elif config["page"] == "Account":
