@@ -1,20 +1,13 @@
 import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, auth
 import re
 import time
 from datetime import datetime
 
-# Initialize Firebase Admin SDK if not already initialized
-if not firebase_admin._apps:
-    # You'll need to generate a service account key file from Firebase Console
-    # Project settings -> Service accounts -> Generate new private key
-    # Save the JSON file securely and specify the path here
-    try:
-        cred = credentials.Certificate("vhydro-852ae-firebase-adminsdk-fbsvc-805f0f5d2d.json")
-        firebase_admin.initialize_app(cred)
-    except Exception as e:
-        st.error(f"Error initializing Firebase: {e}")
+# Hardcoded users for demonstration (replace with proper authentication later)
+DEMO_USERS = {
+    "user@example.com": "Password123",
+    "admin@vhydro.com": "Admin123"
+}
 
 # Function to validate email format
 def is_valid_email(email):
@@ -45,47 +38,44 @@ def signup(email, password, confirm_password):
     if not is_strong_password(password):
         return False, "Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 digit"
     
-    try:
-        # Create user in Firebase
-        user = auth.create_user(
-            email=email,
-            password=password
-        )
-        
-        # Store user info in session state
-        st.session_state["user_id"] = user.uid
-        st.session_state["email"] = email
-        st.session_state["logged_in"] = True
-        
-        return True, "Account created successfully!"
-    except Exception as e:
-        error_msg = str(e)
-        if "ALREADY_EXISTS" in error_msg:
-            return False, "Email already in use"
-        return False, f"An error occurred: {error_msg}"
+    if email in DEMO_USERS:
+        return False, "Email already in use"
+    
+    # Add user to demo users (in a real app, you would save to a database)
+    DEMO_USERS[email] = password
+    
+    # Store user info in session state
+    st.session_state["user_id"] = email
+    st.session_state["email"] = email
+    st.session_state["logged_in"] = True
+    
+    return True, "Account created successfully!"
 
-# Function to handle login (requires email/password auth flow)
+# Function to handle login
 def login(email, password):
-    # For testing purposes, allow login with test credentials
-    # In production, you would implement real authentication here
-    if email == "test@example.com" and password == "Test123456":
-        st.session_state["user_id"] = "test_user_id"
+    if not email or not password:
+        return False, "Please enter both email and password"
+    
+    # Check if user exists and password matches
+    if email in DEMO_USERS and DEMO_USERS[email] == password:
+        # Store user info in session state
+        st.session_state["user_id"] = email
         st.session_state["email"] = email
         st.session_state["logged_in"] = True
+        
         return True, "Login successful!"
     else:
         return False, "Invalid email or password"
 
-# Function to handle password reset
+# Function to handle password reset (simplified mock version)
 def reset_password(email):
     if not is_valid_email(email):
         return False, "Invalid email format"
     
-    try:
-        auth.generate_password_reset_link(email)
-        return True, "Password reset email sent!"
-    except Exception as e:
-        return False, f"An error occurred: {str(e)}"
+    if email in DEMO_USERS:
+        return True, "Password reset email would be sent! (Demo only)"
+    else:
+        return False, "Email not found"
 
 # Function to log out
 def logout():
@@ -117,8 +107,16 @@ def auth_page():
         border-radius: 10px;
         margin-bottom: 20px;
     }
+    .auth-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
     </style>
     """, unsafe_allow_html=True)
+    
+    # Add title and description
+    st.markdown("<h1 style='text-align: center; color: #0c326f;'>VHydro Login</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Hydrocarbon Quality Prediction</p>", unsafe_allow_html=True)
     
     # Create tabs for Login and Sign Up
     tab1, tab2 = st.tabs(["Login", "Sign Up"])
@@ -126,21 +124,26 @@ def auth_page():
     # Login tab
     with tab1:
         st.markdown('<div class="auth-form">', unsafe_allow_html=True)
+        st.markdown('<h2 class="auth-header">Login</h2>', unsafe_allow_html=True)
+        
         email = st.text_input("Email", key="login_email")
         password = st.text_input("Password", type="password", key="login_password")
         
-        login_button = st.button("Login", use_container_width=True)
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            login_button = st.button("Login", use_container_width=True)
         
         if login_button:
             success, message = login(email, password)
             if success:
                 st.success(message)
-                time.sleep(1)
+                time.sleep(1)  # Wait for a second to show success message
                 st.experimental_rerun()
             else:
                 st.error(message)
                 
         forgot_password = st.button("Forgot Password?", key="forgot_password")
+        
         if forgot_password:
             reset_email = st.text_input("Enter your email to reset password", key="reset_email")
             if st.button("Send Reset Link"):
@@ -158,17 +161,28 @@ def auth_page():
     # Sign Up tab
     with tab2:
         st.markdown('<div class="auth-form">', unsafe_allow_html=True)
+        st.markdown('<h2 class="auth-header">Create Account</h2>', unsafe_allow_html=True)
+        
         new_email = st.text_input("Email", key="signup_email")
         new_password = st.text_input("Password", type="password", key="signup_password")
         confirm_password = st.text_input("Confirm Password", type="password", key="confirm_password")
         
-        signup_button = st.button("Sign Up", use_container_width=True)
+        # Password requirements notice
+        st.markdown("""
+        <div style="font-size: 0.8em; color: #6c757d; margin-bottom: 15px;">
+        Password must be at least 8 characters with 1 uppercase letter, 1 lowercase letter, and 1 digit.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            signup_button = st.button("Sign Up", use_container_width=True)
         
         if signup_button:
             success, message = signup(new_email, new_password, confirm_password)
             if success:
                 st.success(message)
-                time.sleep(1)
+                time.sleep(1)  # Wait for a second to show success message
                 st.experimental_rerun()
             else:
                 st.error(message)
@@ -177,23 +191,63 @@ def auth_page():
     
     return False
 
-# Function to show user account page
+# Function to show user profile/account page
 def user_account_page():
-    st.title("My Account")
+    st.markdown("<h2 class='sub-header'>My Account</h2>", unsafe_allow_html=True)
     
-    st.write(f"Email: {st.session_state.get('email', 'Unknown')}")
+    if not st.session_state.get("logged_in", False):
+        st.warning("Your session has expired. Please log in again.")
+        logout()
+        st.experimental_rerun()
+        return
     
-    if st.button("Send Password Reset Email"):
-        email = st.session_state.get('email')
-        if email:
-            success, message = reset_password(email)
-            if success:
-                st.success(message)
-            else:
-                st.error(message)
+    # Create a card-like interface for user info
+    st.markdown("""
+    <style>
+    .user-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .user-header {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    .user-field {
+        margin-bottom: 15px;
+    }
+    .field-label {
+        font-weight: bold;
+        color: #0e4194;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="user-card">', unsafe_allow_html=True)
+    st.markdown('<div class="user-header">', unsafe_allow_html=True)
+    st.markdown(f"<h3>👤 {st.session_state.get('email', 'User')}</h3>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="user-field">', unsafe_allow_html=True)
+    st.markdown('<span class="field-label">Email:</span>', unsafe_allow_html=True)
+    st.write(st.session_state.get('email', 'Unknown'))
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Logout section
+    st.markdown("<h3 class='section-header'>Logout</h3>", unsafe_allow_html=True)
+    
+    st.markdown('<div class="user-card">', unsafe_allow_html=True)
+    st.write("Click the button below to log out of your account.")
     
     if st.button("Logout"):
         logout()
         st.success("You have been logged out!")
         time.sleep(1)
         st.experimental_rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
