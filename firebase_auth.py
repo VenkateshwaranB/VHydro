@@ -11,7 +11,7 @@ if not firebase_admin._apps:
     # Project settings -> Service accounts -> Generate new private key
     # Save the JSON file securely and specify the path here
     try:
-        cred = credentials.Certificate("path/to/serviceAccountKey.json")
+        cred = credentials.Certificate("vhydro-852ae-firebase-adminsdk-fbsvc-805f0f5d2d.json")
         firebase_admin.initialize_app(cred)
     except Exception as e:
         st.error(f"Error initializing Firebase: {e}")
