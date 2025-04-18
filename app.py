@@ -440,104 +440,121 @@ def get_image_base64(image_path):
 
 # Sidebar navigation
 def create_sidebar():
-    # Add user icon SVG
-    user_icon = """
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-      <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
-    </svg>
-    """
-    
-    # Logo section with enhanced styling
+    """Create the sidebar with toggle buttons instead of dropdown"""
+    # Logo section
     st.markdown('<div class="sidebar-logo">', unsafe_allow_html=True)
     try:
         logo_path = "src/VHydro_Logo.png"
         if os.path.exists(logo_path):
-            st.image(logo_path, width=160)
+            st.image(logo_path)
         else:
             # Fallback if logo not found
             st.markdown("""
-            <div style="width:100%; text-align:center; background:white; border-radius:10px; padding:20px; margin-bottom:15px;">
-                <h2 style="color:#0a2855; margin:0;">VHydro</h2>
-                <p style="color:#0a2855; margin:5px 0 0 0; font-size:0.8rem;">Hydrocarbon Quality Prediction</p>
+            <div style="text-align:center;">
+                <h2 style="color:white; margin:0;">VHydro</h2>
+                <p style="color:white; margin:5px 0 0 0; opacity:0.8; font-size:0.8rem;">Hydrocarbon Prediction</p>
             </div>
             """, unsafe_allow_html=True)
     except Exception as e:
         logger.error(f"Error loading sidebar logo: {e}")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # User account section
-    st.markdown('<div class="user-account">', unsafe_allow_html=True)
-    st.markdown(f'<div class="user-email">{user_icon} {st.session_state.get("email", "User")}</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="user-buttons">', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
+    # User account section - shown only if logged in
+    if st.session_state.get('logged_in', False):
+        st.markdown('<div class="user-info">', unsafe_allow_html=True)
+        email = st.session_state.get('email', 'User')
+        initial = email[0].upper() if email and len(email) > 0 else 'U'
+        
+        st.markdown(f"""
+        <div class="user-avatar">{initial}</div>
+        <div class="user-name">{email}</div>
+        """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Logout button
         if st.button("Logout", key="sidebar_logout", use_container_width=True):
             logout()
             st.rerun()
-    with col2:
-        if st.button("Account", key="sidebar_account", use_container_width=True):
-            st.session_state['current_page'] = "Account"
-            st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Navigation section
+    # Navigation section with toggle buttons
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown('<div class="sidebar-header">Navigation</div>', unsafe_allow_html=True)
     
-    page_options = ["Home", "Dataset Preparation", "Model Workflow", "Analysis Tool", 
-                    "Results Visualization", "Account"]
+    # Page options
+    pages = {
+        "Home": {"icon": "🏠", "active": False},
+        "Dataset Preparation": {"icon": "📊", "active": False},
+        "Model Workflow": {"icon": "🔄", "active": False},
+        "Analysis Tool": {"icon": "🔍", "active": False},
+        "Results Visualization": {"icon": "📈", "active": False},
+    }
     
-    # Use selectbox with enhanced styling for navigation
-    page = st.selectbox(
-        "Select a Section",
-        page_options,
-        index=page_options.index(st.session_state.get('current_page', 'Home'))
-    )
+    # Set active page based on session state
+    current_page = st.session_state.get('current_page', 'Home')
+    if current_page in pages:
+        pages[current_page]["active"] = True
     
-    # Update current page in session state
-    st.session_state['current_page'] = page
+    # Create toggle buttons for each page
+    for page_name, page_info in pages.items():
+        button_class = "toggle-button toggle-button-active" if page_info["active"] else "toggle-button"
+        if st.markdown(f"""
+        <button class="{button_class}" onclick="
+            this.closest('section').querySelector('[data-testid=stFormSubmitButton] button').click();">
+            <span>{page_name}</span>
+            <span class="toggle-button-icon">{page_info["icon"]}</span>
+        </button>
+        """, unsafe_allow_html=True):
+            st.session_state['current_page'] = page_name
+            st.rerun()
+    
+    # Create a hidden form submit button that will be triggered by the custom buttons
+    with st.form(key="navigation_form"):
+        submit_button = st.form_submit_button("Navigate", type="primary")
+        if submit_button:
+            st.rerun()
+            
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Model configuration section
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown('<div class="sidebar-header">Model Configuration</div>', unsafe_allow_html=True)
     
-    # Cluster configuration sliders
+    # Cluster configuration with colorful sliders
     min_clusters = st.slider("Min Clusters", 2, 15, 5)
     max_clusters = st.slider("Max Clusters", min_clusters, 15, 10)
     
     # Advanced settings in an expander
     with st.expander("Advanced Settings"):
-        train_ratio = st.slider("Training Data Ratio", 0.5, 0.9, 0.8, 0.05)
-        val_ratio = st.slider("Validation Data Ratio", 0.05, 0.3, 0.1, 0.05)
-        test_ratio = st.slider("Test Data Ratio", 0.05, 0.3, 0.1, 0.05)
+        train_ratio = st.slider("Training Ratio", 0.5, 0.9, 0.8, 0.05)
+        val_ratio = st.slider("Validation Ratio", 0.05, 0.3, 0.1, 0.05)
+        test_ratio = st.slider("Test Ratio", 0.05, 0.3, 0.1, 0.05)
         
-        # Add a visual separator
-        st.markdown('<div class="sidebar-separator"></div>', unsafe_allow_html=True)
-        
+        # Calculate the total and adjust if needed
+        total = train_ratio + val_ratio + test_ratio
+        if abs(total - 1.0) > 1e-6:
+            test_ratio = max(0.05, 1.0 - train_ratio - val_ratio)
+            st.warning(f"Adjusted test ratio to {test_ratio:.2f}")
+            
         hidden_channels = st.number_input("Hidden Channels", 4, 64, 16, 4)
         num_runs = st.number_input("Number of Runs", 1, 10, 4, 1)
     
-    # Adjust test_ratio to make sure ratios sum to 1.0
-    total = train_ratio + val_ratio + test_ratio
-    if abs(total - 1.0) > 1e-6:
-        test_ratio = max(0.05, 1.0 - train_ratio - val_ratio)
-        st.warning(f"Adjusted test ratio to {test_ratio:.2f} to ensure total equals 1.0")
-    
-    # Add a styled info box
-    st.markdown('<div class="sidebar-separator"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="sidebar-info">', unsafe_allow_html=True)
-    st.markdown("""
-    **VHydro** predicts hydrocarbon quality zones using petrophysical properties 
-    and Graph Convolutional Networks.
-    """)
     st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Add info box at the bottom
+    st.markdown("""
+    <div style="background:rgba(255,255,255,0.1); border-radius:5px; padding:10px; margin-top:20px;">
+        <p style="font-size:0.8rem; margin:0;">
+            <strong>VHydro</strong> uses Graph Convolutional Networks to predict hydrocarbon quality zones.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Warning for missing VHydro module
     if not VHYDRO_AVAILABLE:
-        st.warning("⚠️ VHydro module is not available. Some features will be disabled.")
+        st.warning("⚠️ VHydro module unavailable")
     
     return {
-        "page": page,
+        "page": current_page,
         "min_clusters": min_clusters,
         "max_clusters": max_clusters,
         "train_ratio": train_ratio,
@@ -546,6 +563,7 @@ def create_sidebar():
         "hidden_channels": hidden_channels,
         "num_runs": num_runs
     }
+    
 # Home page
 def home_page():
     logo_path = "src/Building a Greener World.png"  # Update path as needed
