@@ -20,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Define simple auth functions - no imports required
+# Simple login function using hardcoded credentials (for demo purposes)
 def login(email, password):
     # Demo users
     users = {"user@example.com": "password", "admin@vhydro.com": "admin"}
@@ -30,11 +30,16 @@ def login(email, password):
         return True
     return False
 
+# Helper function to logout
 def logout():
     if "email" in st.session_state:
         del st.session_state["email"]
     if "logged_in" in st.session_state:
         del st.session_state["logged_in"]
+    
+    # Reset any authentication-related session state
+    if "auth_mode" in st.session_state:
+        del st.session_state["auth_mode"]
 
 # Basic CSS for a colorful, scientific UI
 st.markdown("""
@@ -638,25 +643,28 @@ def analysis_tool_page():
             st.session_state["uploaded_file"] = uploaded_file.name
             
             # Show file info in a nice format
-            st.markdown(f"""
-            <div class="card">
-                <h4>File Information</h4>
-                <table style="width: 100%;">
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">File Name:</td>
-                        <td style="padding: 8px;">{uploaded_file.name}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">File Size:</td>
-                        <td style="padding: 8px;">{uploaded_file.size / 1024:.2f} KB</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">Upload Time:</td>
-                        <td style="padding: 8px;">{pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")}</td>
-                    </tr>
-                </table>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f"""
+                <div class="card">
+                    <h4>File Information</h4>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold;">File Name:</td>
+                            <td style="padding: 8px;">{uploaded_file.name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold;">File Size:</td>
+                            <td style="padding: 8px;">{uploaded_file.size / 1024:.2f} KB</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold;">Upload Time:</td>
+                            <td style="padding: 8px;">{pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")}</td>
+                        </tr>
+                    </table>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
             
             # Proceed button
             if st.button("Proceed to Property Calculation"):
@@ -1121,33 +1129,489 @@ def analysis_tool_page():
                 # Store in session state
                 st.session_state["model_history"] = True
                 st.session_state["analysis_complete"] = True
+
+def results_visualization_page():
+    # Check login for visualization
+    if not st.session_state.get("logged_in", False):
+        st.markdown("""
+        <div class="card" style="text-align: center; max-width: 500px; margin: 50px auto;">
+            <h2>Login Required</h2>
+            <p>You need to log in to access the Results Visualization.</p>
+            <div style="margin-top: 20px;">
+        """, unsafe_allow_html=True)
         
-        if uploaded_file is not None:
-            st.success(f"File {uploaded_file.name} uploaded successfully!")
+        if st.button("Login to Continue", key="login_prompt"):
+            st.session_state["auth_mode"] = "login"
+            st.rerun()
+        
+        if st.session_state.get("auth_mode") == "login":
+            with st.form("login_form"):
+                st.markdown("<h3>Login</h3>", unsafe_allow_html=True)
+                email = st.text_input("Email")
+                password = st.text_input("Password", type="password")
+                
+                if st.form_submit_button("Login"):
+                    if login(email, password):
+                        st.success("Login successful!")
+                        st.rerun()
+                    else:
+                        st.error("Invalid email or password")
+        
+        st.markdown("</div></div>", unsafe_allow_html=True)
+        return
+    
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Results Visualization</h1>
+        <p>Visualize and interpret prediction results</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Check if analysis has been completed
+    if not st.session_state.get("analysis_complete", False) and not st.session_state.get("model_history", False):
+        st.warning("No analysis results found. Please run the analysis tool first.")
+        
+        # Add demo option
+        if st.button("Load Demo Results"):
+            st.session_state["model_history"] = True
+            st.rerun()
+        return
+    
+    # Create tabs for different visualizations
+    tab1, tab2, tab3 = st.tabs(["Facies Classification", "Quality Prediction", "Model Performance"])
+    
+    with tab1:
+        st.markdown("<h3>Facies Classification</h3>", unsafe_allow_html=True)
+        
+        # Add options panel
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Create a dropdown to select cluster configuration
+            cluster_options = [5, 6, 7, 8, 9, 10]
+            selected_cluster = st.selectbox("Select Cluster Configuration", options=cluster_options, index=2)
+        
+        with col2:
+            # Add color scheme selection
+            color_scheme = st.selectbox("Color Scheme", ["viridis", "plasma", "magma", "cividis", "turbo"])
+        
+        # Create a simple visualization
+        depth = np.arange(1000, 1100)
+        facies = np.random.randint(0, selected_cluster, size=100)
+        
+        # Option to show detailed view
+        show_detailed = st.checkbox("Show Detailed View", value=False)
+        
+        if show_detailed:
+            # Create a more detailed visualization with log curves
+            fig, ax = plt.subplots(1, 3, figsize=(15, 10), sharey=True, gridspec_kw={'width_ratios': [1, 1, 2]})
             
-            # Store in session state
-            st.session_state["uploaded_file"] = uploaded_file.name
+            # Add GR log curve
+            gr_log = 50 + 20 * np.sin(np.linspace(0, 8*np.pi, 100)) + np.random.normal(0, 5, 100)
+            ax[0].plot(gr_log, depth, 'k-', linewidth=1)
+            ax[0].set_xlabel("GR (API)")
+            ax[0].set_ylabel("Depth")
+            ax[0].invert_yaxis()
+            ax[0].set_title("Gamma Ray Log")
+            ax[0].grid(True, alpha=0.3)
             
-            # Show file info in a nice format
-            st.markdown("""
-            <div class="card">
-                <h4>File Information</h4>
-                <table style="width: 100%;">
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">File Name:</td>
-                        <td style="padding: 8px;">{}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">File Size:</td>
-                        <td style="padding: 8px;">{:.2f} KB</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">Upload Time:</td>
-                        <td style="padding: 8px;">{}</td>
-                    </tr>
-                </table>
-            </div>
-            """.format(
-                uploaded_file.name,
-                uploaded_file.size / 1024,
-                pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Add resistivity log curve
+            res_log = 10 ** (np.random.uniform(0, 2, 100))
+            ax[1].semilogx(res_log, depth, 'r-', linewidth=1)
+            ax[1].set_xlabel("Resistivity (ohm.m)")
+            ax[1].invert_yaxis()
+            ax[1].set_title("Resistivity Log")
+            ax[1].grid(True, alpha=0.3)
+            
+            # Add facies classification
+            cmap = plt.cm.get_cmap(color_scheme, selected_cluster)
+            sc = ax[2].scatter(np.ones_like(depth), depth, c=facies, cmap=cmap, 
+                             s=300, marker='s')
+            ax[2].set_yticks(np.arange(1000, 1101, 10))
+            ax[2].set_xlim(0.9, 1.1)
+            ax[2].set_xticks([])
+            ax[2].invert_yaxis()
+            ax[2].set_title("Facies Classification")
+            
+            # Add a colorbar
+            cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+            cbar = plt.colorbar(sc, cax=cbar_ax)
+            cbar.set_ticks(np.arange(selected_cluster) + 0.5)
+            cbar.set_ticklabels([f"Facies {i+1}" for i in range(selected_cluster)])
+            cbar.set_label('Facies Classification')
+            
+            plt.tight_layout(rect=[0, 0, 0.9, 1])
+            st.pyplot(fig)
+        else:
+            # Create a simpler visualization
+            fig, ax = plt.subplots(figsize=(8, 10))
+            cmap = plt.cm.get_cmap(color_scheme, selected_cluster)
+            
+            # Create a depth vs facies plot
+            sc = ax.scatter(np.ones_like(depth), depth, c=facies, cmap=cmap, 
+                           s=100, marker='s')
+            
+            # Customize the plot
+            ax.set_yticks(np.arange(1000, 1101, 10))
+            ax.set_ylabel("Depth")
+            ax.set_xlim(0.9, 1.1)
+            ax.set_xticks([])
+            ax.invert_yaxis()
+            
+            # Add a colorbar
+            cbar = plt.colorbar(sc)
+            cbar.set_ticks(np.arange(selected_cluster) + 0.5)
+            cbar.set_ticklabels([f"Facies {i+1}" for i in range(selected_cluster)])
+            cbar.set_label('Facies Classification')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+        
+        # Add statistics panel
+        st.markdown("<h4>Facies Statistics</h4>", unsafe_allow_html=True)
+        
+        # Calculate facies distribution
+        facies_counts = np.zeros(selected_cluster)
+        for i in range(selected_cluster):
+            facies_counts[i] = np.sum(facies == i)
+        
+        # Create a pie chart
+        fig, ax = plt.subplots(figsize=(10, 6))
+        wedges, texts, autotexts = ax.pie(
+            facies_counts, 
+            autopct='%1.1f%%',
+            textprops={'color': "w", 'fontweight': 'bold'},
+            colors=plt.cm.get_cmap(color_scheme, selected_cluster)(np.linspace(0, 1, selected_cluster))
+        )
+        
+        ax.legend(
+            wedges, 
+            [f"Facies {i+1}" for i in range(selected_cluster)],
+            title="Facies",
+            loc="center left",
+            bbox_to_anchor=(1, 0, 0.5, 1)
+        )
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+    with tab2:
+        st.markdown("<h3>Hydrocarbon Quality Prediction</h3>", unsafe_allow_html=True)
+        
+        # Create options for visualization
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            view_type = st.radio("View Type", ["Single Column", "Multi-Column", "Heat Map"])
+        
+        with col2:
+            color_scheme = st.selectbox("Color Scheme", 
+                                      ["viridis", "plasma", "inferno", "magma", "cividis"],
+                                      key="quality_color")
+        
+        # Generate sample data
+        depth = np.arange(1000, 1100)
+        quality_labels = ["Very_Low", "Low", "Moderate", "High", "Very_High"]
+        quality = np.random.randint(0, 5, size=100)
+        
+        if view_type == "Single Column":
+            # Create the visualization
+            fig, ax = plt.subplots(figsize=(8, 10))
+            cmap = plt.cm.get_cmap(color_scheme, 5)
+            
+            # Create a depth vs quality plot
+            sc = ax.scatter(np.ones_like(depth), depth, c=quality, cmap=cmap, 
+                           s=100, marker='s')
+            
+            # Customize the plot
+            ax.set_yticks(np.arange(1000, 1101, 10))
+            ax.set_ylabel("Depth")
+            ax.set_xlim(0.9, 1.1)
+            ax.set_xticks([])
+            ax.invert_yaxis()
+            
+            # Add a colorbar
+            cbar = plt.colorbar(sc)
+            cbar.set_ticks([0.4, 1.2, 2.0, 2.8, 3.6])
+            cbar.set_ticklabels(quality_labels)
+            cbar.set_label('Hydrocarbon Quality')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+            
+        elif view_type == "Multi-Column":
+            # Create a multi-column view comparing different cluster configurations
+            fig, axes = plt.subplots(1, 3, figsize=(15, 10), sharey=True)
+            
+            for i, ax in enumerate(axes):
+                # Generate random data for each column
+                cluster_quality = np.random.randint(0, 5, size=100)
+                
+                cmap = plt.cm.get_cmap(color_scheme, 5)
+                sc = ax.scatter(np.ones_like(depth), depth, c=cluster_quality, cmap=cmap, 
+                               s=100, marker='s')
+                
+                # Customize the plot
+                if i == 0:
+                    ax.set_yticks(np.arange(1000, 1101, 10))
+                    ax.set_ylabel("Depth")
+                ax.set_xlim(0.9, 1.1)
+                ax.set_xticks([])
+                ax.set_title(f"Clusters: {i+5}")
+                ax.invert_yaxis()
+            
+            # Add a colorbar
+            cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+            cbar = plt.colorbar(sc, cax=cbar_ax)
+            cbar.set_ticks([0.4, 1.2, 2.0, 2.8, 3.6])
+            cbar.set_ticklabels(quality_labels)
+            cbar.set_label('Hydrocarbon Quality')
+            
+            plt.tight_layout(rect=[0, 0, 0.9, 1])
+            st.pyplot(fig)
+            
+        else:  # Heat Map
+            # Create a heat map view
+            quality_probs = np.zeros((100, 5))
+            for i, q in enumerate(quality):
+                quality_probs[i, q] = 0.7
+                # Add some noise to other values
+                for j in range(5):
+                    if j != q:
+                        quality_probs[i, j] = np.random.random() * 0.3
+            
+            # Normalize
+            quality_probs = quality_probs / quality_probs.sum(axis=1, keepdims=True)
+            
+            fig, ax = plt.subplots(figsize=(12, 10))
+            im = ax.imshow(quality_probs, aspect='auto', cmap=color_scheme, 
+                          extent=[0, 5, 1100, 1000])
+            
+            # Customize the plot
+            ax.set_yticks(np.arange(1000, 1101, 10))
+            ax.set_ylabel("Depth")
+            ax.set_xticks([0.5, 1.5, 2.5, 3.5, 4.5])
+            ax.set_xticklabels(quality_labels)
+            
+            # Add a colorbar
+            cbar = plt.colorbar(im)
+            cbar.set_label('Probability')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+        
+        # Display quality distribution
+        st.markdown("<h4>Quality Distribution</h4>", unsafe_allow_html=True)
+        
+        # Calculate quality distribution
+        quality_counts = np.zeros(5)
+        for i in range(5):
+            quality_counts[i] = np.sum(quality == i)
+        
+        # Create a bar chart
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        bars = ax.bar(
+            quality_labels,
+            quality_counts,
+            color=plt.cm.get_cmap(color_scheme, 5)(np.linspace(0, 1, 5))
+        )
+        
+        # Add values on top of bars
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(
+                bar.get_x() + bar.get_width()/2.,
+                height + 0.5,
+                f'{int(height)}',
+                ha='center',
+                va='bottom'
+            )
+        
+        ax.set_xlabel("Hydrocarbon Quality")
+        ax.set_ylabel("Count")
+        ax.set_title("Quality Distribution")
+        ax.grid(True, alpha=0.3, axis='y')
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+        # Add download button for predictions
+        quality_df = pd.DataFrame({
+            "DEPTH": depth,
+            "QUALITY": [quality_labels[q].replace('_', ' ') for q in quality],
+            "QUALITY_CODE": quality
+        })
+        
+        csv = quality_df.to_csv(index=False)
+        st.download_button(
+            label="Download Quality Predictions",
+            data=csv,
+            file_name="quality_predictions.csv",
+            mime="text/csv"
+        )
+    
+    with tab3:
+        st.markdown("<h3>Model Performance</h3>", unsafe_allow_html=True)
+        
+        # Create tabs for different performance metrics
+        perf_tab1, perf_tab2, perf_tab3 = st.tabs(["Learning Curves", "Confusion Matrix", "Metrics"])
+        
+        with perf_tab1:
+            # Create sample training history
+            history = {
+                "loss": np.random.uniform(0.4, 0.8, 50) * np.exp(-0.03 * np.arange(50)),
+                "acc": np.linspace(0.6, 0.95, 50) + np.random.normal(0, 0.02, 50),
+                "val_acc": np.linspace(0.55, 0.9, 50) + np.random.normal(0, 0.03, 50),
+                "test_acc": 0.88
+            }
+            
+            # Plot training history
+            fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+            
+            # Loss plot
+            ax[0].plot(history["loss"], label="Training Loss", color='#0066cc')
+            ax[0].set_xlabel("Epoch")
+            ax[0].set_ylabel("Loss")
+            ax[0].set_title("Training Loss")
+            ax[0].legend()
+            ax[0].grid(True, alpha=0.3)
+            
+            # Accuracy plot
+            ax[1].plot(history["acc"], label="Training Accuracy", color='#0066cc')
+            ax[1].plot(history["val_acc"], label="Validation Accuracy", color='#f59e0b')
+            ax[1].axhline(y=history["test_acc"], color='g', linestyle='--', label='Test Accuracy')
+            ax[1].set_xlabel("Epoch")
+            ax[1].set_ylabel("Accuracy")
+            ax[1].set_title("Model Accuracy")
+            ax[1].legend()
+            ax[1].grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+        
+        with perf_tab2:
+            # Create a confusion matrix
+            classes = ["Very Low", "Low", "Moderate", "High", "Very High"]
+            cm = np.zeros((5, 5))
+            
+            # Make diagonal dominant
+            for i in range(5):
+                cm[i, i] = np.random.randint(50, 100)
+                for j in range(5):
+                    if i != j:
+                        cm[i, j] = np.random.randint(0, 20)
+            
+            # Plot confusion matrix
+            fig, ax = plt.subplots(figsize=(10, 8))
+            im = ax.imshow(cm, interpolation='nearest', cmap='Blues')
+            ax.set_title("Confusion Matrix")
+            
+            # Add colorbar
+            cbar = plt.colorbar(im)
+            cbar.set_label('Count')
+            
+            # Set tick marks and labels
+            tick_marks = np.arange(len(classes))
+            ax.set_xticks(tick_marks)
+            ax.set_xticklabels(classes, rotation=45)
+            ax.set_yticks(tick_marks)
+            ax.set_yticklabels(classes)
+            
+            # Add text annotations
+            thresh = cm.max() / 2.
+            for i in range(cm.shape[0]):
+                for j in range(cm.shape[1]):
+                    ax.text(j, i, format(int(cm[i, j]), 'd'),
+                           ha="center", va="center",
+                           color="white" if cm[i, j] > thresh else "black")
+            
+            ax.set_ylabel('True Label')
+            ax.set_xlabel('Predicted Label')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+        
+        with perf_tab3:
+            # Create a classification report
+            report_data = {
+                "Class": ["Very Low", "Low", "Moderate", "High", "Very High", "Average/Total"],
+                "Precision": [0.85, 0.78, 0.92, 0.86, 0.91, 0.86],
+                "Recall": [0.82, 0.75, 0.90, 0.89, 0.84, 0.84],
+                "F1-Score": [0.83, 0.76, 0.91, 0.87, 0.87, 0.85],
+                "Support": [120, 85, 150, 95, 70, 520]
+            }
+            
+            report_df = pd.DataFrame(report_data)
+            
+            # Display in a nice table
+            st.table(report_df)
+            
+            # Add metrics comparison across different runs
+            st.markdown("<h4>Performance Across Runs</h4>", unsafe_allow_html=True)
+            
+            runs_data = {
+                "Run": [1, 2, 3, 4],
+                "Test Accuracy": [0.87, 0.85, 0.88, 0.86],
+                "F1 Score": [0.86, 0.84, 0.87, 0.85],
+                "Precision": [0.85, 0.83, 0.86, 0.84],
+                "Recall": [0.87, 0.85, 0.88, 0.86]
+            }
+            
+            runs_df = pd.DataFrame(runs_data)
+            
+            # Plot metrics across runs
+            fig, ax = plt.subplots(figsize=(10, 6))
+            
+            # Create a grouped bar chart
+            width = 0.2
+            x = np.arange(len(runs_data["Run"]))
+            
+            ax.bar(x - 1.5*width, runs_data["Test Accuracy"], width, label='Accuracy', color='#0066cc')
+            ax.bar(x - 0.5*width, runs_data["F1 Score"], width, label='F1 Score', color='#f59e0b')
+            ax.bar(x + 0.5*width, runs_data["Precision"], width, label='Precision', color='#10b981')
+            ax.bar(x + 1.5*width, runs_data["Recall"], width, label='Recall', color='#8b5cf6')
+            
+            ax.set_ylabel('Score')
+            ax.set_title('Performance Metrics Across Runs')
+            ax.set_xticks(x)
+            ax.set_xticklabels([f'Run {i}' for i in runs_data["Run"]])
+            ax.legend()
+            ax.set_ylim(0.5, 1.0)
+            ax.grid(True, alpha=0.3, axis='y')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+            
+            # Display run comparison table
+            st.table(runs_df)
+
+# Main application entry point
+if __name__ == "__main__":
+    # Initialize session state variables
+    if 'current_page' not in st.session_state:
+        st.session_state['current_page'] = "Home"
+    
+    # Create sidebar and get configuration
+    config = create_sidebar()
+    
+    # Display selected page
+    current_page = st.session_state.get('current_page', 'Home')
+    
+    if current_page == "Home":
+        home_page()
+    elif current_page == "Dataset Preparation":
+        dataset_preparation_page()
+    elif current_page == "Model Workflow":
+        model_workflow_page()
+    elif current_page == "Analysis Tool":
+        analysis_tool_page()
+    elif current_page == "Results Visualization":
+        results_visualization_page()
+    
+    # Footer
+    st.markdown("""
+    <div class="footer">
+        VHydro - Advanced Hydrocarbon Quality Prediction © 2025
+    </div>
+    """, unsafe_allow_html=True)
