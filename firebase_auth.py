@@ -93,103 +93,14 @@ def authenticate():
     if st.session_state.get("logged_in", False):
         return True
     
-    # Otherwise, show auth page
-    return auth_page()
-
-# Function to render login/signup UI
-def auth_page():
-    # CSS for auth forms
-    st.markdown("""
-    <style>
-    .auth-form {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-    .auth-header {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    current_page = st.session_state.get('current_page', 'Home')
     
-    # Add title and description
-    st.markdown("<h1 style='text-align: center; color: #0c326f;'>VHydro Login</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Hydrocarbon Quality Prediction</p>", unsafe_allow_html=True)
+    # Only enforce authentication for Analysis Tool and Results Visualization pages
+    if current_page in ["Analysis Tool", "Results Visualization"]:
+        return False
     
-    # Create tabs for Login and Sign Up
-    tab1, tab2 = st.tabs(["Login", "Sign Up"])
-    
-    # Login tab
-    with tab1:
-        st.markdown('<div class="auth-form">', unsafe_allow_html=True)
-        st.markdown('<h2 class="auth-header">Login</h2>', unsafe_allow_html=True)
-        
-        email = st.text_input("Email", key="login_email")
-        password = st.text_input("Password", type="password", key="login_password")
-        
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            login_button = st.button("Login", use_container_width=True)
-        
-        if login_button:
-            success, message = login(email, password)
-            if success:
-                st.success(message)
-                time.sleep(1)  # Wait for a second to show success message
-                st.rerun()
-            else:
-                st.error(message)
-                
-        forgot_password = st.button("Forgot Password?", key="forgot_password")
-        
-        if forgot_password:
-            reset_email = st.text_input("Enter your email to reset password", key="reset_email")
-            if st.button("Send Reset Link"):
-                if reset_email:
-                    success, message = reset_password(reset_email)
-                    if success:
-                        st.success(message)
-                    else:
-                        st.error(message)
-                else:
-                    st.warning("Please enter your email")
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Sign Up tab
-    with tab2:
-        st.markdown('<div class="auth-form">', unsafe_allow_html=True)
-        st.markdown('<h2 class="auth-header">Create Account</h2>', unsafe_allow_html=True)
-        
-        new_email = st.text_input("Email", key="signup_email")
-        new_password = st.text_input("Password", type="password", key="signup_password")
-        confirm_password = st.text_input("Confirm Password", type="password", key="confirm_password")
-        
-        # Password requirements notice
-        st.markdown("""
-        <div style="font-size: 0.8em; color: #6c757d; margin-bottom: 15px;">
-        Password must be at least 8 characters with 1 uppercase letter, 1 lowercase letter, and 1 digit.
-        </div>
-        """, unsafe_allow_html=True)
-        
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            signup_button = st.button("Sign Up", use_container_width=True)
-        
-        if signup_button:
-            success, message = signup(new_email, new_password, confirm_password)
-            if success:
-                st.success(message)
-                time.sleep(1)  # Wait for a second to show success message
-                st.rerun()
-            else:
-                st.error(message)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    return False
+    # Allow access to other pages without authentication
+    return True
 
 # Function to show user profile/account page
 def user_account_page():
@@ -235,6 +146,47 @@ def user_account_page():
     st.markdown('<span class="field-label">Email:</span>', unsafe_allow_html=True)
     st.write(st.session_state.get('email', 'Unknown'))
     st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="user-field">', unsafe_allow_html=True)
+    st.markdown('<span class="field-label">Account Type:</span>', unsafe_allow_html=True)
+    st.write("Standard User")
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="user-field">', unsafe_allow_html=True)
+    st.markdown('<span class="field-label">Last Login:</span>', unsafe_allow_html=True)
+    st.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Account settings section
+    st.markdown("<h3 class='section-header'>Account Settings</h3>", unsafe_allow_html=True)
+    
+    st.markdown('<div class="user-card">', unsafe_allow_html=True)
+    with st.form("change_password_form"):
+        st.markdown("<h4>Change Password</h4>", unsafe_allow_html=True)
+        current_password = st.text_input("Current Password", type="password")
+        new_password = st.text_input("New Password", type="password")
+        confirm_password = st.text_input("Confirm New Password", type="password")
+        
+        submit_button = st.form_submit_button("Update Password")
+        
+        if submit_button:
+            # Mock password change logic
+            if current_password and new_password and confirm_password:
+                if current_password == DEMO_USERS.get(st.session_state.get('email', '')):
+                    if new_password == confirm_password:
+                        if is_strong_password(new_password):
+                            DEMO_USERS[st.session_state.get('email', '')] = new_password
+                            st.success("Password updated successfully!")
+                        else:
+                            st.error("New password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 digit")
+                    else:
+                        st.error("New passwords don't match")
+                else:
+                    st.error("Current password is incorrect")
+            else:
+                st.error("Please fill all fields")
     
     st.markdown('</div>', unsafe_allow_html=True)
     
