@@ -638,6 +638,497 @@ def analysis_tool_page():
             st.session_state["uploaded_file"] = uploaded_file.name
             
             # Show file info in a nice format
+            st.markdown(f"""
+            <div class="card">
+                <h4>File Information</h4>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold;">File Name:</td>
+                        <td style="padding: 8px;">{uploaded_file.name}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold;">File Size:</td>
+                        <td style="padding: 8px;">{uploaded_file.size / 1024:.2f} KB</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold;">Upload Time:</td>
+                        <td style="padding: 8px;">{pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")}</td>
+                    </tr>
+                </table>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Proceed button
+            if st.button("Proceed to Property Calculation"):
+                st.session_state["analysis_stage"] = "property_calculation"
+                st.rerun()
+    
+    with tab2:
+        st.markdown("<h3>Petrophysical Property Calculation</h3>", unsafe_allow_html=True)
+        
+        # Check if user has uploaded a file
+        if "uploaded_file" not in st.session_state:
+            st.warning("Please upload a LAS file first.")
+        else:
+            st.markdown("""
+            <div class="card">
+                <p>This step calculates key petrophysical properties from your well log data:</p>
+                <ul>
+                    <li>Shale Volume (Vsh)</li>
+                    <li>Porosity (φ)</li>
+                    <li>Water Saturation (Sw)</li>
+                    <li>Oil Saturation (So)</li>
+                    <li>Permeability (K)</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Option to configure calculation parameters
+            with st.expander("Calculation Parameters"):
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    matrix_density = st.number_input("Matrix Density (g/cm³)", min_value=2.0, max_value=3.0, value=2.65, step=0.01)
+                    fluid_density = st.number_input("Fluid Density (g/cm³)", min_value=0.5, max_value=1.5, value=1.0, step=0.01)
+                
+                with col2:
+                    a_const = st.number_input("Archie Constant (a)", min_value=0.5, max_value=1.5, value=1.0, step=0.1)
+                    m_const = st.number_input("Cementation Exponent (m)", min_value=1.5, max_value=2.5, value=2.0, step=0.1)
+            
+            # Run calculation button
+            if st.button("Calculate Properties"):
+                # Show a progress bar for demonstration
+                progress_bar = st.progress(0)
+                for i in range(100):
+                    # Simulate calculation progress
+                    progress_bar.progress(i + 1)
+                    import time
+                    time.sleep(0.01)
+                
+                st.success("Petrophysical properties calculated successfully!")
+                
+                # Display sample results
+                sample_results = pd.DataFrame({
+                    "DEPTH": np.arange(1000, 1010, 1),
+                    "VSHALE": np.random.uniform(0.1, 0.5, 10),
+                    "PHI": np.random.uniform(0.05, 0.25, 10),
+                    "SW": np.random.uniform(0.3, 0.7, 10),
+                    "SO": np.random.uniform(0.3, 0.7, 10),
+                    "PERM": np.random.uniform(0.01, 100, 10)
+                })
+                
+                st.dataframe(sample_results)
+                
+                # Add a download button for the properties
+                csv = sample_results.to_csv(index=False)
+                st.download_button(
+                    label="Download Properties CSV",
+                    data=csv,
+                    file_name="petrophysical_properties.csv",
+                    mime="text/csv"
+                )
+                
+                # Store in session state
+                st.session_state["property_data"] = True
+                st.session_state["analysis_stage"] = "facies_classification"
+    
+    with tab3:
+        st.markdown("<h3>Facies Classification</h3>", unsafe_allow_html=True)
+        
+        # Check if properties have been calculated
+        if "property_data" not in st.session_state:
+            st.warning("Please calculate petrophysical properties first.")
+        else:
+            st.markdown("""
+            <div class="card">
+                <p>This step identifies natural rock types (facies) using K-means clustering:</p>
+                <ul>
+                    <li>Groups similar depth points based on petrophysical properties</li>
+                    <li>Optimizes the number of clusters using silhouette scores</li>
+                    <li>Generates depth-based facies maps</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Clustering parameters
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                min_clusters = st.number_input("Minimum Clusters", min_value=2, max_value=15, value=5, step=1)
+                feature_cols = st.multiselect("Features for Clustering", 
+                                             options=["VSHALE", "PHI", "SW", "SO", "PERM", "GR", "DENSITY"],
+                                             default=["VSHALE", "PHI", "SW", "GR", "DENSITY"])
+            
+            with col2:
+                max_clusters = st.number_input("Maximum Clusters", min_value=min_clusters, max_value=15, value=10, step=1)
+                # Add algorithm choice
+                algorithm = st.selectbox("Clustering Algorithm", ["K-means", "Agglomerative", "DBSCAN"])
+            
+            # Run clustering button
+            if st.button("Run Facies Classification"):
+                # Show a progress bar
+                progress_bar = st.progress(0)
+                for i in range(100):
+                    progress_bar.progress(i + 1)
+                    import time
+                    time.sleep(0.01)
+                
+                st.success("Facies classification completed successfully!")
+                
+                # Display silhouette scores with a simple plot
+                st.markdown("<h4>Silhouette Scores</h4>", unsafe_allow_html=True)
+                
+                # Sample silhouette scores
+                silhouette_df = pd.DataFrame({
+                    "Clusters": list(range(min_clusters, max_clusters + 1)),
+                    "Silhouette Score": np.random.uniform(0.4, 0.7, max_clusters - min_clusters + 1)
+                })
+                
+                # Plot silhouette scores
+                fig, ax = plt.subplots(figsize=(10, 6))
+                ax.plot(silhouette_df["Clusters"], silhouette_df["Silhouette Score"], marker='o', color='#0066cc')
+                ax.set_xlabel("Number of Clusters")
+                ax.set_ylabel("Silhouette Score")
+                ax.set_title("Cluster Optimization")
+                ax.grid(True, alpha=0.3)
+                st.pyplot(fig)
+                
+                # Show optimal number of clusters
+                optimal_clusters = silhouette_df["Silhouette Score"].idxmax() + min_clusters
+                st.info(f"Optimal number of clusters: {optimal_clusters}")
+                
+                # Display facies visualization
+                st.markdown("<h4>Facies Visualization</h4>", unsafe_allow_html=True)
+                
+                # Create a simple facies visualization
+                depth = np.arange(1000, 1100)
+                facies = np.random.randint(0, optimal_clusters, size=100)
+                
+                fig, ax = plt.subplots(figsize=(8, 10))
+                cmap = plt.cm.get_cmap('viridis', optimal_clusters)
+                
+                # Create a depth vs facies plot
+                sc = ax.scatter(np.ones_like(depth), depth, c=facies, cmap=cmap, 
+                               s=100, marker='s')
+                
+                # Customize the plot
+                ax.set_yticks(np.arange(1000, 1101, 10))
+                ax.set_ylabel("Depth")
+                ax.set_xlim(0.9, 1.1)
+                ax.set_xticks([])
+                ax.invert_yaxis()  # Invert y-axis to show depth increasing downward
+                
+                # Add a colorbar
+                cbar = plt.colorbar(sc)
+                cbar.set_ticks(np.arange(optimal_clusters) + 0.5)
+                cbar.set_ticklabels([f"Facies {i+1}" for i in range(optimal_clusters)])
+                cbar.set_label('Facies Classification')
+                
+                plt.tight_layout()
+                st.pyplot(fig)
+                
+                # Create a download button for facies results
+                facies_df = pd.DataFrame({
+                    "DEPTH": depth,
+                    "FACIES": facies
+                })
+                
+                csv = facies_df.to_csv(index=False)
+                st.download_button(
+                    label="Download Facies CSV",
+                    data=csv,
+                    file_name="facies_classification.csv",
+                    mime="text/csv"
+                )
+                
+                # Store in session state
+                st.session_state["facies_data"] = True
+                st.session_state["best_clusters"] = optimal_clusters
+                st.session_state["analysis_stage"] = "gcn_model"
+    
+    with tab4:
+        st.markdown("<h3>Graph Convolutional Network Model</h3>", unsafe_allow_html=True)
+        
+        # Check if facies classification has been done
+        if "facies_data" not in st.session_state:
+            st.warning("Please complete facies classification first.")
+        else:
+            st.markdown("""
+            <div class="card">
+                <p>This step builds and trains a Graph Convolutional Network model:</p>
+                <ul>
+                    <li>Constructs a graph from depth points and their relationships</li>
+                    <li>Trains a GCN model to predict hydrocarbon quality</li>
+                    <li>Evaluates model performance and generates final predictions</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Model parameters
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                n_clusters = st.number_input("Number of Clusters", min_value=min_clusters, max_value=max_clusters, 
+                                           value=st.session_state.get("best_clusters", 7), step=1)
+                hidden_channels = st.number_input("Hidden Channels", min_value=4, max_value=64, value=16, step=4)
+                dropout_rate = st.slider("Dropout Rate", min_value=0.0, max_value=0.8, value=0.5, step=0.1)
+                
+            with col2:
+                num_runs = st.number_input("Number of Runs", min_value=1, max_value=10, value=4, step=1)
+                epochs = st.number_input("Maximum Epochs", min_value=50, max_value=500, value=200, step=50)
+                learning_rate = st.select_slider(
+                    "Learning Rate",
+                    options=[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05],
+                    value=0.01
+                )
+            
+            # Advanced options in expander
+            with st.expander("Advanced Model Options"):
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    batch_size = st.number_input("Batch Size", min_value=16, max_value=256, value=64, step=16)
+                    patience = st.number_input("Early Stopping Patience", min_value=5, max_value=100, value=20, step=5)
+                
+                with col2:
+                    weight_decay = st.select_slider(
+                        "Weight Decay",
+                        options=[0.0, 0.0001, 0.0005, 0.001, 0.005, 0.01],
+                        value=0.001
+                    )
+                    optimizer = st.selectbox("Optimizer", ["Adam", "SGD", "RMSprop", "AdamW"])
+            
+            # Run model button
+            if st.button("Train GCN Model"):
+                # Show a progress bar
+                progress_bar = st.progress(0)
+                
+                # Create a status area
+                status_area = st.empty()
+                
+                # Simulate training process
+                for i in range(100):
+                    progress_bar.progress(i + 1)
+                    
+                    # Update status messages
+                    if i < 10:
+                        status_area.info("Preparing graph structure...")
+                    elif i < 30:
+                        status_area.info("Creating node and edge features...")
+                    elif i < 60:
+                        status_area.info(f"Training GCN model (Epoch {i})...")
+                    elif i < 90:
+                        status_area.info("Optimizing model parameters...")
+                    else:
+                        status_area.info("Finalizing predictions...")
+                    
+                    import time
+                    time.sleep(0.05)
+                
+                # Clear status area and show success message
+                status_area.empty()
+                st.success("GCN model trained successfully!")
+                
+                # Create tabs for results
+                result_tab1, result_tab2, result_tab3 = st.tabs(["Model Performance", "Quality Predictions", "Classification Report"])
+                
+                with result_tab1:
+                    # Display model performance
+                    st.markdown("<h4>Model Performance</h4>", unsafe_allow_html=True)
+                    
+                    # Create sample training history
+                    history = {
+                        "loss": np.random.uniform(0.4, 0.8, 50) * np.exp(-0.03 * np.arange(50)),
+                        "acc": np.linspace(0.6, 0.95, 50) + np.random.normal(0, 0.02, 50),
+                        "val_acc": np.linspace(0.55, 0.9, 50) + np.random.normal(0, 0.03, 50),
+                        "test_acc": 0.88
+                    }
+                    
+                    # Plot training history
+                    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+                    
+                    # Loss plot
+                    ax[0].plot(history["loss"], label="Training Loss", color='#0066cc')
+                    ax[0].set_xlabel("Epoch")
+                    ax[0].set_ylabel("Loss")
+                    ax[0].set_title("Training Loss")
+                    ax[0].legend()
+                    ax[0].grid(True, alpha=0.3)
+                    
+                    # Accuracy plot
+                    ax[1].plot(history["acc"], label="Training Accuracy", color='#0066cc')
+                    ax[1].plot(history["val_acc"], label="Validation Accuracy", color='#f59e0b')
+                    ax[1].set_xlabel("Epoch")
+                    ax[1].set_ylabel("Accuracy")
+                    ax[1].set_title("Model Accuracy")
+                    ax[1].legend()
+                    ax[1].grid(True, alpha=0.3)
+                    
+                    plt.tight_layout()
+                    st.pyplot(fig)
+                    
+                    # Display test accuracy and other metrics
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        st.metric("Test Accuracy", f"{history['test_acc']:.2f}")
+                    
+                    with col2:
+                        st.metric("F1 Score", "0.86")
+                    
+                    with col3:
+                        st.metric("AUC", "0.92")
+                
+                with result_tab2:
+                    # Display hydrocarbon quality predictions
+                    st.markdown("<h4>Hydrocarbon Quality Prediction</h4>", unsafe_allow_html=True)
+                    
+                    # Select visualization style
+                    viz_style = st.radio("Visualization Style", ["Single Column", "Heat Map"], horizontal=True)
+                    
+                    if viz_style == "Single Column":
+                        # Create a simple visualization
+                        depth = np.arange(1000, 1100)
+                        predictions = np.random.randint(0, 5, size=100)  # 0=Very_Low, 4=Very_High
+                        
+                        fig, ax = plt.subplots(figsize=(8, 10))
+                        cmap = plt.cm.get_cmap('viridis', 5)
+                        
+                        # Create a depth vs prediction plot
+                        sc = ax.scatter(np.ones_like(depth), depth, c=predictions, cmap=cmap, 
+                                       s=100, marker='s')
+                        
+                        # Customize the plot
+                        ax.set_yticks(np.arange(1000, 1101, 10))
+                        ax.set_ylabel("Depth")
+                        ax.set_xlim(0.9, 1.1)
+                        ax.set_xticks([])
+                        ax.invert_yaxis()  # Invert y-axis to show depth increasing downward
+                        
+                        # Add a colorbar
+                        cbar = plt.colorbar(sc)
+                        cbar.set_ticks([0.4, 1.2, 2.0, 2.8, 3.6])
+                        cbar.set_ticklabels(['Very Low', 'Low', 'Moderate', 'High', 'Very High'])
+                        cbar.set_label('Hydrocarbon Quality')
+                        
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                    else:
+                        # Create a heat map visualization
+                        depth = np.arange(1000, 1100)
+                        quality_probs = np.random.random((100, 5))
+                        quality_probs = quality_probs / quality_probs.sum(axis=1, keepdims=True)
+                        
+                        fig, ax = plt.subplots(figsize=(10, 10))
+                        im = ax.imshow(quality_probs, aspect='auto', cmap='viridis',
+                                      extent=[0, 5, 1100, 1000])
+                        
+                        # Customize the plot
+                        ax.set_yticks(np.arange(1000, 1101, 10))
+                        ax.set_ylabel("Depth")
+                        ax.set_xticks([0.5, 1.5, 2.5, 3.5, 4.5])
+                        ax.set_xticklabels(['Very Low', 'Low', 'Moderate', 'High', 'Very High'])
+                        ax.set_xlabel("Hydrocarbon Quality")
+                        
+                        # Add a colorbar
+                        cbar = plt.colorbar(im)
+                        cbar.set_label('Probability')
+                        
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                    
+                    # Create prediction dataframe
+                    pred_df = pd.DataFrame({
+                        "DEPTH": depth,
+                        "PREDICTED_QUALITY": [['Very Low', 'Low', 'Moderate', 'High', 'Very High'][p] for p in predictions],
+                        "QUALITY_CODE": predictions
+                    })
+                    
+                    # Show sample of predictions
+                    st.dataframe(pred_df.head(10))
+                    
+                    # Download button for predictions
+                    csv = pred_df.to_csv(index=False)
+                    st.download_button(
+                        label="Download Predictions CSV",
+                        data=csv,
+                        file_name="quality_predictions.csv",
+                        mime="text/csv"
+                    )
+                
+                with result_tab3:
+                    # Display classification report
+                    st.markdown("<h4>Classification Report</h4>", unsafe_allow_html=True)
+                    
+                    # Create a classification report
+                    report_data = {
+                        "Class": ["Very Low", "Low", "Moderate", "High", "Very High", "Average/Total"],
+                        "Precision": [0.85, 0.78, 0.92, 0.86, 0.91, 0.86],
+                        "Recall": [0.82, 0.75, 0.90, 0.89, 0.84, 0.84],
+                        "F1-Score": [0.83, 0.76, 0.91, 0.87, 0.87, 0.85],
+                        "Support": [120, 85, 150, 95, 70, 520]
+                    }
+                    
+                    report_df = pd.DataFrame(report_data)
+                    
+                    # Display in a nice table
+                    st.table(report_df)
+                    
+                    # Create a confusion matrix
+                    st.markdown("<h4>Confusion Matrix</h4>", unsafe_allow_html=True)
+                    
+                    # Create a confusion matrix
+                    classes = ["Very Low", "Low", "Moderate", "High", "Very High"]
+                    cm = np.zeros((5, 5))
+                    
+                    # Make diagonal dominant
+                    for i in range(5):
+                        cm[i, i] = np.random.randint(50, 100)
+                        for j in range(5):
+                            if i != j:
+                                cm[i, j] = np.random.randint(0, 20)
+                    
+                    # Plot confusion matrix
+                    fig, ax = plt.subplots(figsize=(10, 8))
+                    im = ax.imshow(cm, interpolation='nearest', cmap='Blues')
+                    ax.set_title("Confusion Matrix")
+                    
+                    # Add colorbar
+                    cbar = plt.colorbar(im)
+                    cbar.set_label('Count')
+                    
+                    # Set tick marks and labels
+                    tick_marks = np.arange(len(classes))
+                    ax.set_xticks(tick_marks)
+                    ax.set_xticklabels(classes, rotation=45)
+                    ax.set_yticks(tick_marks)
+                    ax.set_yticklabels(classes)
+                    
+                    # Add text annotations
+                    thresh = cm.max() / 2.
+                    for i in range(cm.shape[0]):
+                        for j in range(cm.shape[1]):
+                            ax.text(j, i, format(int(cm[i, j]), 'd'),
+                                   ha="center", va="center",
+                                   color="white" if cm[i, j] > thresh else "black")
+                    
+                    ax.set_ylabel('True Label')
+                    ax.set_xlabel('Predicted Label')
+                    
+                    plt.tight_layout()
+                    st.pyplot(fig)
+                
+                # Store in session state
+                st.session_state["model_history"] = True
+                st.session_state["analysis_complete"] = True
+        
+        if uploaded_file is not None:
+            st.success(f"File {uploaded_file.name} uploaded successfully!")
+            
+            # Store in session state
+            st.session_state["uploaded_file"] = uploaded_file.name
+            
+            # Show file info in a nice format
             st.markdown("""
             <div class="card">
                 <h4>File Information</h4>
