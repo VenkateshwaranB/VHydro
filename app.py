@@ -1437,8 +1437,7 @@ def visualization_page():
     <div class="coming-soon">
         <h2>Coming Soon: StrataGraph 2.0</h2>
         <p>Geoscience graph datasets for Carbon Capture, Utilization, and Storage (CCUS)</p>
-        <button style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white; 
-                       padding: 8px 16px; border-radius: 4px; margin-top: 10px; cursor: pointer;">
+        <button style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; margin-top: 10px; cursor: pointer;">
             Join Waitlist
         </button>
     </div>
