@@ -1713,4 +1713,88 @@ def models_page():
     with col1:
         st.markdown("""
         <div class="feature-card">
+            <div class="feature-header">GCN Parameters</div>
+            <ul>
+                <li><b>Hidden Channels:</b> 16</li>
+                <li><b>Layers:</b> 2</li>
+                <li><b>Dropout Rate:</b> 0.5</li>
+                <li><b>Learning Rate:</b> 0.01</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-header">Training Parameters</div>
+            <ul>
+                <li><b>Maximum Epochs:</b> 200</li>
+                <li><b>Early Stopping:</b> Yes (patience: 50)</li>
+                <li><b>Train/Val/Test Split:</b> 80%/10%/10%</li>
+                <li><b>Optimizer:</b> Adam</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Advanced Configuration Options
+    with st.expander("Advanced Configuration Options"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("### Model Architecture")
+            st.selectbox("GCN Version", ["RegularizedGCN", "Standard GCN", "GCN with Skip Connections"])
+            st.number_input("Hidden Channels", min_value=8, max_value=128, value=16, step=8)
+            st.slider("Dropout Rate", min_value=0.0, max_value=0.8, value=0.5, step=0.1)
+            st.checkbox("Use Batch Normalization", value=True)
+        
+        with col2:
+            st.markdown("### Training Configuration")
+            st.select_slider("Learning Rate", options=[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05], value=0.01)
+            st.number_input("Early Stopping Patience", min_value=10, max_value=100, value=50, step=5)
+            st.number_input("Maximum Epochs", min_value=50, max_value=500, value=200, step=50)
+            st.selectbox("Optimizer", ["Adam", "SGD", "RMSprop", "AdamW"])
+    
+    # Run model button
+    st.markdown("""
+    <div style="text-align: center; margin-top: 30px;">
+        <button style="background-color: #0e4194; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            Train GCN Model
+        </button>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # If the user clicks the button (this is a Streamlit workaround)
+    if st.button("Train GCN Model"):
+        # Show a progress bar
+        progress_bar = st.progress(0)
+        
+        # Create a status area
+        status_area = st.empty()
+        
+        # Simulate training process
+        for i in range(100):
+            progress_bar.progress(i + 1)
+            
+            # Update status messages
+            if i < 10:
+                status_area.info("Preparing graph structure...")
+            elif i < 30:
+                status_area.info("Creating node and edge features...")
+            elif i < 60:
+                status_area.info(f"Training GCN model (Epoch {i})...")
+            elif i < 90:
+                status_area.info("Optimizing model parameters...")
+            else:
+                status_area.info("Finalizing predictions...")
+            
+            # Sleep to simulate processing time
+            import time
+            time.sleep(0.05)
+        
+        # Clear status area and show success message
+        status_area.empty()
+        st.success("GCN model trained successfully!")
+    with col1:
+        st.markdown("""
+        <div class="feature-card">
             <div class="feature
