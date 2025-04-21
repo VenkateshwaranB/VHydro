@@ -1395,8 +1395,6 @@ def visualization_page():
             
             # Display run comparison table
             st.table(runs_df)
-        </div>
-        """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-card">
