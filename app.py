@@ -1794,7 +1794,3 @@ def models_page():
         # Clear status area and show success message
         status_area.empty()
         st.success("GCN model trained successfully!")
-    with col1:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature
