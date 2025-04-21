@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # IMPORTANT: Set page configuration at the very beginning
 st.set_page_config(
-    page_title="StrataGraph - Advanced Geoscience Modeling",
+    page_title="StrataGraph - Graph Neural Networks for Geoscience Applications",
     page_icon="🧪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -193,7 +193,7 @@ def create_sidebar():
     st.sidebar.markdown('<div style="text-align: center; padding: 1rem 0; margin-bottom: 1rem;">', unsafe_allow_html=True)
     
     # Logo placeholder - replace with actual logo path
-    logo_path = "Logo_for_sidebar.png"  # Update with your actual logo path
+    logo_path = "src/StrataGraph_White_Logo.png"  # Update with your actual logo path
     
     try:
         st.sidebar.image(logo_path, width=160)
@@ -270,7 +270,7 @@ def create_sidebar():
 
 def home_page():
     # Try to load the banner image
-    banner_path = "Banner_image.png"  # Update with your actual banner path
+    banner_path = "src/StrataGraph_Banner.png"  # Update with your actual banner path
     try:
         st.image(banner_path, use_column_width=True)
     except:
@@ -294,7 +294,7 @@ def home_page():
     st.markdown("<h2>VHydro Workflow</h2>", unsafe_allow_html=True)
     
     # Try to load the workflow image
-    workflow_path = "VHydro_Full_workflow.png"  # Update with your actual workflow image path
+    workflow_path = "src/Workflow.png"  # Update with your actual workflow image path
     try:
         st.image(workflow_path, use_column_width=True)
     except:
@@ -1394,13 +1394,7 @@ def visualization_page():
             st.pyplot(fig)
             
             # Display run comparison table
-            st.table(runs_df)-header">Petrophysical Property Calculation</div>
-            <ul>
-                <li>Shale Volume</li>
-                <li>Porosity</li>
-                <li>Water/Oil Saturation</li>
-                <li>Permeability</li>
-            </ul>
+            st.table(runs_df)
         </div>
         """, unsafe_allow_html=True)
         
@@ -1492,7 +1486,7 @@ def dataset_preparation_page():
     """, unsafe_allow_html=True)
     
     # Try to load the dataset preparation image
-    dataset_img_path = "VHydro_dataset_preparation.png"  # Update with your actual image path
+    dataset_img_path = "src/Graph Dataset Preparation.png"  # Update with your actual image path
     try:
         st.image(dataset_img_path, use_column_width=True)
     except:
@@ -1633,7 +1627,7 @@ def models_page():
     """, unsafe_allow_html=True)
     
     # Try to load the model image
-    model_img_path = "VHydro_Model.png"  # Update with your actual image path
+    model_img_path = "src/Model.png"  # Update with your actual image path
     try:
         st.image(model_img_path, use_column_width=True)
     except:
