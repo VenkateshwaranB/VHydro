@@ -683,7 +683,7 @@ def dataset_preparation_page():
     
     # Try to load the dataset preparation image (only if explicitly requested)
     if st.checkbox("Show Dataset Preparation Diagram"):
-        dataset_img_path = "src/Graph Dataset Preparation.png"
+        dataset_img_path = "src/Graph Data Preparation.png"
         try:
             st.image(dataset_img_path, use_column_width=True)
         except:
