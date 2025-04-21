@@ -8,13 +8,13 @@ from PIL import Image
 from io import BytesIO
 import logging
 
-# Configure logging - Keep this simple
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # IMPORTANT: Set page configuration at the very beginning
 st.set_page_config(
-    page_title="VHydro - Hydrocarbon Prediction",
+    page_title="StrataGraph - Advanced Geoscience Modeling",
     page_icon="🧪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -23,7 +23,7 @@ st.set_page_config(
 # Simple login function using hardcoded credentials (for demo purposes)
 def login(email, password):
     # Demo users
-    users = {"user@example.com": "password", "admin@vhydro.com": "admin"}
+    users = {"user@example.com": "password", "admin@stratagraph.com": "admin"}
     if email in users and users[email] == password:
         st.session_state["email"] = email
         st.session_state["logged_in"] = True
@@ -41,23 +41,36 @@ def logout():
     if "auth_mode" in st.session_state:
         del st.session_state["auth_mode"]
 
+# Load and display images
+def load_image(image_path):
+    try:
+        return Image.open(image_path)
+    except Exception as e:
+        st.error(f"Error loading image: {e}")
+        return None
+
+# Function to create a base64 encoded image for CSS background
+def get_base64_encoded_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
 # Basic CSS for a colorful, scientific UI
 st.markdown("""
 <style>
     /* Main color scheme */
     :root {
-        --primary: #0066cc;
-        --secondary: #6d28d9;
+        --primary: #0e4194;
+        --secondary: #3a6fc4;
         --accent: #10b981;
         --background: #f8fafc;
-        --sidebar: #1e293b;
+        --sidebar: #0e4194;
         --text: #1e293b;
         --text-light: #64748b;
     }
 
     /* General styles */
     .main .block-container {
-        padding-top: 2rem;
+        padding-top: 1rem;
         padding-bottom: 2rem;
         max-width: 100%;
     }
@@ -68,7 +81,7 @@ st.markdown("""
     
     /* Sidebar styling */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, var(--sidebar) 0%, #2d3748 100%);
+        background: linear-gradient(180deg, var(--sidebar) 0%, #153a6f 100%);
     }
     
     [data-testid="stSidebar"] p, 
@@ -99,8 +112,8 @@ st.markdown("""
     }
     
     .nav-button.active {
-        background-color: var(--primary);
-        border-color: var(--primary);
+        background-color: var(--secondary);
+        border-color: var(--secondary);
     }
     
     /* Content cards */
@@ -148,6 +161,22 @@ st.markdown("""
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
     
+    /* Coming soon section */
+    .coming-soon {
+        background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://via.placeholder.com/800x400');
+        background-size: cover;
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 30px 0;
+    }
+    
+    .coming-soon h2 {
+        color: white;
+        margin-bottom: 15px;
+    }
+    
     /* Footer */
     .footer {
         text-align: center;
@@ -159,29 +188,28 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Simple function to display images
-def display_image(image_path, caption="", width=None):
-    try:
-        image = Image.open(image_path)
-        if width:
-            w, h = image.size
-            ratio = width / w
-            image = image.resize((width, int(h * ratio)))
-        
-        buffered = BytesIO()
-        image.save(buffered, format="PNG")
-        st.image(buffered, caption=caption, use_column_width=width is None)
-    except Exception as e:
-        st.error(f"Could not display image: {e}")
-
 # Simple sidebar for navigation
 def create_sidebar():
-    st.sidebar.markdown('<div style="text-align: center; padding: 1rem 0; margin-bottom: 2rem;">', unsafe_allow_html=True)
-    # Logo - simple text as fallback
+    st.sidebar.markdown('<div style="text-align: center; padding: 1rem 0; margin-bottom: 1rem;">', unsafe_allow_html=True)
+    
+    # Logo placeholder - replace with actual logo path
+    logo_path = "Logo_for_sidebar.png"  # Update with your actual logo path
+    
+    try:
+        st.sidebar.image(logo_path, width=160)
+    except:
+        # Fallback if image isn't found
+        st.sidebar.markdown("""
+        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+            <h2 style="color: #0e4194; margin: 0;">StrataGraph</h2>
+            <p style="color: #0e4194; margin: 5px 0 0 0;">Advanced Geoscience Modeling</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Version info
     st.sidebar.markdown("""
-    <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
-        <h2 style="color: #0066cc; margin: 0;">VHydro</h2>
-        <p style="color: #0066cc; margin: 5px 0 0 0;">Hydrocarbon Quality Prediction</p>
+    <div style="text-align: center; margin-bottom: 20px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+        <p style="margin: 0; font-size: 0.9rem;">Current Version: VHydro 1.0</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -206,7 +234,7 @@ def create_sidebar():
     st.sidebar.markdown('<div style="margin-bottom: 20px;"><h3 style="color: white; margin-bottom: 15px;">Navigation</h3></div>', unsafe_allow_html=True)
     
     # Define pages
-    pages = ["Home", "Dataset Preparation", "Model Workflow", "Analysis Tool", "Results Visualization"]
+    pages = ["Home", "Dataset Preparation", "Models", "Analysis Tool", "Visualization"]
     
     # Initialize current page in session state if it doesn't exist
     if "current_page" not in st.session_state:
@@ -230,7 +258,7 @@ def create_sidebar():
     # Add a simple info panel
     st.sidebar.markdown("""
     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-top: 30px;">
-        <p style="margin: 0;">VHydro predicts hydrocarbon quality zones using petrophysical properties and Graph Convolutional Networks.</p>
+        <p style="margin: 0;">StrataGraph enables advanced geoscience modeling with Graph Convolutional Networks for petrophysical and geological data analysis.</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -241,20 +269,37 @@ def create_sidebar():
     }
 
 def home_page():
-    st.markdown("""
-    <div class="colored-header">
-        <h1>VHydro - Hydrocarbon Quality Prediction</h1>
-        <p>Advanced Graph Convolutional Network for Petrophysical Analysis</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Try to load the banner image
+    banner_path = "Banner_image.png"  # Update with your actual banner path
+    try:
+        st.image(banner_path, use_column_width=True)
+    except:
+        # Fallback if image isn't found
+        st.markdown("""
+        <div class="colored-header">
+            <h1>StrataGraph</h1>
+            <p>Advanced Graph Convolutional Networks for Geoscience Modeling</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("""
     <div class="card">
-        <h2>About VHydro</h2>
-        <p>VHydro is an advanced tool for hydrocarbon quality prediction using well log data. It combines traditional petrophysical analysis with modern machine learning techniques to provide accurate predictions of reservoir quality.</p>
-        <p>The tool uses Graph Convolutional Networks (GCN) to model the complex relationships between different petrophysical properties and depth values, enabling more accurate classification of hydrocarbon potential zones.</p>
+        <h2>About StrataGraph</h2>
+        <p>StrataGraph is a cutting-edge platform for geoscience modeling and analysis, combining advanced machine learning techniques with traditional geological and petrophysical analysis.</p>
+        <p>Our first release, <b>VHydro 1.0</b>, focuses on hydrocarbon quality prediction using Graph Convolutional Networks (GCNs) that model complex relationships between different petrophysical properties and depth values.</p>
     </div>
     """, unsafe_allow_html=True)
+    
+    # VHydro Workflow section
+    st.markdown("<h2>VHydro Workflow</h2>", unsafe_allow_html=True)
+    
+    # Try to load the workflow image
+    workflow_path = "VHydro_Full_workflow.png"  # Update with your actual workflow image path
+    try:
+        st.image(workflow_path, use_column_width=True)
+    except:
+        # Fallback if image isn't found
+        st.warning("Workflow image not found. Please ensure 'VHydro_Full_workflow.png' is in the correct directory.")
     
     st.markdown("<h2>Key Features</h2>", unsafe_allow_html=True)
     
@@ -264,23 +309,12 @@ def home_page():
     with col1:
         st.markdown("""
         <div class="feature-card">
-            <div class="feature-header">Petrophysical Property Calculation</div>
+            <div class="feature-header">GCN Parameters</div>
             <ul>
-                <li>Shale Volume</li>
-                <li>Porosity</li>
-                <li>Water/Oil Saturation</li>
-                <li>Permeability</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-header">Facies Classification</div>
-            <ul>
-                <li>K-means Clustering</li>
-                <li>Silhouette Score Optimization</li>
-                <li>Depth-based Facies Mapping</li>
+                <li><b>Hidden Channels:</b> 16</li>
+                <li><b>Layers:</b> 2</li>
+                <li><b>Dropout Rate:</b> 0.5</li>
+                <li><b>Learning Rate:</b> 0.01</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -288,300 +322,76 @@ def home_page():
     with col2:
         st.markdown("""
         <div class="feature-card">
-            <div class="feature-header">Graph-based Machine Learning</div>
+            <div class="feature-header">Training Parameters</div>
             <ul>
-                <li>Graph Convolutional Networks</li>
-                <li>Node and Edge Feature Extraction</li>
-                <li>Hydrocarbon Quality Classification</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-header">Visualization and Reporting</div>
-            <ul>
-                <li>Facies Visualization</li>
-                <li>Prediction Accuracy Metrics</li>
-                <li>Classification Reports</li>
+                <li><b>Maximum Epochs:</b> 200</li>
+                <li><b>Early Stopping:</b> Yes (patience: 50)</li>
+                <li><b>Train/Val/Test Split:</b> 80%/10%/10%</li>
+                <li><b>Optimizer:</b> Adam</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("<h2>Getting Started</h2>", unsafe_allow_html=True)
-    
-    # Create a simple workflow guide
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("""
-        <div class="feature-card" style="border-left: 5px solid #10b981;">
-            <div class="feature-header">1. Prepare Data</div>
-            <p>Upload your well log data in LAS format and validate required curves.</p>
-            <p>Navigate to the <b>Dataset Preparation</b> section to understand data requirements.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="feature-card" style="border-left: 5px solid #f59e0b;">
-            <div class="feature-header">2. Run Analysis</div>
-            <p>Calculate petrophysical properties and run the GCN model.</p>
-            <p>Use the <b>Analysis Tool</b> to process your data and generate predictions.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div class="feature-card" style="border-left: 5px solid #8b5cf6;">
-            <div class="feature-header">3. Visualize Results</div>
-            <p>Explore facies classifications and hydrocarbon quality predictions.</p>
-            <p>Visit the <b>Results Visualization</b> section to interpret findings.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-def dataset_preparation_page():
-    st.markdown("""
-    <div class="colored-header">
-        <h1>Dataset Preparation</h1>
-        <p>Prepare your well log data for hydrocarbon quality prediction</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="card">
-        <h2>Required Log Curves</h2>
-        <p>VHydro requires specific log curves to calculate petrophysical properties needed for accurate predictions:</p>
-        <table style="width:100%; border-collapse: collapse; margin-top: 20px;">
-            <tr style="background-color: #f1f5f9;">
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Curve</th>
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Description</th>
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Purpose</th>
-            </tr>
-            <tr>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">GR/CGR</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Gamma Ray or Computed Gamma Ray</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Shale volume calculation</td>
-            </tr>
-            <tr style="background-color: #f8fafc;">
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">RHOB</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Bulk Density</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Density porosity calculation</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">NPHI</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Neutron Porosity</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Effective porosity calculation</td>
-            </tr>
-            <tr style="background-color: #f8fafc;">
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">LLD/ILD</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Deep Resistivity</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Water/oil saturation calculation</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">DEPT</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Depth</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Spatial reference for facies classification</td>
-            </tr>
-        </table>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="card">
-        <h2>File Format</h2>
-        <p>VHydro accepts well log data in <b>LAS</b> (Log ASCII Standard) format, which is the industry standard for storing well log data.</p>
-        <h3>Example LAS File Structure</h3>
-        <pre style="background-color: #f1f5f9; padding: 15px; border-radius: 5px; font-size: 0.9em; overflow-x: auto;">
-~VERSION INFORMATION
-VERS.   2.0 :   CWLS LOG ASCII STANDARD - VERSION 2.0
-WRAP.   NO  :   ONE LINE PER DEPTH STEP
-
-~WELL INFORMATION
-STRT.M   1670.0 :
-STOP.M   1660.0 :
-STEP.M   -0.1  :
-NULL.    -999.25:
-WELL.    EXAMPLE WELL:
-FLD .    EXAMPLE FIELD:
-
-~CURVE INFORMATION
-DEPT.M   :   Depth
-GR  .GAPI:   Gamma Ray
-RHOB.K/M3:   Bulk Density
-NPHI.V/V :   Neutron Porosity
-LLD .OHMM:   Deep Resistivity
-
-~A  DEPT     GR      RHOB    NPHI    LLD
-1670.000   75.075   2.561   0.246   12.863
-1669.900   74.925   2.563   0.245   13.042
-...
-        </pre>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Sample data download section
-    st.markdown("""
-    <div class="card">
-        <h2>Sample Data</h2>
-        <p>You can use the following sample data to test the VHydro workflow:</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        <div class="feature-card" style="border-left: 5px solid #f59e0b;">
-            <div class="feature-header">Sample Well #1</div>
-            <p>Sandstone reservoir with moderate hydrocarbon potential</p>
-            <p>Contains all required log curves</p>
-        </div>
-        """, unsafe_allow_html=True)
+    # Advanced Configuration Options
+    with st.expander("Advanced Configuration Options"):
+        col1, col2 = st.columns(2)
         
-        # Mock download button
-        st.download_button(
-            label="Download Sample #1", 
-            data="Sample data placeholder", 
-            file_name="sample_well_1.las",
-            mime="text/plain"
-        )
+        with col1:
+            st.markdown("### Model Architecture")
+            st.selectbox("GCN Version", ["RegularizedGCN", "Standard GCN", "GCN with Skip Connections"])
+            st.number_input("Hidden Channels", min_value=8, max_value=128, value=16, step=8)
+            st.slider("Dropout Rate", min_value=0.0, max_value=0.8, value=0.5, step=0.1)
+            st.checkbox("Use Batch Normalization", value=True)
         
-    with col2:
-        st.markdown("""
-        <div class="feature-card" style="border-left: 5px solid #8b5cf6;">
-            <div class="feature-header">Sample Well #2</div>
-            <p>Carbonate reservoir with high hydrocarbon potential</p>
-            <p>Contains all required log curves plus additional data</p>
-        </div>
-        """, unsafe_allow_html=True)
+        with col2:
+            st.markdown("### Training Configuration")
+            st.select_slider("Learning Rate", options=[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05], value=0.01)
+            st.number_input("Early Stopping Patience", min_value=10, max_value=100, value=50, step=5)
+            st.number_input("Maximum Epochs", min_value=50, max_value=500, value=200, step=50)
+            st.selectbox("Optimizer", ["Adam", "SGD", "RMSprop", "AdamW"])
+    
+    # Run model button
+    st.markdown("""
+    <div style="text-align: center; margin-top: 30px;">
+        <button style="background-color: #0e4194; color: white; border: none; 
+                      padding: 12px 24px; border-radius: 8px; font-size: 16px; 
+                      cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            Train GCN Model
+        </button>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # If the user clicks the button (this is a Streamlit workaround)
+    if st.button("Train GCN Model"):
+        # Show a progress bar
+        progress_bar = st.progress(0)
         
-        # Mock download button
-        st.download_button(
-            label="Download Sample #2", 
-            data="Sample data placeholder", 
-            file_name="sample_well_2.las",
-            mime="text/plain"
-        )
-
-def model_workflow_page():
-    st.markdown("""
-    <div class="colored-header">
-        <h1>Model Workflow</h1>
-        <p>Understanding the VHydro prediction process</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="card">
-        <h2>Workflow Overview</h2>
-        <p>VHydro follows a multi-stage workflow to predict hydrocarbon quality from well log data:</p>
-        <ol>
-            <li><b>Data Loading and Validation:</b> Import LAS file and validate required curves</li>
-            <li><b>Petrophysical Property Calculation:</b> Calculate key reservoir properties</li>
-            <li><b>Facies Classification:</b> Group similar rock types using K-means clustering</li>
-            <li><b>Graph Construction:</b> Create node connections based on depth relationships</li>
-            <li><b>GCN Model Training:</b> Train the Graph Convolutional Network model</li>
-            <li><b>Hydrocarbon Quality Prediction:</b> Generate predictions for each depth point</li>
-        </ol>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="card">
-        <h2>Petrophysical Property Calculation</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <h3>Shale Volume (Vsh)</h3>
-                <p>Calculated from Gamma Ray logs:</p>
-                <pre style="background-color: #f1f5f9; padding: 10px; border-radius: 5px;">Vsh = (GR - GRmin) / (GRmax - GRmin)</pre>
-                
-                <h3>Density Porosity (φd)</h3>
-                <p>Calculated from Bulk Density logs:</p>
-                <pre style="background-color: #f1f5f9; padding: 10px; border-radius: 5px;">φd = (ρmatrix - ρbulk) / (ρmatrix - ρfluid)</pre>
-                
-                <h3>Effective Porosity (φeff)</h3>
-                <p>Corrected for shale content:</p>
-                <pre style="background-color: #f1f5f9; padding: 10px; border-radius: 5px;">φeff = φd - (Vsh * 0.3)</pre>
-            </div>
-            <div>
-                <h3>Water Saturation (Sw)</h3>
-                <p>Calculated using Archie's equation:</p>
-                <pre style="background-color: #f1f5f9; padding: 10px; border-radius: 5px;">Sw = ((a * (φeff^-m)) / (Rt * Rw))^(1/n)</pre>
-                
-                <h3>Oil Saturation (So)</h3>
-                <p>Calculated as:</p>
-                <pre style="background-color: #f1f5f9; padding: 10px; border-radius: 5px;">So = 1 - Sw</pre>
-                
-                <h3>Permeability (K)</h3>
-                <p>Estimated using porosity-based correlation:</p>
-                <pre style="background-color: #f1f5f9; padding: 10px; border-radius: 5px;">K = 0.00004 * exp(57.117 * φeff)</pre>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="card">
-        <h2>Graph Convolutional Network Model</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <h3>Graph Construction</h3>
-                <ul>
-                    <li><b>Nodes:</b> Depth points with associated petrophysical properties</li>
-                    <li><b>Edges:</b> Connections between related depth points based on facies</li>
-                    <li><b>Node Features:</b> Encoded petrophysical properties</li>
-                    <li><b>Edge Features:</b> Relationships between facies at different depths</li>
-                </ul>
-            </div>
-            <div>
-                <h3>GCN Architecture</h3>
-                <ul>
-                    <li><b>Input Layer:</b> Node features from petrophysical properties</li>
-                    <li><b>Hidden Layers:</b> Graph convolutional layers</li>
-                    <li><b>Output Layer:</b> Classification layer for quality prediction</li>
-                    <li><b>Regularization:</b> Dropout and batch normalization</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Simple workflow diagram with matplotlib
-    st.markdown("<h2>Workflow Diagram</h2>", unsafe_allow_html=True)
-    
-    # Create a simple workflow diagram
-    fig, ax = plt.subplots(figsize=(10, 6))
-    
-    # Disable axis
-    ax.axis('off')
-    
-    # Create boxes for steps
-    steps = [
-        "Data Loading", "Petrophysical\nCalculation", 
-        "Facies\nClassification", "Graph\nConstruction", 
-        "GCN Model\nTraining", "Quality\nPrediction"
-    ]
-    
-    colors = [
-        "#3b82f6", "#8b5cf6", "#ec4899", 
-        "#f59e0b", "#10b981", "#0ea5e9"
-    ]
-    
-    # Position boxes
-    for i, (step, color) in enumerate(zip(steps, colors)):
-        x = 0.1 + i * 0.15
-        ax.add_patch(plt.Rectangle((x, 0.4), 0.12, 0.2, 
-                                  fill=True, color=color, alpha=0.7))
-        ax.text(x + 0.06, 0.5, step, ha='center', va='center', 
-               color='white', fontweight='bold')
+        # Create a status area
+        status_area = st.empty()
         
-        # Add arrow if not the last step
-        if i < len(steps) - 1:
-            ax.annotate("", xy=(x + 0.13, 0.5), xytext=(x + 0.15, 0.5),
-                       arrowprops=dict(arrowstyle="->", lw=2, color="#64748b"))
-    
-    st.pyplot(fig)
+        # Simulate training process
+        for i in range(100):
+            progress_bar.progress(i + 1)
+            
+            # Update status messages
+            if i < 10:
+                status_area.info("Preparing graph structure...")
+            elif i < 30:
+                status_area.info("Creating node and edge features...")
+            elif i < 60:
+                status_area.info(f"Training GCN model (Epoch {i})...")
+            elif i < 90:
+                status_area.info("Optimizing model parameters...")
+            else:
+                status_area.info("Finalizing predictions...")
+            
+            # Sleep to simulate processing time
+            import time
+            time.sleep(0.05)
+        
+        # Clear status area and show success message
+        status_area.empty()
+        st.success("GCN model trained successfully!")
 
 def analysis_tool_page():
     # Check login for analysis tool
@@ -616,7 +426,7 @@ def analysis_tool_page():
     st.markdown("""
     <div class="colored-header">
         <h1>Analysis Tool</h1>
-        <p>Upload data and run the VHydro analysis</p>
+        <p>Process well log data and run advanced hydrocarbon prediction</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -628,7 +438,7 @@ def analysis_tool_page():
         
         # File upload section with a colorful border
         st.markdown("""
-        <div style="border: 2px dashed #0066cc; border-radius: 10px; padding: 30px; text-align: center; margin: 20px 0;">
+        <div style="border: 2px dashed #0e4194; border-radius: 10px; padding: 30px; text-align: center; margin: 20px 0;">
             <h4>Drag and drop your LAS file here</h4>
             <p>Or click to browse files</p>
         </div>
@@ -794,7 +604,7 @@ def analysis_tool_page():
                 
                 # Plot silhouette scores
                 fig, ax = plt.subplots(figsize=(10, 6))
-                ax.plot(silhouette_df["Clusters"], silhouette_df["Silhouette Score"], marker='o', color='#0066cc')
+                ax.plot(silhouette_df["Clusters"], silhouette_df["Silhouette Score"], marker='o', color='#0e4194')
                 ax.set_xlabel("Number of Clusters")
                 ax.set_ylabel("Silhouette Score")
                 ax.set_title("Cluster Optimization")
@@ -956,7 +766,7 @@ def analysis_tool_page():
                     fig, ax = plt.subplots(1, 2, figsize=(12, 5))
                     
                     # Loss plot
-                    ax[0].plot(history["loss"], label="Training Loss", color='#0066cc')
+                    ax[0].plot(history["loss"], label="Training Loss", color='#0e4194')
                     ax[0].set_xlabel("Epoch")
                     ax[0].set_ylabel("Loss")
                     ax[0].set_title("Training Loss")
@@ -964,7 +774,7 @@ def analysis_tool_page():
                     ax[0].grid(True, alpha=0.3)
                     
                     # Accuracy plot
-                    ax[1].plot(history["acc"], label="Training Accuracy", color='#0066cc')
+                    ax[1].plot(history["acc"], label="Training Accuracy", color='#0e4194')
                     ax[1].plot(history["val_acc"], label="Validation Accuracy", color='#f59e0b')
                     ax[1].set_xlabel("Epoch")
                     ax[1].set_ylabel("Accuracy")
@@ -1130,13 +940,13 @@ def analysis_tool_page():
                 st.session_state["model_history"] = True
                 st.session_state["analysis_complete"] = True
 
-def results_visualization_page():
+def visualization_page():
     # Check login for visualization
     if not st.session_state.get("logged_in", False):
         st.markdown("""
         <div class="card" style="text-align: center; max-width: 500px; margin: 50px auto;">
             <h2>Login Required</h2>
-            <p>You need to log in to access the Results Visualization.</p>
+            <p>You need to log in to access the Visualization tools.</p>
             <div style="margin-top: 20px;">
         """, unsafe_allow_html=True)
         
@@ -1162,7 +972,7 @@ def results_visualization_page():
     
     st.markdown("""
     <div class="colored-header">
-        <h1>Results Visualization</h1>
+        <h1>Visualization</h1>
         <p>Visualize and interpret prediction results</p>
     </div>
     """, unsafe_allow_html=True)
@@ -1470,7 +1280,7 @@ def results_visualization_page():
             fig, ax = plt.subplots(1, 2, figsize=(12, 5))
             
             # Loss plot
-            ax[0].plot(history["loss"], label="Training Loss", color='#0066cc')
+            ax[0].plot(history["loss"], label="Training Loss", color='#0e4194')
             ax[0].set_xlabel("Epoch")
             ax[0].set_ylabel("Loss")
             ax[0].set_title("Training Loss")
@@ -1478,7 +1288,7 @@ def results_visualization_page():
             ax[0].grid(True, alpha=0.3)
             
             # Accuracy plot
-            ax[1].plot(history["acc"], label="Training Accuracy", color='#0066cc')
+            ax[1].plot(history["acc"], label="Training Accuracy", color='#0e4194')
             ax[1].plot(history["val_acc"], label="Validation Accuracy", color='#f59e0b')
             ax[1].axhline(y=history["test_acc"], color='g', linestyle='--', label='Test Accuracy')
             ax[1].set_xlabel("Epoch")
@@ -1567,7 +1377,7 @@ def results_visualization_page():
             width = 0.2
             x = np.arange(len(runs_data["Run"]))
             
-            ax.bar(x - 1.5*width, runs_data["Test Accuracy"], width, label='Accuracy', color='#0066cc')
+            ax.bar(x - 1.5*width, runs_data["Test Accuracy"], width, label='Accuracy', color='#0e4194')
             ax.bar(x - 0.5*width, runs_data["F1 Score"], width, label='F1 Score', color='#f59e0b')
             ax.bar(x + 0.5*width, runs_data["Precision"], width, label='Precision', color='#10b981')
             ax.bar(x + 1.5*width, runs_data["Recall"], width, label='Recall', color='#8b5cf6')
@@ -1584,34 +1394,332 @@ def results_visualization_page():
             st.pyplot(fig)
             
             # Display run comparison table
-            st.table(runs_df)
-
-# Main application entry point
-if __name__ == "__main__":
-    # Initialize session state variables
-    if 'current_page' not in st.session_state:
-        st.session_state['current_page'] = "Home"
+            st.table(runs_df)-header">Petrophysical Property Calculation</div>
+            <ul>
+                <li>Shale Volume</li>
+                <li>Porosity</li>
+                <li>Water/Oil Saturation</li>
+                <li>Permeability</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-header">Facies Classification</div>
+            <ul>
+                <li>K-means Clustering</li>
+                <li>Silhouette Score Optimization</li>
+                <li>Depth-based Facies Mapping</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Create sidebar and get configuration
-    config = create_sidebar()
+    with col2:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-header">Graph-based Machine Learning</div>
+            <ul>
+                <li>Graph Convolutional Networks</li>
+                <li>Node and Edge Feature Extraction</li>
+                <li>Hydrocarbon Quality Classification</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-header">Visualization and Reporting</div>
+            <ul>
+                <li>Facies Visualization</li>
+                <li>Prediction Accuracy Metrics</li>
+                <li>Classification Reports</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Display selected page
-    current_page = st.session_state.get('current_page', 'Home')
-    
-    if current_page == "Home":
-        home_page()
-    elif current_page == "Dataset Preparation":
-        dataset_preparation_page()
-    elif current_page == "Model Workflow":
-        model_workflow_page()
-    elif current_page == "Analysis Tool":
-        analysis_tool_page()
-    elif current_page == "Results Visualization":
-        results_visualization_page()
-    
-    # Footer
+    # Coming Soon Section with blur effect
     st.markdown("""
-    <div class="footer">
-        VHydro - Advanced Hydrocarbon Quality Prediction © 2025
+    <div class="coming-soon">
+        <h2>Coming Soon: StrataGraph 2.0</h2>
+        <p>Geoscience graph datasets for Carbon Capture, Utilization, and Storage (CCUS)</p>
+        <button style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white; 
+                       padding: 8px 16px; border-radius: 4px; margin-top: 10px; cursor: pointer;">
+            Join Waitlist
+        </button>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Getting Started Section
+    st.markdown("<h2>Getting Started</h2>", unsafe_allow_html=True)
+    
+    # Create a simple workflow guide
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="feature-card" style="border-left: 5px solid #10b981;">
+            <div class="feature-header">1. Prepare Data</div>
+            <p>Upload your well log data in LAS format and validate required curves.</p>
+            <p>Navigate to the <b>Dataset Preparation</b> section to start.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="feature-card" style="border-left: 5px solid #f59e0b;">
+            <div class="feature-header">2. Run Analysis</div>
+            <p>Calculate petrophysical properties and run the GCN model.</p>
+            <p>Use the <b>Analysis Tool</b> to process your data.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="feature-card" style="border-left: 5px solid #8b5cf6;">
+            <div class="feature-header">3. Visualize Results</div>
+            <p>Explore facies classifications and quality predictions.</p>
+            <p>Visit the <b>Visualization</b> section to interpret findings.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+def dataset_preparation_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Dataset Preparation</h1>
+        <p>Prepare your well log data for VHydro analysis</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Try to load the dataset preparation image
+    dataset_img_path = "VHydro_dataset_preparation.png"  # Update with your actual image path
+    try:
+        st.image(dataset_img_path, use_column_width=True)
+    except:
+        # Fallback if image isn't found
+        st.warning("Dataset preparation image not found. Please ensure 'VHydro_dataset_preparation.png' is in the correct directory.")
+    
+    st.markdown("""
+    <div class="card">
+        <h2>VHydro Data Preparation</h2>
+        <p>VHydro requires specific log curves to calculate petrophysical properties needed for accurate predictions:</p>
+        <table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+            <tr style="background-color: #f1f5f9;">
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Curve</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Description</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Purpose</th>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">GR/CGR</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Gamma Ray or Computed Gamma Ray</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Shale volume calculation</td>
+            </tr>
+            <tr style="background-color: #f8fafc;">
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">RHOB</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Bulk Density</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Density porosity calculation</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">NPHI</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Neutron Porosity</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Effective porosity calculation</td>
+            </tr>
+            <tr style="background-color: #f8fafc;">
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">LLD/ILD</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Deep Resistivity</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Water/oil saturation calculation</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">DEPT</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Depth</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Spatial reference for facies classification</td>
+            </tr>
+        </table>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="card">
+        <h2>File Format</h2>
+        <p>VHydro accepts well log data in <b>LAS</b> (Log ASCII Standard) format, which is the industry standard for storing well log data.</p>
+        <h3>Example LAS File Structure</h3>
+        <pre style="background-color: #f1f5f9; padding: 15px; border-radius: 5px; font-size: 0.9em; overflow-x: auto;">
+~VERSION INFORMATION
+VERS.   2.0 :   CWLS LOG ASCII STANDARD - VERSION 2.0
+WRAP.   NO  :   ONE LINE PER DEPTH STEP
+
+~WELL INFORMATION
+STRT.M   1670.0 :
+STOP.M   1660.0 :
+STEP.M   -0.1  :
+NULL.    -999.25:
+WELL.    EXAMPLE WELL:
+FLD .    EXAMPLE FIELD:
+
+~CURVE INFORMATION
+DEPT.M   :   Depth
+GR  .GAPI:   Gamma Ray
+RHOB.K/M3:   Bulk Density
+NPHI.V/V :   Neutron Porosity
+LLD .OHMM:   Deep Resistivity
+
+~A  DEPT     GR      RHOB    NPHI    LLD
+1670.000   75.075   2.561   0.246   12.863
+1669.900   74.925   2.563   0.245   13.042
+...
+        </pre>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Data Upload Section
+    st.markdown("""
+    <div class="card">
+        <h2>Upload Your Data</h2>
+        <p>Upload your well log data in LAS format to begin the analysis process:</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # File upload section with a colorful border
+    st.markdown("""
+    <div style="border: 2px dashed #0e4194; border-radius: 10px; padding: 30px; text-align: center; margin: 20px 0;">
+        <h4>Drag and drop your LAS file here</h4>
+        <p>Or click to browse files</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    uploaded_file = st.file_uploader("Choose a LAS file", type=["las"])
+    
+    if uploaded_file is not None:
+        st.success(f"File {uploaded_file.name} uploaded successfully!")
+        
+        # Store in session state
+        st.session_state["uploaded_file"] = uploaded_file.name
+        
+        # Show file info in a nice format
+        st.markdown(
+            f"""
+            <div class="card">
+                <h4>File Information</h4>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold;">File Name:</td>
+                        <td style="padding: 8px;">{uploaded_file.name}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold;">File Size:</td>
+                        <td style="padding: 8px;">{uploaded_file.size / 1024:.2f} KB</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: bold;">Upload Time:</td>
+                        <td style="padding: 8px;">{pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")}</td>
+                    </tr>
+                </table>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+        # Proceed button
+        if st.button("Process Data"):
+            st.session_state["analysis_stage"] = "property_calculation"
+            st.rerun()
+
+def models_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Models</h1>
+        <p>Advanced Graph Convolutional Networks for Geoscience Modeling</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Try to load the model image
+    model_img_path = "VHydro_Model.png"  # Update with your actual image path
+    try:
+        st.image(model_img_path, use_column_width=True)
+    except:
+        # Fallback if image isn't found
+        st.warning("Model image not found. Please ensure 'VHydro_Model.png' is in the correct directory.")
+    
+    st.markdown("""
+    <div class="card">
+        <h2>GCN Model for Hydrocarbon Prediction</h2>
+        <p>StrataGraph implements sophisticated Graph Convolutional Networks (GCNs) to model the complex relationships 
+        between different petrophysical properties across varying depths.</p>
+        <p>VHydro 1.0 leverages these networks to predict hydrocarbon quality and classify reservoir zones.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="card">
+        <h2>Model Architecture</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h3>Graph Construction</h3>
+                <ul>
+                    <li><b>Nodes:</b> Depth points with associated petrophysical properties</li>
+                    <li><b>Edges:</b> Connections between related depth points based on facies</li>
+                    <li><b>Node Features:</b> Encoded petrophysical properties</li>
+                    <li><b>Edge Features:</b> Relationships between facies at different depths</li>
+                </ul>
+            </div>
+            <div>
+                <h3>GCN Architecture</h3>
+                <ul>
+                    <li><b>Input Layer:</b> Node features from petrophysical properties</li>
+                    <li><b>Hidden Layers:</b> Multiple graph convolutional layers</li>
+                    <li><b>Output Layer:</b> Classification layer for quality prediction</li>
+                    <li><b>Regularization:</b> Dropout and batch normalization</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="card">
+        <h2>Hydrocarbon Quality Classification</h2>
+        <p>The model classifies reservoir zones into five quality categories:</p>
+        <table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+            <tr style="background-color: #f1f5f9;">
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Category</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Description</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Characteristics</th>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Very High</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Exceptional quality reservoir</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">High porosity, high permeability, low water saturation</td>
+            </tr>
+            <tr style="background-color: #f8fafc;">
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">High</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Good quality reservoir</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Good porosity and permeability, moderate water saturation</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Moderate</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Average quality reservoir</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Moderate porosity and permeability</td>
+            </tr>
+            <tr style="background-color: #f8fafc;">
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Low</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Poor quality reservoir</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Low porosity, low permeability, high water saturation</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Very Low</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Non-reservoir quality</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Very low porosity and permeability, high shale content</td>
+            </tr>
+        </table>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Model Configuration Section
+    st.markdown("<h2>Model Configuration</h2>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature
