@@ -1,0 +1,206 @@
+/* Main color scheme */
+:root {
+    --primary: #0e4194;
+    --secondary: #3a6fc4;
+    --accent: #10b981;
+    --background: #f8fafc;
+    --sidebar: #0e4194;
+    --text: #1e293b;
+    --text-light: #64748b;
+}
+
+/* General styles */
+.main .block-container {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+    max-width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary);
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, var(--sidebar) 0%, #153a6f 100%);
+}
+
+[data-testid="stSidebar"] p, 
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label, 
+[data-testid="stSidebar"] div {
+    color: white !important;
+}
+
+/* Navigation buttons */
+.nav-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: left;
+    display: block;
+}
+
+.nav-button:hover, .nav-button.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.nav-button.active {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+/* Content cards */
+.card {
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.colored-header {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.feature-card {
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    border-left: 5px solid var(--primary);
+}
+
+.feature-header {
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+/* Login form styling */
+.login-form {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Coming soon section */
+.coming-soon {
+    background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8));
+    background-size: cover;
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 30px 0;
+}
+
+.coming-soon h2 {
+    color: white;
+    margin-bottom: 15px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    margin-top: 40px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* User account styling */
+.user-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.user-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.user-field {
+    margin-bottom: 15px;
+}
+
+.field-label {
+    font-weight: bold;
+    color: #0e4194;
+}
+
+/* Optimize for loading performance */
+/* Reduce CSS animations */
+* {
+    transition-duration: 0.15s !important;
+}
+
+/* File upload area */
+.file-upload-area {
+    border: 2px dashed #0e4194;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Data tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th {
+    background-color: #f1f5f9;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+/* Button styles */
+.primary-button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.primary-button:hover {
+    background-color: var(--secondary);
+}
