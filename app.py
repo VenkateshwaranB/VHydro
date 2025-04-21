@@ -13,9 +13,6 @@ matplotlib.use('Agg')  # Use non-interactive backend
 os.environ['MPLCONFIGDIR'] = os.getcwd() + '/matplotlib_cache'
 import matplotlib.pyplot as plt
 
-# Disable Streamlit's automatic plotting features
-st.set_option('deprecation.showPyplotGlobalUse', False)
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -1027,10 +1024,11 @@ def show_performance_visualization():
         with col3: st.metric("Training Time", "2.4 min")
         
         # Show a simplified chart
-        st.line_chart(pd.DataFrame({
+        chart_data = pd.DataFrame({
             'Training Accuracy': np.linspace(0.6, 0.95, 20) + np.random.normal(0, 0.02, 20),
             'Validation Accuracy': np.linspace(0.55, 0.9, 20) + np.random.normal(0, 0.03, 20)
-        }))
+        })
+        st.line_chart(chart_data)
         
     elif metric_type == "Confusion Matrix":
         # Create simplified confusion matrix
