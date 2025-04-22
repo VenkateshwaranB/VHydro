@@ -29,7 +29,7 @@ st.set_page_config(
 @st.cache_data
 def load_css():
     css = """
-    /* Minimal core styles only */
+    /* Main styling */
     .main .block-container { padding-top: 1rem; padding-bottom: 2rem; max-width: 100%; }
     h1, h2, h3, h4, h5, h6 { color: #0e4194; }
     .colored-header { background: linear-gradient(90deg, #0e4194 0%, #3a6fc4 100%); color: white; 
@@ -40,11 +40,168 @@ def load_css():
                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); height: 100%; 
                    border-left: 5px solid #0e4194; }
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
-    [data-testid="stSidebar"] { background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); }
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, 
-    [data-testid="stSidebar"] label, [data-testid="stSidebar"] div { color: white !important; }
-    .user-card { background-color: #f8f9fa; border-radius: 10px; padding: 20px; 
-                margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    
+    /* Sidebar styling */
+    [data-testid="stSidebar"] { 
+        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    
+    /* Sidebar header/logo area */
+    .sidebar-logo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .sidebar-logo-container img {
+        max-width: 80%;
+        margin-bottom: 1rem;
+    }
+    
+    .sidebar-logo-container h1 {
+        color: white !important;
+        font-size: 1.8rem;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .version-tag {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin: 8px 0;
+    }
+    
+    /* Navigation menu styling */
+    .menu-container {
+        margin-top: 1rem;
+    }
+    
+    .nav-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        color: white !important;
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        padding-left: 1rem;
+    }
+    
+    .menu-item {
+        background-color: white;
+        color: #0e4194;
+        border-radius: 5px;
+        margin: 5px 0;
+        transition: all 0.2s;
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .menu-item-btn {
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        padding: 0.8rem 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        color: #0e4194;
+        display: block;
+    }
+    
+    .menu-item-btn:hover {
+        background-color: #f0f7ff;
+    }
+    
+    .menu-item.active {
+        background-color: #e0f0ff;
+        border-left: 4px solid #0e4194;
+    }
+    
+    .submenu-container {
+        padding-left: 1rem;
+    }
+    
+    .submenu-item {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 5px;
+        margin: 5px 0;
+    }
+    
+    .submenu-btn {
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        color: #0e4194;
+        display: block;
+    }
+    
+    .submenu-btn:hover {
+        background-color: #f0f7ff;
+    }
+    
+    .submenu-item.active {
+        background-color: #e0f0ff;
+        border-left: 3px solid #0e4194;
+    }
+    
+    /* Coming soon tag */
+    .coming-soon-tag {
+        background-color: rgba(255, 152, 0, 0.2);
+        color: rgb(255, 152, 0);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    
+    /* Coming soon section */
+    .coming-soon-section {
+        background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://placehold.co/600x400');
+        background-size: cover;
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 30px 0;
+        filter: blur(0px); /* Container not blurred */
+    }
+    
+    .coming-soon-section h2 {
+        color: white;
+        margin-bottom: 15px;
+    }
+    
+    .coming-soon-section .content {
+        filter: blur(3px); /* Content inside is blurred */
+        pointer-events: none;
+    }
+    
+    .footer-text {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+        text-align: center;
+        padding: 1rem;
+        margin-top: 2rem;
+    }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
@@ -74,62 +231,174 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create sidebar for navigation
+# Create sidebar with enhanced styling
 def create_sidebar():
-    st.sidebar.markdown('<div style="text-align: center; padding: 1rem 0; margin-bottom: 1rem;">', unsafe_allow_html=True)
-    
-    # Logo placeholder
-    logo_path = "src/StrataGraph_White_Logo.png"
-    try:
-        st.sidebar.image(logo_path, width=160)
-    except:
-        st.sidebar.markdown("""
-        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
-            <h2 style="color: #0e4194; margin: 0;">StrataGraph</h2>
+    # Sidebar container for the logo and title
+    st.sidebar.markdown(
+        """
+        <div class="sidebar-logo-container">
+            <img src="https://i.imgur.com/TNl1gM7.png" alt="StrataGraph Logo">
+            <h1>StrataGraph</h1>
+            <div class="version-tag">VHydro 1.0</div>
         </div>
-        """, unsafe_allow_html=True)
+        """, 
+        unsafe_allow_html=True
+    )
     
-    # Version info
-    st.sidebar.markdown("""
-    <div style="text-align: center; margin-bottom: 20px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
-        <p style="margin: 0; font-size: 0.9rem;">VHydro 1.0</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Render menu structure
+    st.sidebar.markdown('<div class="menu-container">', unsafe_allow_html=True)
     
-    # User info if logged in
-    if st.session_state.get("logged_in", False):
-        st.sidebar.markdown(f"""
-        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-            <p style="margin: 0;">Logged in as: {st.session_state.get("email")}</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.sidebar.button("Logout", key="logout_btn"):
-            logout()
-            st.rerun()
-    
-    # Navigation
-    st.sidebar.markdown('<h3 style="color: white; margin-bottom: 15px;">Navigation</h3>', unsafe_allow_html=True)
-    
-    # Define pages
-    pages = ["Home", "Dataset Preparation", "Models", "Analysis Tool", "Visualization"]
+    # Navigation section
+    st.sidebar.markdown('<div class="nav-section">', unsafe_allow_html=True)
+    st.sidebar.markdown('<p class="section-title">Navigation</p>', unsafe_allow_html=True)
     
     # Initialize current page in session state if it doesn't exist
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Create navigation buttons
-    for page in pages:
-        # Use different key for each button
-        if st.sidebar.button(page, key=f"nav_{page}"):
-            st.session_state["current_page"] = page
-            st.rerun()
+    # Define main menu items
+    main_menu = {
+        "Home": {"type": "main"},
+        "VHydro": {
+            "type": "parent",
+            "submenu": {
+                "Data Preparation": {"type": "sub"},
+                "Petrophysical Properties": {"type": "sub"},
+                "Facies Classification": {"type": "sub"}
+            }
+        },
+        "CO2 Storage Applications": {"type": "main", "coming_soon": True},
+        "Models": {
+            "type": "parent",
+            "submenu": {
+                "Hydrocarbon Potential Using GCN": {"type": "sub"},
+                "CO2 Storage Potential Using GraphSAGE": {"type": "sub", "coming_soon": True}
+            }
+        },
+        "Help and Contact": {"type": "main"},
+        "About Us": {"type": "main"}
+    }
     
-    # Basic configuration section
-    st.sidebar.markdown('<h3 style="color: white;">Model Configuration</h3>', unsafe_allow_html=True)
+    # List of keys that will be expanded in the UI
+    open_sections = []
+    if "current_page" in st.session_state:
+        current = st.session_state["current_page"]
+        # Find the parent in the menu structure
+        for parent, details in main_menu.items():
+            if details["type"] == "parent" and "submenu" in details:
+                for sub_item in details["submenu"]:
+                    if current == sub_item:
+                        open_sections.append(parent)
+                        break
+    
+    # Render each menu item
+    for menu_item, details in main_menu.items():
+        if details["type"] == "main":
+            # Check if this item has a "coming soon" tag
+            coming_soon = details.get("coming_soon", False)
+            coming_soon_tag = '<span class="coming-soon-tag">COMING SOON</span>' if coming_soon else ''
+            
+            # Determine if this item is active
+            is_active = st.session_state.get("current_page") == menu_item
+            active_class = 'active' if is_active else ''
+            
+            # Render the menu item
+            st.sidebar.markdown(
+                f"""
+                <div class="menu-item {active_class}">
+                    <button type="button" class="menu-item-btn" data-item="{menu_item}">
+                        {menu_item} {coming_soon_tag}
+                    </button>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
+            
+            # Handle button click - using Streamlit's button for functionality
+            if st.sidebar.button(menu_item, key=f"btn_{menu_item}", help=f"Navigate to {menu_item}"):
+                st.session_state["current_page"] = menu_item
+                st.rerun()
+                
+        elif details["type"] == "parent":
+            # Section that can be expanded
+            is_open = menu_item in open_sections
+            
+            # Render the parent menu item
+            st.sidebar.markdown(
+                f"""
+                <div class="menu-item">
+                    <button type="button" class="menu-item-btn" data-item="{menu_item}">
+                        {menu_item} {'▼' if is_open else '▶'}
+                    </button>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
+            
+            # Toggle section open/closed
+            if st.sidebar.button(menu_item, key=f"btn_{menu_item}"):
+                # Toggle the open state of this section
+                if menu_item in open_sections:
+                    open_sections.remove(menu_item)
+                else:
+                    open_sections.append(menu_item)
+                st.rerun()
+            
+            # Render submenu items if section is open
+            if menu_item in open_sections and "submenu" in details:
+                st.sidebar.markdown('<div class="submenu-container">', unsafe_allow_html=True)
+                
+                for sub_item, sub_details in details["submenu"].items():
+                    # Check if this item has a "coming soon" tag
+                    sub_coming_soon = sub_details.get("coming_soon", False)
+                    sub_coming_soon_tag = '<span class="coming-soon-tag">COMING SOON</span>' if sub_coming_soon else ''
+                    
+                    # Determine if this sub item is active
+                    is_sub_active = st.session_state.get("current_page") == sub_item
+                    sub_active_class = 'active' if is_sub_active else ''
+                    
+                    # Render the submenu item
+                    st.sidebar.markdown(
+                        f"""
+                        <div class="submenu-item {sub_active_class}">
+                            <button type="button" class="submenu-btn" data-item="{sub_item}">
+                                {sub_item} {sub_coming_soon_tag}
+                            </button>
+                        </div>
+                        """, 
+                        unsafe_allow_html=True
+                    )
+                    
+                    # Handle button click
+                    if st.sidebar.button(sub_item, key=f"btn_{sub_item}"):
+                        st.session_state["current_page"] = sub_item
+                        st.rerun()
+                
+                st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    
+    # Model Configuration section
+    st.sidebar.markdown('<div class="nav-section">', unsafe_allow_html=True)
+    st.sidebar.markdown('<p class="section-title">Model Configuration</p>', unsafe_allow_html=True)
     
     min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
     max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    
+    # Footer content
+    st.sidebar.markdown(
+        """
+        <div class="footer-text">
+            © 2025 StrataGraph. All rights reserved.<br>
+            Version 1.0.0
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
+    
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)  # Close menu-container
     
     return {
         "page": st.session_state["current_page"],
@@ -141,7 +410,7 @@ def home_page():
     # Try to load the banner image
     banner_path = "src/StrataGraph_Banner.png"
     try:
-        st.image(banner_path, use_column_width=True)
+        st.image(banner_path, use_container_width=True)
     except:
         st.markdown("""
         <div class="colored-header">
@@ -154,7 +423,31 @@ def home_page():
     <div class="card">
         <h2>About StrataGraph</h2>
         <p>StrataGraph is a cutting-edge platform for geoscience modeling and analysis, combining advanced machine learning techniques with traditional geological and petrophysical analysis.</p>
-        <p>Our first release, <b>VHydro 1.0</b>, focuses on hydrocarbon quality prediction using Graph Convolutional Networks (GCNs) that model complex relationships between different petrophysical properties and depth values.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # First section: VHydro
+    st.markdown("""
+    <div class="card">
+        <h2>StrataGraph 1.0 - VHydro</h2>
+        <p>Our first release focuses on hydrocarbon quality prediction using Graph Convolutional Networks (GCNs) that model complex relationships between different petrophysical properties and depth values.</p>
+        <p>VHydro 1.0 enables accurate prediction of hydrocarbon zones using a graph-based approach that captures the spatial relationships between well log measurements.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Second section: CO2 Storage (Coming Soon)
+    st.markdown("""
+    <div class="coming-soon-section">
+        <h2>CO2 Storage Potential Analysis</h2>
+        <div class="content">
+            <p>Advanced carbon capture utilization and storage (CCUS) modules powered by Graph Neural Networks.</p>
+            <ul>
+                <li>CO2 storage capacity prediction</li>
+                <li>Reservoir integrity analysis</li>
+                <li>Long-term storage monitoring</li>
+            </ul>
+        </div>
+        <h3>Coming Soon</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -164,7 +457,7 @@ def home_page():
     # Try to load the workflow image
     workflow_path = "src/Workflow.png"
     try:
-        st.image(workflow_path, use_column_width=True)
+        st.image(workflow_path, use_container_width=True)
     except:
         st.warning("Workflow image not found.")
     
@@ -245,114 +538,163 @@ def home_page():
             status_area.empty()
             st.success("GCN model trained successfully!")
 
-def analysis_tool_page():
-    # Check login for analysis tool
-    if not st.session_state.get("logged_in", False):
-        st.markdown("""
-        <div class="card" style="text-align: center; max-width: 500px; margin: 50px auto;">
-            <h2>Login Required</h2>
-            <p>You need to log in to access the Analysis Tool.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("Login to Continue", key="login_prompt"):
-            st.session_state["auth_mode"] = "login"
-            st.rerun()
-        
-        if st.session_state.get("auth_mode") == "login":
-            with st.form("login_form"):
-                st.markdown("<h3>Login</h3>", unsafe_allow_html=True)
-                email = st.text_input("Email")
-                password = st.text_input("Password", type="password")
-                
-                if st.form_submit_button("Login"):
-                    if login(email, password):
-                        st.success("Login successful!")
-                        st.rerun()
-                    else:
-                        st.error("Invalid email or password")
-        
-        return
-    
+def vhydro_page():
     st.markdown("""
     <div class="colored-header">
-        <h1>Analysis Tool</h1>
-        <p>Process well log data and run advanced hydrocarbon prediction</p>
+        <h1>VHydro</h1>
+        <p>Hydrocarbon Quality Prediction Using Graph Neural Networks</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Create tabs but load content conditionally
-    tab_titles = ["Data Upload", "Property Calculation", "Facies Classification", "GCN Model"]
-    tabs = st.tabs(tab_titles)
+    st.markdown("""
+    <div class="card">
+        <h2>About VHydro</h2>
+        <p>VHydro is StrataGraph's flagship module for predicting hydrocarbon quality zones using Graph Convolutional Networks (GCNs).</p>
+        <p>This advanced approach models the complex relationships between petrophysical properties and depth to provide more accurate predictions than traditional methods.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Only load the content of the selected tab
-    active_tab = 0
-    if "active_tab" in st.session_state:
-        active_tab = st.session_state["active_tab"]
+    # Add tabs for the different sections
+    tab1, tab2, tab3 = st.tabs(["Overview", "Workflow", "Technical Details"])
     
-    with tabs[active_tab]:
-        if active_tab == 0:  # Data Upload
-            data_upload_tab()
-        elif active_tab == 1:  # Property Calculation
-            property_calculation_tab()
-        elif active_tab == 2:  # Facies Classification
-            facies_classification_tab()
-        elif active_tab == 3:  # GCN Model
-            gcn_model_tab()
+    with tab1:
+        st.markdown("""
+        <h3>VHydro Features</h3>
+        <ul>
+            <li>Graph-based representation of well log data</li>
+            <li>Advanced facies classification using K-means clustering</li>
+            <li>GCN-based quality prediction model</li>
+            <li>Interactive visualization of results</li>
+        </ul>
+        """, unsafe_allow_html=True)
+        
+    with tab2:
+        # Try to load the workflow image
+        workflow_path = "src/Workflow.png"
+        try:
+            st.image(workflow_path, use_container_width=True)
+        except:
+            st.warning("Workflow image not found.")
+            
+        st.markdown("""
+        <h3>VHydro Workflow</h3>
+        <ol>
+            <li><strong>Data Preparation</strong>: Upload and process well log data</li>
+            <li><strong>Petrophysical Analysis</strong>: Calculate key properties like porosity, permeability</li>
+            <li><strong>Facies Classification</strong>: Group similar depth points using K-means clustering</li>
+            <li><strong>Graph Construction</strong>: Create a graph representation of the well data</li>
+            <li><strong>GCN Training</strong>: Train the model to predict hydrocarbon quality</li>
+            <li><strong>Visualization</strong>: Interpret and visualize results</li>
+        </ol>
+        """, unsafe_allow_html=True)
+        
+    with tab3:
+        st.markdown("""
+        <h3>Technical Implementation</h3>
+        <p>VHydro uses PyTorch Geometric and StellarGraph frameworks to implement Graph Convolutional Networks tailored for geoscience applications.</p>
+        """, unsafe_allow_html=True)
+        
+        # Model parameters using simple metrics
+        col1, col2, col3, col4 = st.columns(4)
+        with col1: st.metric("Hidden Channels", "16")
+        with col2: st.metric("Layers", "2")
+        with col3: st.metric("Dropout Rate", "0.5")
+        with col4: st.metric("Learning Rate", "0.01")
+        
+    # Button to go to the VHydro Analysis Tool
+    if st.button("Launch VHydro Analysis Tool"):
+        st.session_state["current_page"] = "Data Preparation"
+        st.rerun()
 
-# Individual tab content functions
-def data_upload_tab():
-    st.markdown("<h3>Upload LAS File</h3>", unsafe_allow_html=True)
+def data_preparation_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Data Preparation</h1>
+        <p>Prepare your well log data for VHydro analysis</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # File upload component
-    uploaded_file = st.file_uploader("Choose a LAS file", type=["las"])
+    # Try to load the dataset preparation image (only if explicitly requested)
+    if st.checkbox("Show Dataset Preparation Diagram"):
+        dataset_img_path = "src/Graph Dataset Preparation.png"
+        try:
+            st.image(dataset_img_path, use_container_width=True)
+        except:
+            st.warning("Dataset preparation image not found.")
     
-    if uploaded_file is not None:
-        st.success(f"File {uploaded_file.name} uploaded successfully!")
+    st.markdown("""
+    <div class="card">
+        <h2>VHydro Data Preparation</h2>
+        <p>VHydro requires specific log curves to calculate petrophysical properties needed for accurate predictions:</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Use tabs to organize content but load lazily
+    tab1, tab2 = st.tabs(["Required Curves", "Upload Data"])
+    
+    with tab1:
+        # Simple table instead of complex HTML
+        curves = [
+            ["GR/CGR", "Gamma Ray", "Shale volume calculation"],
+            ["RHOB", "Bulk Density", "Density porosity calculation"],
+            ["NPHI", "Neutron Porosity", "Effective porosity calculation"],
+            ["LLD/ILD", "Deep Resistivity", "Water/oil saturation calculation"],
+            ["DEPT", "Depth", "Spatial reference for facies"]
+        ]
         
-        # Store in session state
-        st.session_state["uploaded_file"] = uploaded_file.name
+        df = pd.DataFrame(curves, columns=["Curve", "Description", "Purpose"])
+        st.table(df)
+    
+    with tab2:
+        # File upload component
+        uploaded_file = st.file_uploader("Choose a LAS file", type=["las"])
         
-        # Show file info in a table
-        st.markdown(
-            f"""
-            <div class="card">
-                <h4>File Information</h4>
-                <table style="width: 100%;">
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">File Name:</td>
-                        <td style="padding: 8px;">{uploaded_file.name}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">File Size:</td>
-                        <td style="padding: 8px;">{uploaded_file.size / 1024:.2f} KB</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">Upload Time:</td>
-                        <td style="padding: 8px;">{pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")}</td>
-                    </tr>
-                </table>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
-        
-        # Proceed button
-        if st.button("Proceed to Property Calculation"):
-            st.session_state["analysis_stage"] = "property_calculation"
-            st.session_state["active_tab"] = 1  # Switch to property calculation tab
-            st.rerun()
+        if uploaded_file is not None:
+            st.success(f"File {uploaded_file.name} uploaded successfully!")
+            
+            # Store in session state
+            st.session_state["uploaded_file"] = uploaded_file.name
+            
+            # Show file info
+            file_info = {
+                "File Name": uploaded_file.name,
+                "File Size": f"{uploaded_file.size / 1024:.2f} KB",
+                "Upload Time": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            # Use dataframe for display instead of HTML
+            st.dataframe(pd.DataFrame(list(file_info.items()), 
+                        columns=["Property", "Value"]))
+            
+            # Proceed button
+            if st.button("Process Data"):
+                with st.spinner("Processing data..."):
+                    # Simulate processing with minimal updates
+                    progress_bar = st.progress(0)
+                    for i in range(0, 101, 25):
+                        progress_bar.progress(i)
+                        time.sleep(0.1)
+                
+                st.success("Data processing complete!")
+                st.session_state["analysis_stage"] = "property_calculation"
+                st.session_state["current_page"] = "Petrophysical Properties"
+                st.rerun()
 
-def property_calculation_tab():
-    st.markdown("<h3>Petrophysical Property Calculation</h3>", unsafe_allow_html=True)
+def petrophysical_properties_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Petrophysical Properties</h1>
+        <p>Calculate key reservoir properties from well log data</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Check if user has uploaded a file
     if "uploaded_file" not in st.session_state:
         st.warning("Please upload a LAS file first.")
         
         # Button to go back to upload tab
-        if st.button("Go to Data Upload"):
-            st.session_state["active_tab"] = 0
+        if st.button("Go to Data Preparation"):
+            st.session_state["current_page"] = "Data Preparation"
             st.rerun()
         return
     
@@ -419,19 +761,24 @@ def property_calculation_tab():
         
         # Button to proceed to next step
         if st.button("Proceed to Facies Classification"):
-            st.session_state["active_tab"] = 2
+            st.session_state["current_page"] = "Facies Classification"
             st.rerun()
 
-def facies_classification_tab():
-    st.markdown("<h3>Facies Classification</h3>", unsafe_allow_html=True)
+def facies_classification_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Facies Classification</h1>
+        <p>Identify geological facies using machine learning</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Check if properties have been calculated
     if "property_data" not in st.session_state:
         st.warning("Please calculate petrophysical properties first.")
         
         # Button to go back to property calculation tab
-        if st.button("Go to Property Calculation"):
-            st.session_state["active_tab"] = 1
+        if st.button("Go to Petrophysical Properties"):
+            st.session_state["current_page"] = "Petrophysical Properties"
             st.rerun()
         return
     
@@ -514,12 +861,17 @@ def facies_classification_tab():
         st.session_state["analysis_stage"] = "gcn_model"
         
         # Button to proceed to next step
-        if st.button("Proceed to GCN Model"):
-            st.session_state["active_tab"] = 3
+        if st.button("Proceed to Hydrocarbon Potential Prediction"):
+            st.session_state["current_page"] = "Hydrocarbon Potential Using GCN"
             st.rerun()
 
-def gcn_model_tab():
-    st.markdown("<h3>Graph Convolutional Network Model</h3>", unsafe_allow_html=True)
+def hydrocarbon_prediction_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Hydrocarbon Potential Prediction</h1>
+        <p>Graph Convolutional Network (GCN) Model for Quality Prediction</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Check if facies classification has been done
     if "facies_data" not in st.session_state:
@@ -527,7 +879,7 @@ def gcn_model_tab():
         
         # Button to go back to facies classification tab
         if st.button("Go to Facies Classification"):
-            st.session_state["active_tab"] = 2
+            st.session_state["current_page"] = "Facies Classification"
             st.rerun()
         return
     
@@ -673,393 +1025,204 @@ def gcn_model_tab():
         st.session_state["model_history"] = True
         st.session_state["analysis_complete"] = True
 
-def dataset_preparation_page():
+def co2_storage_page():
     st.markdown("""
     <div class="colored-header">
-        <h1>Dataset Preparation</h1>
-        <p>Prepare your well log data for VHydro analysis</p>
+        <h1>CO2 Storage Applications</h1>
+        <p>Carbon Capture, Utilization, and Storage (CCUS) Analysis</p>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Try to load the dataset preparation image (only if explicitly requested)
-    if st.checkbox("Show Dataset Preparation Diagram"):
-        dataset_img_path = "src/Graph Data Preparation.png"
-        try:
-            st.image(dataset_img_path, use_column_width=True)
-        except:
-            st.warning("Dataset preparation image not found.")
     
     st.markdown("""
-    <div class="card">
-        <h2>VHydro Data Preparation</h2>
-        <p>VHydro requires specific log curves to calculate petrophysical properties needed for accurate predictions:</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Use tabs to organize content but load lazily
-    tab1, tab2 = st.tabs(["Required Curves", "Upload Data"])
-    
-    with tab1:
-        # Simple table instead of complex HTML
-        curves = [
-            ["GR/CGR", "Gamma Ray", "Shale volume calculation"],
-            ["RHOB", "Bulk Density", "Density porosity calculation"],
-            ["NPHI", "Neutron Porosity", "Effective porosity calculation"],
-            ["LLD/ILD", "Deep Resistivity", "Water/oil saturation calculation"],
-            ["DEPT", "Depth", "Spatial reference for facies"]
-        ]
-        
-        df = pd.DataFrame(curves, columns=["Curve", "Description", "Purpose"])
-        st.table(df)
-    
-    with tab2:
-        # File upload component
-        uploaded_file = st.file_uploader("Choose a LAS file", type=["las"])
-        
-        if uploaded_file is not None:
-            st.success(f"File {uploaded_file.name} uploaded successfully!")
-            
-            # Store in session state
-            st.session_state["uploaded_file"] = uploaded_file.name
-            
-            # Show file info
-            file_info = {
-                "File Name": uploaded_file.name,
-                "File Size": f"{uploaded_file.size / 1024:.2f} KB",
-                "Upload Time": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            
-            # Use dataframe for display instead of HTML
-            st.dataframe(pd.DataFrame(list(file_info.items()), 
-                        columns=["Property", "Value"]))
-            
-            # Proceed button
-            if st.button("Process Data"):
-                with st.spinner("Processing data..."):
-                    # Simulate processing with minimal updates
-                    progress_bar = st.progress(0)
-                    for i in range(0, 101, 25):
-                        progress_bar.progress(i)
-                        time.sleep(0.1)
-                
-                st.success("Data processing complete!")
-                st.session_state["analysis_stage"] = "property_calculation"
-
-def models_page():
-    st.markdown("""
-    <div class="colored-header">
-        <h1>Models</h1>
-        <p>Advanced Graph Convolutional Networks for Geoscience Modeling</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Load model image only if requested
-    if st.checkbox("Show Model Diagram"):
-        model_img_path = "src/Model.png"
-        try:
-            st.image(model_img_path, use_column_width=True)
-        except:
-            st.warning("Model image not found.")
-    
-    st.markdown("""
-    <div class="card">
-        <h2>GCN Model for Hydrocarbon Prediction</h2>
-        <p>StrataGraph implements sophisticated Graph Convolutional Networks (GCNs) to model the complex relationships 
-        between different petrophysical properties across varying depths.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Use tabs for content organization but load lazily
-    tab1, tab2, tab3 = st.tabs(["Model Architecture", "Training Parameters", "Quality Classification"])
-    
-    with tab1:
-        # Model architecture description using columns
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            <div class="feature-card">
-                <div class="feature-header">Graph Construction</div>
-                <ul>
-                    <li><b>Nodes:</b> Depth points with properties</li>
-                    <li><b>Edges:</b> Connections between related depths</li>
-                    <li><b>Node Features:</b> Encoded properties</li>
-                    <li><b>Edge Features:</b> Relationships between facies</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("""
-            <div class="feature-card">
-                <div class="feature-header">GCN Architecture</div>
-                <ul>
-                    <li><b>Input Layer:</b> Node features</li>
-                    <li><b>Hidden Layers:</b> Graph convolutional layers</li>
-                    <li><b>Output Layer:</b> Classification layer</li>
-                    <li><b>Regularization:</b> Dropout and normalization</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    with tab2:
-        # Training parameters using simple metrics
-        col1, col2, col3, col4 = st.columns(4)
-        with col1: st.metric("Hidden Channels", "16")
-        with col2: st.metric("Layers", "2")
-        with col3: st.metric("Dropout Rate", "0.5")
-        with col4: st.metric("Learning Rate", "0.01")
-        
-        col1, col2, col3, col4 = st.columns(4)
-        with col1: st.metric("Max Epochs", "200")
-        with col2: st.metric("Early Stopping", "Yes")
-        with col3: st.metric("Train Split", "80%")
-        with col4: st.metric("Optimizer", "Adam")
-    
-    with tab3:
-        # Quality classification 
-        quality_data = [
-            ["Very High", "Exceptional quality", "High porosity, high permeability"],
-            ["High", "Good quality", "Good porosity and permeability"],
-            ["Moderate", "Average quality", "Moderate porosity and permeability"],
-            ["Low", "Poor quality", "Low porosity, high water saturation"],
-            ["Very Low", "Non-reservoir", "Very low porosity, high shale content"]
-        ]
-        
-        df = pd.DataFrame(quality_data, columns=["Category", "Description", "Characteristics"])
-        st.table(df)
-    
-    # Model training button
-    if st.button("Train GCN Model", key="train_model_models_page"):
-        with st.spinner("Training GCN model..."):
-            # Simple progress indicator
-            progress_bar = st.progress(0)
-            for i in range(0, 101, 25):
-                progress_bar.progress(i)
-                time.sleep(0.1)
-            
-            st.success("GCN model trained successfully!")
-            
-            # Show sample results if requested
-            if st.checkbox("Show Sample Results"):
-                st.metric("Test Accuracy", "88%")
-                st.dataframe(pd.DataFrame({
-                    "Depth": np.arange(1000, 1005),
-                    "Predicted Quality": ["High", "Moderate", "Very High", "Low", "Moderate"]
-                }))
-
-def visualization_page():
-    # Check login for visualization
-    if not st.session_state.get("logged_in", False):
-        st.markdown("""
-        <div class="card" style="text-align: center; max-width: 500px; margin: 50px auto;">
-            <h2>Login Required</h2>
-            <p>You need to log in to access the Visualization tools.</p>
+    <div class="coming-soon-section">
+        <h2>CO2 Storage Potential Analysis</h2>
+        <div class="content">
+            <p>Advanced carbon capture utilization and storage (CCUS) modules powered by Graph Neural Networks.</p>
+            <ul>
+                <li>CO2 storage capacity prediction</li>
+                <li>Reservoir integrity analysis</li>
+                <li>Long-term storage monitoring</li>
+            </ul>
         </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("Login to Continue"):
-            st.session_state["auth_mode"] = "login"
-            st.rerun()
-        
-        if st.session_state.get("auth_mode") == "login":
-            with st.form("login_form"):
-                st.markdown("<h3>Login</h3>", unsafe_allow_html=True)
-                email = st.text_input("Email")
-                password = st.text_input("Password", type="password")
-                
-                if st.form_submit_button("Login"):
-                    if login(email, password):
-                        st.success("Login successful!")
-                        st.rerun()
-                    else:
-                        st.error("Invalid email or password")
-        
-        return
-    
-    st.markdown("""
-    <div class="colored-header">
-        <h1>Visualization</h1>
-        <p>Visualize and interpret prediction results</p>
+        <h3>Coming Soon</h3>
     </div>
     """, unsafe_allow_html=True)
     
-    # Check if analysis has been completed
-    if not st.session_state.get("analysis_complete", False) and not st.session_state.get("model_history", False):
-        st.warning("No analysis results found. Please run the analysis tool first.")
+    # Feature preview
+    st.markdown("""
+    <div class="card">
+        <h2>Upcoming Features</h2>
+        <ul>
+            <li>CO2 storage capacity estimation based on reservoir properties</li>
+            <li>Caprock integrity assessment using Graph Neural Networks</li>
+            <li>Integration with existing carbon storage databases</li>
+            <li>Long-term storage simulation and monitoring</li>
+            <li>Risk assessment and mitigation strategies</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Sign up for updates
+    st.markdown("""
+    <div class="card">
+        <h2>Stay Updated</h2>
+        <p>Sign up to receive updates when CO2 Storage Applications becomes available.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.form("signup_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            name = st.text_input("Name")
+            email = st.text_input("Email")
+        with col2:
+            organization = st.text_input("Organization")
+            interest = st.selectbox("Area of Interest", ["Carbon Storage", "Hydrocarbon Production", "Research", "Other"])
         
-        # Add demo option
-        if st.button("Load Demo Results"):
-            st.session_state["model_history"] = True
-            st.rerun()
-        return
-    
-    # Instead of loading all tabs at once, use radio buttons to show one at a time
-    viz_type = st.radio(
-        "Select Visualization", 
-        ["Facies Classification", "Quality Prediction", "Model Performance"],
-        horizontal=True
-    )
-    
-    if viz_type == "Facies Classification":
-        show_facies_visualization()
-    elif viz_type == "Quality Prediction":
-        show_quality_visualization()
-    else:  # Model Performance
-        show_performance_visualization()
+        st.form_submit_button("Notify Me")
 
-# Split visualization into separate functions for lazy loading
-def show_facies_visualization():
-    st.markdown("<h3>Facies Classification</h3>", unsafe_allow_html=True)
+def help_contact_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Help and Contact</h1>
+        <p>Get support and connect with our team</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Add options panel
-    col1, col2 = st.columns([2, 1])
+    # FAQ section
+    st.markdown("""
+    <div class="card">
+        <h2>Frequently Asked Questions</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.expander("What file formats are supported?"):
+        st.markdown("""
+        Currently, StrataGraph supports the following file formats:
+        - LAS (Log ASCII Standard) for well log data
+        - CSV for tabular data
+        - Excel spreadsheets for tabular data
+        """)
+    
+    with st.expander("How accurate is the hydrocarbon prediction model?"):
+        st.markdown("""
+        The GCN-based hydrocarbon prediction model typically achieves 85-92% accuracy on test datasets,
+        depending on data quality and completeness. The model is trained using both supervised and
+        unsupervised learning approaches to ensure robust predictions.
+        """)
+    
+    with st.expander("What are the system requirements?"):
+        st.markdown("""
+        StrataGraph is a web-based application that runs in your browser. The recommended specifications are:
+        - Modern web browser (Chrome, Firefox, Edge)
+        - Minimum 8GB RAM for optimal performance with large datasets
+        - Internet connection for cloud-based processing
+        """)
+    
+    # Contact form
+    st.markdown("""
+    <div class="card">
+        <h2>Contact Us</h2>
+        <p>Have questions or need assistance? Reach out to our team.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.form("contact_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            name = st.text_input("Name")
+            email = st.text_input("Email")
+        with col2:
+            subject = st.text_input("Subject")
+            category = st.selectbox("Category", ["Technical Support", "Feature Request", "Billing", "Other"])
+        
+        message = st.text_area("Message", height=150)
+        
+        submitted = st.form_submit_button("Send Message")
+        if submitted:
+            st.success("Your message has been sent. We'll get back to you soon!")
+
+def about_us_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>About Us</h1>
+        <p>Learn about StrataGraph and our mission</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="card">
+        <h2>Our Mission</h2>
+        <p>StrataGraph is committed to revolutionizing geoscience analysis through advanced machine learning techniques. Our mission is to provide geoscientists and engineers with powerful, intuitive tools that transform complex subsurface data into actionable insights.</p>
+        
+        <h2>Our Team</h2>
+        <p>We are a diverse team of geoscientists, data scientists, and software engineers passionate about applying cutting-edge technology to solve complex subsurface challenges.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Team section
+    st.markdown("<h2>Leadership Team</h2>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
     
     with col1:
-        # Create a dropdown to select cluster configuration
-        cluster_options = [5, 6, 7, 8, 9, 10]
-        selected_cluster = st.selectbox("Select Cluster Configuration", options=cluster_options, index=2)
+        st.markdown("""
+        <div class="card" style="text-align: center;">
+            <h3>Dr. Sarah Chen</h3>
+            <p>Founder & CEO</p>
+            <p>Ph.D. in Reservoir Engineering</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
-        # Add color scheme selection
-        color_scheme = st.selectbox("Color Scheme", ["viridis", "plasma", "magma", "cividis", "turbo"])
+        st.markdown("""
+        <div class="card" style="text-align: center;">
+            <h3>Dr. Michael Rodriguez</h3>
+            <p>CTO</p>
+            <p>Ph.D. in Machine Learning</p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Generate demo data
-    depth = np.arange(1000, 1100)
-    facies = np.random.randint(0, selected_cluster, size=100)
+    with col3:
+        st.markdown("""
+        <div class="card" style="text-align: center;">
+            <h3>Dr. Emily Patel</h3>
+            <p>Chief Scientist</p>
+            <p>Ph.D. in Geophysics</p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Use HTML/CSS for basic visualization instead of matplotlib
-    # Create a simplified visualization
-    if st.checkbox("Show Facies Visualization"):
-        # Generate colors from the selected colormap
-        import matplotlib.cm as cm
-        color_map = cm.get_cmap(color_scheme, selected_cluster)
-        colors = []
-        for i in range(selected_cluster):
-            rgba = color_map(i)
-            colors.append(f"rgba({int(rgba[0]*255)}, {int(rgba[1]*255)}, {int(rgba[2]*255)}, {rgba[3]})")
-        
-        # Create a simple HTML/CSS visualization
-        html = """
-        <div style="display: flex; height: 400px; width: 100%; border: 1px solid #ddd; border-radius: 5px;">
-        """
-        
-        for i in range(selected_cluster):
-            html += f"""
-            <div style="flex: 1; background-color: {colors[i]}; display: flex; 
-                       justify-content: center; align-items: center; color: white; font-weight: bold;">
-                Facies {i+1}
-            </div>
-            """
-        
-        html += "</div>"
-        
-        st.markdown(html, unsafe_allow_html=True)
+    # Technologies section
+    st.markdown("""
+    <div class="card">
+        <h2>Our Technology</h2>
+        <p>StrataGraph leverages the power of Graph Neural Networks (GNNs) to model complex relationships in subsurface data. Our technology stack includes:</p>
+        <ul>
+            <li>PyTorch and TensorFlow for deep learning</li>
+            <li>Graph Convolutional Networks (GCNs) for spatial relationship modeling</li>
+            <li>Advanced data visualization techniques for intuitive interpretation</li>
+            <li>Cloud-based processing for scalable analysis</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Statistics
-    st.markdown("<h4>Facies Statistics</h4>", unsafe_allow_html=True)
+    # Partners and funding
+    st.markdown("""
+    <div class="card">
+        <h2>Partners & Collaborators</h2>
+        <p>We collaborate with leading academic institutions and industry partners to continuously improve our technology and deliver innovative solutions.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Calculate facies distribution
-    facies_counts = np.zeros(selected_cluster)
-    for i in range(selected_cluster):
-        facies_counts[i] = np.sum(facies == i)
-    
-    # Create a simple bar chart using HTML/CSS
-    st.bar_chart(pd.DataFrame({
-        'Facies': [f"Facies {i+1}" for i in range(selected_cluster)],
-        'Count': facies_counts
-    }).set_index('Facies'))
-
-def show_quality_visualization():
-    st.markdown("<h3>Hydrocarbon Quality Prediction</h3>", unsafe_allow_html=True)
-    
-    # Generate demo data
-    depth = np.arange(1000, 1100)
-    quality_labels = ["Very_Low", "Low", "Moderate", "High", "Very_High"]
-    quality = np.random.randint(0, 5, size=100)
-    
-    # Create quality distribution dataframe
-    quality_counts = [np.sum(quality == i) for i in range(5)]
-    quality_df = pd.DataFrame({
-        'Quality': quality_labels,
-        'Count': quality_counts
-    })
-    
-    # Display as a bar chart
-    st.bar_chart(quality_df.set_index('Quality'))
-    
-    # Show prediction table
-    if st.checkbox("Show Prediction Table"):
-        predictions = pd.DataFrame({
-            "DEPTH": depth[:10],  # Show just first 10 rows
-            "QUALITY": [quality_labels[q] for q in quality[:10]],
-            "QUALITY_CODE": quality[:10]
-        })
-        
-        st.dataframe(predictions)
-        
-        # Download button
-        csv = predictions.to_csv(index=False)
-        st.download_button(
-            label="Download Predictions",
-            data=csv,
-            file_name="quality_predictions.csv",
-            mime="text/csv"
-        )
-
-def show_performance_visualization():
-    st.markdown("<h3>Model Performance</h3>", unsafe_allow_html=True)
-    
-    # Use selectbox instead of tabs to load one view at a time
-    metric_type = st.selectbox(
-        "Select Metric", 
-        ["Learning Curves", "Confusion Matrix", "Classification Report"]
-    )
-    
-    if metric_type == "Learning Curves":
-        # Create simple metrics
-        col1, col2, col3 = st.columns(3)
-        with col1: st.metric("Final Accuracy", "88%")
-        with col2: st.metric("Final Loss", "0.32")
-        with col3: st.metric("Training Time", "2.4 min")
-        
-        # Show a simplified chart
-        chart_data = pd.DataFrame({
-            'Training Accuracy': np.linspace(0.6, 0.95, 20) + np.random.normal(0, 0.02, 20),
-            'Validation Accuracy': np.linspace(0.55, 0.9, 20) + np.random.normal(0, 0.03, 20)
-        })
-        st.line_chart(chart_data)
-        
-    elif metric_type == "Confusion Matrix":
-        # Create simplified confusion matrix
-        classes = ["Very Low", "Low", "Moderate", "High", "Very High"]
-        cm_data = np.zeros((5, 5))
-        
-        # Make diagonal dominant
-        for i in range(5):
-            cm_data[i, i] = np.random.randint(50, 100)
-            for j in range(5):
-                if i != j:
-                    cm_data[i, j] = np.random.randint(0, 20)
-        
-        # Show as dataframe
-        cm_df = pd.DataFrame(cm_data, 
-                           index=classes,
-                           columns=classes)
-        st.table(cm_df)
-        
-    else:  # Classification Report
-        # Create report dataframe
-        report_data = {
-            "Class": ["Very Low", "Low", "Moderate", "High", "Very High", "Average"],
-            "Precision": [0.85, 0.78, 0.92, 0.86, 0.91, 0.86],
-            "Recall": [0.82, 0.75, 0.90, 0.89, 0.84, 0.84],
-            "F1-Score": [0.83, 0.76, 0.91, 0.87, 0.87, 0.85],
-            "Support": [120, 85, 150, 95, 70, 520]
-        }
-        
-        report_df = pd.DataFrame(report_data)
-        st.table(report_df)
+    # Contact information
+    st.markdown("""
+    <div class="card">
+        <h2>Contact Information</h2>
+        <p><strong>Email:</strong> info@stratagraph.ai</p>
+        <p><strong>Address:</strong> 123 Innovation Way, Houston, TX 77002</p>
+        <p><strong>Phone:</strong> +1 (713) 555-0123</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # The main function to run the app
 def main():
@@ -1074,14 +1237,24 @@ def main():
     
     if page == "Home":
         home_page()
-    elif page == "Dataset Preparation":
-        dataset_preparation_page()
-    elif page == "Models":
-        models_page()
-    elif page == "Analysis Tool":
-        analysis_tool_page()
-    elif page == "Visualization":
-        visualization_page()
+    elif page == "VHydro":
+        vhydro_page()
+    elif page == "Data Preparation":
+        data_preparation_page()
+    elif page == "Petrophysical Properties":
+        petrophysical_properties_page()
+    elif page == "Facies Classification":
+        facies_classification_page()
+    elif page == "CO2 Storage Applications":
+        co2_storage_page()
+    elif page == "Hydrocarbon Potential Using GCN":
+        hydrocarbon_prediction_page()
+    elif page == "Help and Contact":
+        help_contact_page()
+    elif page == "About Us":
+        about_us_page()
+    else:
+        home_page()  # Default to home page
 
 if __name__ == "__main__":
     main()
