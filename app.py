@@ -247,12 +247,22 @@ def load_image(image_path):
 # Create a simplified sidebar navigation system
 def create_sidebar():
     # Logo and title section
+    # Function to load and encode image
+    def get_base64_image(image_path):
+        with open(image_path, "rb") as img_file:
+            b64_data = base64.b64encode(img_file.read()).decode()
+        return f"data:image/png;base64,{b64_data}"
+    
+    # Path to your image
+    image_base64 = get_base64_image("src/StrataGraph_White_Logo.png")
+    
+    # Inject image via HTML in the sidebar
     st.sidebar.markdown(
-        """
-        <div class="sidebar-logo-container">
-            <img src="src/StrataGraph_White_Logo.png" alt="StrataGraph Logo" style="width: 100%; max-width: 200px;"/>
-            <h1>StrataGraph</h1>
-            <div class="version-tag">VHydro 1.0</div>
+        f"""
+        <div style="text-align: center;">
+            <img src="{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 200px; margin-bottom: 10px;"/>
+            <h1 style="font-size: 24px;">StrataGraph</h1>
+            <div style="font-size: 14px; color: gray;">VHydro 1.0</div>
         </div>
         """,
         unsafe_allow_html=True
