@@ -247,10 +247,10 @@ def load_image(image_path):
 # Create a simplified sidebar navigation system
 def create_sidebar():
     # Logo and title section
+    st.image("src/StrataGraph_White_Logo.png", use_container_width=True)
     st.sidebar.markdown(
         """
         <div class="sidebar-logo-container">
-            <img src="src/StrataGraph_White_Logo.png" alt="StrataGraph Logo">
             <h1>StrataGraph</h1>
             <div class="version-tag">VHydro 1.0</div>
         </div>
