@@ -46,11 +46,6 @@ def load_css():
         background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
     }
     
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-    
     /* Sidebar header/logo area */
     .sidebar-logo-container {
         display: flex;
@@ -84,12 +79,13 @@ def load_css():
     }
     
     /* Navigation menu styling */
-    .menu-container {
-        margin-top: 1rem;
+    .nav-container {
+        color: white;
+        margin-top: 2rem;
     }
     
     .nav-section {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
     
     .section-title {
@@ -98,68 +94,6 @@ def load_css():
         font-weight: bold;
         margin-bottom: 0.5rem;
         padding-left: 1rem;
-    }
-    
-    .menu-item {
-        background-color: white;
-        color: #0e4194;
-        border-radius: 5px;
-        margin: 5px 0;
-        transition: all 0.2s;
-        overflow: hidden;
-        width: 100%;
-    }
-    
-    .menu-item-btn {
-        border: none;
-        background: none;
-        width: 100%;
-        text-align: left;
-        padding: 0.8rem 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        color: #0e4194;
-        display: block;
-    }
-    
-    .menu-item-btn:hover {
-        background-color: #f0f7ff;
-    }
-    
-    .menu-item.active {
-        background-color: #e0f0ff;
-        border-left: 4px solid #0e4194;
-    }
-    
-    .submenu-container {
-        padding-left: 1rem;
-    }
-    
-    .submenu-item {
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 5px;
-        margin: 5px 0;
-    }
-    
-    .submenu-btn {
-        border: none;
-        background: none;
-        width: 100%;
-        text-align: left;
-        padding: 0.6rem 1rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-        color: #0e4194;
-        display: block;
-    }
-    
-    .submenu-btn:hover {
-        background-color: #f0f7ff;
-    }
-    
-    .submenu-item.active {
-        background-color: #e0f0ff;
-        border-left: 3px solid #0e4194;
     }
     
     /* Coming soon tag */
@@ -202,6 +136,85 @@ def load_css():
         padding: 1rem;
         margin-top: 2rem;
     }
+    
+    /* Streamlit element styling overrides */
+    div[data-baseweb="select"] > div {
+        background-color: white;
+        color: #0e4194;
+    }
+    
+    div[class*="stRadio"] label {
+        color: white;
+    }
+    
+    .stButton button {
+        background-color: #0e4194;
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s;
+    }
+    
+    .stButton button:hover {
+        background-color: #3a6fc4;
+        color: white;
+    }
+    
+    /* Custom radio buttons */
+    .custom-radio {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .custom-radio:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .custom-radio.selected {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-left: 3px solid white;
+    }
+    
+    /* Version section */
+    .version-section {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+    }
+    
+    .version-section h4 {
+        color: white !important;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .version-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        color: white;
+    }
+    
+    .version-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    
+    .active-version {
+        background-color: #4CAF50;
+    }
+    
+    .coming-version {
+        background-color: #FFA500;
+    }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
@@ -231,9 +244,9 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create sidebar with enhanced styling
+# Create a simplified sidebar navigation system
 def create_sidebar():
-    # Sidebar container for the logo and title
+    # Logo and title section
     st.sidebar.markdown(
         """
         <div class="sidebar-logo-container">
@@ -245,149 +258,76 @@ def create_sidebar():
         unsafe_allow_html=True
     )
     
-    # Render menu structure
-    st.sidebar.markdown('<div class="menu-container">', unsafe_allow_html=True)
-    
-    # Navigation section
-    st.sidebar.markdown('<div class="nav-section">', unsafe_allow_html=True)
-    st.sidebar.markdown('<p class="section-title">Navigation</p>', unsafe_allow_html=True)
-    
-    # Initialize current page in session state if it doesn't exist
+    # Initialize current page if not exists
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Define main menu items
-    main_menu = {
-        "Home": {"type": "main"},
-        "VHydro": {
-            "type": "parent",
-            "submenu": {
-                "Data Preparation": {"type": "sub"},
-                "Petrophysical Properties": {"type": "sub"},
-                "Facies Classification": {"type": "sub"}
-            }
-        },
-        "CO2 Storage Applications": {"type": "main", "coming_soon": True},
-        "Models": {
-            "type": "parent",
-            "submenu": {
-                "Hydrocarbon Potential Using GCN": {"type": "sub"},
-                "CO2 Storage Potential Using GraphSAGE": {"type": "sub", "coming_soon": True}
-            }
-        },
-        "Help and Contact": {"type": "main"},
-        "About Us": {"type": "main"}
-    }
+    # Simple navigation using radio buttons instead of custom HTML/buttons
+    st.sidebar.markdown('<div class="nav-container">', unsafe_allow_html=True)
+    st.sidebar.markdown('<div class="section-title">Navigation</div>', unsafe_allow_html=True)
     
-    # List of keys that will be expanded in the UI
-    open_sections = []
-    if "current_page" in st.session_state:
-        current = st.session_state["current_page"]
-        # Find the parent in the menu structure
-        for parent, details in main_menu.items():
-            if details["type"] == "parent" and "submenu" in details:
-                for sub_item in details["submenu"]:
-                    if current == sub_item:
-                        open_sections.append(parent)
-                        break
+    # Main navigation as a simple radio
+    main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
+    selected_main = st.sidebar.radio("", main_pages, index=main_pages.index(st.session_state["current_page"]) 
+                                     if st.session_state["current_page"] in main_pages else 0,
+                                     label_visibility="collapsed")
     
-    # Render each menu item
-    for menu_item, details in main_menu.items():
-        if details["type"] == "main":
-            # Check if this item has a "coming soon" tag
-            coming_soon = details.get("coming_soon", False)
-            coming_soon_tag = '<span class="coming-soon-tag">COMING SOON</span>' if coming_soon else ''
-            
-            # Determine if this item is active
-            is_active = st.session_state.get("current_page") == menu_item
-            active_class = 'active' if is_active else ''
-            
-            # Render the menu item
-            st.sidebar.markdown(
-                f"""
-                <div class="menu-item {active_class}">
-                    <button type="button" class="menu-item-btn" data-item="{menu_item}">
-                        {menu_item} {coming_soon_tag}
-                    </button>
-                </div>
-                """, 
-                unsafe_allow_html=True
-            )
-            
-            # Handle button click - using Streamlit's button for functionality
-            if st.sidebar.button(menu_item, key=f"btn_{menu_item}", help=f"Navigate to {menu_item}"):
-                st.session_state["current_page"] = menu_item
-                st.rerun()
-                
-        elif details["type"] == "parent":
-            # Section that can be expanded
-            is_open = menu_item in open_sections
-            
-            # Render the parent menu item
-            st.sidebar.markdown(
-                f"""
-                <div class="menu-item">
-                    <button type="button" class="menu-item-btn" data-item="{menu_item}">
-                        {menu_item} {'▼' if is_open else '▶'}
-                    </button>
-                </div>
-                """, 
-                unsafe_allow_html=True
-            )
-            
-            # Toggle section open/closed
-            if st.sidebar.button(menu_item, key=f"btn_{menu_item}"):
-                # Toggle the open state of this section
-                if menu_item in open_sections:
-                    open_sections.remove(menu_item)
-                else:
-                    open_sections.append(menu_item)
-                st.rerun()
-            
-            # Render submenu items if section is open
-            if menu_item in open_sections and "submenu" in details:
-                st.sidebar.markdown('<div class="submenu-container">', unsafe_allow_html=True)
-                
-                for sub_item, sub_details in details["submenu"].items():
-                    # Check if this item has a "coming soon" tag
-                    sub_coming_soon = sub_details.get("coming_soon", False)
-                    sub_coming_soon_tag = '<span class="coming-soon-tag">COMING SOON</span>' if sub_coming_soon else ''
-                    
-                    # Determine if this sub item is active
-                    is_sub_active = st.session_state.get("current_page") == sub_item
-                    sub_active_class = 'active' if is_sub_active else ''
-                    
-                    # Render the submenu item
-                    st.sidebar.markdown(
-                        f"""
-                        <div class="submenu-item {sub_active_class}">
-                            <button type="button" class="submenu-btn" data-item="{sub_item}">
-                                {sub_item} {sub_coming_soon_tag}
-                            </button>
-                        </div>
-                        """, 
-                        unsafe_allow_html=True
-                    )
-                    
-                    # Handle button click
-                    if st.sidebar.button(sub_item, key=f"btn_{sub_item}"):
-                        st.session_state["current_page"] = sub_item
-                        st.rerun()
-                
-                st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    # If VHydro is selected, show sub-pages
+    vhydro_selected = False
+    if selected_main == "VHydro":
+        vhydro_selected = True
+        st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
+        vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
+                      "Facies Classification", "Hydrocarbon Potential Using GCN"]
+        
+        # Find the index of the current page in vhydro_pages if it exists
+        current_index = 0
+        if st.session_state["current_page"] in vhydro_pages:
+            current_index = vhydro_pages.index(st.session_state["current_page"])
+        
+        selected_vhydro = st.sidebar.radio(
+            "", vhydro_pages, index=current_index, label_visibility="collapsed"
+        )
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
+        
+        # Update session state with selected VHydro page
+        if selected_vhydro != st.session_state["current_page"]:
+            st.session_state["current_page"] = selected_vhydro
+            st.rerun()
     
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    # Update session state with selected main page
+    if not vhydro_selected and selected_main != st.session_state["current_page"]:
+        st.session_state["current_page"] = selected_main
+        st.rerun()
     
-    # Model Configuration section
-    st.sidebar.markdown('<div class="nav-section">', unsafe_allow_html=True)
-    st.sidebar.markdown('<p class="section-title">Model Configuration</p>', unsafe_allow_html=True)
+    # Version selection section
+    st.sidebar.markdown(
+        """
+        <div class="version-section">
+            <h4>Versions</h4>
+            <div class="version-item">
+                <div class="version-indicator active-version"></div>
+                VHydro 1.0 (Current)
+            </div>
+            <div class="version-item">
+                <div class="version-indicator coming-version"></div>
+                CO2 Storage 2.0 (Coming Soon)
+            </div>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
     
-    min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
-    max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    # Only show model configuration in analysis pages
+    if st.session_state["current_page"] == "Facies Classification":
+        st.sidebar.markdown('<div class="section-title">Analysis Parameters</div>', unsafe_allow_html=True)
+        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
+        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    else:
+        min_clusters = 5
+        max_clusters = 10
     
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-    
-    # Footer content
+    # Footer
     st.sidebar.markdown(
         """
         <div class="footer-text">
@@ -397,8 +337,6 @@ def create_sidebar():
         """, 
         unsafe_allow_html=True
     )
-    
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)  # Close menu-container
     
     return {
         "page": st.session_state["current_page"],
@@ -432,18 +370,20 @@ def home_page():
         <h2>StrataGraph 1.0 - VHydro</h2>
         <p>Our first release focuses on hydrocarbon quality prediction using Graph Convolutional Networks (GCNs) that model complex relationships between different petrophysical properties and depth values.</p>
         <p>VHydro 1.0 enables accurate prediction of hydrocarbon zones using a graph-based approach that captures the spatial relationships between well log measurements.</p>
+        <p>This approach was introduced in our paper: <a href="https://link.springer.com/article/10.1007/s11053-024-10311-x" target="_blank">Hydrocarbon Potential Prediction Using Novel Graph Dataset</a>, which combines petrophysical and facies features to classify potential zones using GCN.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Second section: CO2 Storage (Coming Soon)
+    # Second section: CO2 Storage (Coming Soon) - Now directly below VHydro
     st.markdown("""
     <div class="coming-soon-section">
-        <h2>CO2 Storage Potential Analysis</h2>
+        <h2>StrataGraph 2.0 - CO2 Storage Potential Analysis</h2>
         <div class="content">
             <p>Advanced carbon capture utilization and storage (CCUS) modules powered by Graph Neural Networks.</p>
             <ul>
                 <li>CO2 storage capacity prediction</li>
-                <li>Reservoir integrity analysis</li>
+                <li>Caprock integrity analysis using geomechanical properties</li>
+                <li>Built upon VHydro reservoir identification techniques</li>
                 <li>Long-term storage monitoring</li>
             </ul>
         </div>
@@ -461,84 +401,12 @@ def home_page():
     except:
         st.warning("Workflow image not found.")
     
-    st.markdown("<h2>Key Features</h2>", unsafe_allow_html=True)
-    
-    # Create a 2-column layout for features
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-header">GCN Parameters</div>
-            <ul>
-                <li><b>Hidden Channels:</b> 16</li>
-                <li><b>Layers:</b> 2</li>
-                <li><b>Dropout Rate:</b> 0.5</li>
-                <li><b>Learning Rate:</b> 0.01</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-header">Training Parameters</div>
-            <ul>
-                <li><b>Maximum Epochs:</b> 200</li>
-                <li><b>Early Stopping:</b> Yes</li>
-                <li><b>Train/Val/Test Split:</b> 80%/10%/10%</li>
-                <li><b>Optimizer:</b> Adam</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Advanced Configuration Options
-    if st.checkbox("Show Advanced Configuration Options"):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### Model Architecture")
-            st.selectbox("GCN Version", ["RegularizedGCN", "Standard GCN", "GCN with Skip Connections"])
-            st.number_input("Hidden Channels", min_value=8, max_value=128, value=16, step=8)
-            st.slider("Dropout Rate", min_value=0.0, max_value=0.8, value=0.5, step=0.1)
-            st.checkbox("Use Batch Normalization", value=True)
-        
-        with col2:
-            st.markdown("### Training Configuration")
-            st.select_slider("Learning Rate", options=[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05], value=0.01)
-            st.number_input("Early Stopping Patience", min_value=10, max_value=100, value=50, step=5)
-            st.number_input("Maximum Epochs", min_value=50, max_value=500, value=200, step=50)
-            st.selectbox("Optimizer", ["Adam", "SGD", "RMSprop", "AdamW"])
-    
-    # Train model button - simplified
-    if st.button("Train GCN Model", key="train_model_btn"):
-        with st.spinner("Training GCN model..."):
-            progress_bar = st.progress(0)
-            status_area = st.empty()
-            
-            # Simulate training process with fewer updates
-            for i in range(0, 101, 20):
-                progress_bar.progress(i)
-                
-                if i == 0:
-                    status_area.info("Preparing graph structure...")
-                elif i == 20:
-                    status_area.info("Creating features...")
-                elif i == 40:
-                    status_area.info("Training model...")
-                elif i == 60:
-                    status_area.info("Optimizing parameters...")
-                elif i == 80:
-                    status_area.info("Finalizing predictions...")
-                
-                # Use shorter sleep time
-                time.sleep(0.1)
-            
-            # Clear status area and show success message
-            status_area.empty()
-            st.success("GCN model trained successfully!")
+    # Button to explore VHydro - simplified single button
+    if st.button("Explore VHydro Analysis Tool", key="explore_vhydro_btn"):
+        st.session_state["current_page"] = "VHydro Overview"
+        st.rerun()
 
-def vhydro_page():
+def vhydro_overview_page():
     st.markdown("""
     <div class="colored-header">
         <h1>VHydro</h1>
@@ -601,8 +469,27 @@ def vhydro_page():
         with col3: st.metric("Dropout Rate", "0.5")
         with col4: st.metric("Learning Rate", "0.01")
         
-    # Button to go to the VHydro Analysis Tool
-    if st.button("Launch VHydro Analysis Tool"):
+    # Advanced Configuration Options - moved from home page
+    if st.checkbox("Show Advanced Configuration Options"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("### Model Architecture")
+            st.selectbox("GCN Version", ["RegularizedGCN", "Standard GCN", "GCN with Skip Connections"])
+            st.number_input("Hidden Channels", min_value=8, max_value=128, value=16, step=8)
+            st.slider("Dropout Rate", min_value=0.0, max_value=0.8, value=0.5, step=0.1)
+            st.checkbox("Use Batch Normalization", value=True)
+        
+        with col2:
+            st.markdown("### Training Configuration")
+            st.select_slider("Learning Rate", options=[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05], value=0.01)
+            st.number_input("Early Stopping Patience", min_value=10, max_value=100, value=50, step=5)
+            st.number_input("Maximum Epochs", min_value=50, max_value=500, value=200, step=50)
+            st.selectbox("Optimizer", ["Adam", "SGD", "RMSprop", "AdamW"])
+    
+    # Button to start the analysis workflow
+    st.markdown("<h3>Start VHydro Analysis</h3>", unsafe_allow_html=True)
+    if st.button("Begin Data Preparation", key="begin_analysis_btn"):
         st.session_state["current_page"] = "Data Preparation"
         st.rerun()
 
@@ -613,14 +500,6 @@ def data_preparation_page():
         <p>Prepare your well log data for VHydro analysis</p>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Try to load the dataset preparation image (only if explicitly requested)
-    if st.checkbox("Show Dataset Preparation Diagram"):
-        dataset_img_path = "src/Graph Dataset Preparation.png"
-        try:
-            st.image(dataset_img_path, use_container_width=True)
-        except:
-            st.warning("Dataset preparation image not found.")
     
     st.markdown("""
     <div class="card">
