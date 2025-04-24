@@ -250,7 +250,7 @@ def create_sidebar():
     st.sidebar.markdown(
         """
         <div class="sidebar-logo-container">
-            <img src="https://i.imgur.com/TNl1gM7.png" alt="StrataGraph Logo">
+            <img src="src/StrataGraph_White_Logo.png" alt="StrataGraph Logo">
             <h1>StrataGraph</h1>
             <div class="version-tag">VHydro 1.0</div>
         </div>
