@@ -137,38 +137,35 @@ def load_css():
         margin-top: 2rem;
     }
     
-    /* Streamlit element styling overrides */
-    div[data-baseweb="select"] > div {
-        background-color: white;
-        color: #0e4194;
+    /* Streamlit element styling overrides for white text */
+    div[data-baseweb="select"] > div,
+    div[class*="stRadio"] label,
+    .stButton button,
+    .stButton button:hover,
+    .custom-radio,
+    .custom-radio:hover,
+    .custom-radio.selected,
+    .version-section h4,
+    .version-item {
+        color: white !important;
     }
     
-    div[class*="stRadio"] label {
-        color: white;
+    /* Specific overrides where white might not be the default */
+    div[data-baseweb="select"] > div {
+        background-color: #0e4194; /* Ensure background is dark for white text */
     }
     
     .stButton button {
         background-color: #0e4194;
-        color: white;
-        border-radius: 5px;
-        border: none;
-        padding: 0.5rem 1rem;
-        transition: all 0.3s;
     }
     
     .stButton button:hover {
         background-color: #3a6fc4;
-        color: white;
     }
     
     /* Custom radio buttons */
     .custom-radio {
         background-color: rgba(255, 255, 255, 0.1);
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
     }
     
     .custom-radio:hover {
@@ -189,7 +186,6 @@ def load_css():
     }
     
     .version-section h4 {
-        color: white !important;
         font-size: 0.9rem;
         margin-bottom: 0.5rem;
     }
@@ -198,7 +194,6 @@ def load_css():
         display: flex;
         align-items: center;
         padding: 0.5rem 0;
-        color: white;
     }
     
     .version-indicator {
