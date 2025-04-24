@@ -379,6 +379,21 @@ def home_page():
     </div>
     """, unsafe_allow_html=True)
     
+    # VHydro Workflow section
+    st.markdown("<h2>VHydro Workflow</h2>", unsafe_allow_html=True)
+    
+    # Try to load the workflow image
+    workflow_path = "src/Workflow.png"
+    try:
+        st.image(workflow_path, use_container_width=True)
+    except:
+        st.warning("Workflow image not found.")
+    
+    # Button to explore VHydro - simplified single button
+    if st.button("Explore VHydro Analysis Tool", key="explore_vhydro_btn"):
+        st.session_state["current_page"] = "VHydro Overview"
+        st.rerun()
+
     # Second section: CO2 Storage (Coming Soon) - Now directly below VHydro
     st.markdown("""
     <div class="coming-soon-section">
@@ -395,21 +410,6 @@ def home_page():
         <h3>Coming Soon</h3>
     </div>
     """, unsafe_allow_html=True)
-    
-    # VHydro Workflow section
-    st.markdown("<h2>VHydro Workflow</h2>", unsafe_allow_html=True)
-    
-    # Try to load the workflow image
-    workflow_path = "src/Workflow.png"
-    try:
-        st.image(workflow_path, use_container_width=True)
-    except:
-        st.warning("Workflow image not found.")
-    
-    # Button to explore VHydro - simplified single button
-    if st.button("Explore VHydro Analysis Tool", key="explore_vhydro_btn"):
-        st.session_state["current_page"] = "VHydro Overview"
-        st.rerun()
 
 def vhydro_overview_page():
     st.markdown("""
