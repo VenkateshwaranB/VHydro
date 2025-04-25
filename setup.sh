@@ -1,3 +1,39 @@
+#!/bin/bash
+
+# Create directory structure
+mkdir -p src
+mkdir -p matplotlib_cache
+
+# Set environment variables without using sudo
+export ACCEPT_EULA=Y
+
+# Pre-create the necessary files
+touch src/StrataGraph_White_Logo.png
+touch src/StrataGraph_Banner.png
+touch src/Workflow.png
+
+# Install system dependencies
+apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    libsm6 \
+    libgl1-mesa-glx \
+    libxrender1 \
+    libxext6 \
+    libgomp1 \
+    libjpeg-dev \
+    libpng-dev \
+    libfreetype6-dev \
+    pkg-config \
+    python3-dev
+
+# Clean up apt cache
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+pip install --no-cache-dir -r requirements.txt
+
+echo "Setup completed successfully"
+
 #!/usr/bin/env python
 import os
 import sys
