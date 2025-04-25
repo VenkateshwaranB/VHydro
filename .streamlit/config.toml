@@ -6,8 +6,8 @@ textColor = "#262730"
 font = "sans serif"
 
 [server]
-enableCORS = true
-enableXsrfProtection = true
+enableCORS = false
+enableXsrfProtection = false
 
 [browser]
 gatherUsageStats = false
