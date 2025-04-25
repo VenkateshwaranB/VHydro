@@ -1,11 +1,11 @@
-libglib2.0-0
-libsm6
-libgl1-mesa-glx
-libxrender1
-libxext6
-libgomp1
-libjpeg-dev
-libpng-dev
-libfreetype6-dev
-pkg-config
-python3-dev
+ACCEPT_EULA=Y apt-get install -y libglib2.0-0
+ACCEPT_EULA=Y apt-get install -y libsm6
+ACCEPT_EULA=Y apt-get install -y libgl1-mesa-glx
+ACCEPT_EULA=Y apt-get install -y libxrender1
+ACCEPT_EULA=Y apt-get install -y libxext6
+ACCEPT_EULA=Y apt-get install -y libgomp1
+ACCEPT_EULA=Y apt-get install -y libjpeg-dev
+ACCEPT_EULA=Y apt-get install -y libpng-dev
+ACCEPT_EULA=Y apt-get install -y libfreetype6-dev
+ACCEPT_EULA=Y apt-get install -y pkg-config
+ACCEPT_EULA=Y apt-get install -y python3-dev
