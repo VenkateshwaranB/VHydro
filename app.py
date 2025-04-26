@@ -200,6 +200,9 @@ def create_sidebar():
         color: white;
         font-weight: bold;
         margin: 20px 0 10px 0;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 16px;
     }
     
     .nav-item {
@@ -207,6 +210,19 @@ def create_sidebar():
         align-items: center;
         margin-bottom: 8px;
         color: white;
+        padding: 8px 10px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-item.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
     }
     
     .nav-bullet-primary {
@@ -218,34 +234,70 @@ def create_sidebar():
         display: inline-block;
     }
     
+    /* Subnav items styling */
+    .subnav-container {
+        margin-left: 15px;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.4s ease;
+    }
+    
+    .subnav-expanded .subnav-container {
+        max-height: 300px; /* Adjust as needed */
+    }
+    
+    .subnav-item {
+        display: flex;
+        align-items: center;
+        margin: 4px 0;
+        padding: 6px 10px;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 14px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .subnav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    .subnav-item.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        font-weight: bold;
+    }
+    
     .nav-bullet-secondary {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background-color: white;
+        background-color: rgba(255, 255, 255, 0.7);
         margin-right: 10px;
-        margin-left: 5px;
         display: inline-block;
     }
     
     /* Versions box styling */
     .versions-box {
-        background-color: rgba(0, 40, 104, 0.5);
-        border-radius: 5px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
         padding: 15px;
-        margin: 20px 0;
+        margin: 20px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .versions-title {
         color: white;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        font-size: 16px;
     }
     
     .version-item {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         color: white;
     }
     
@@ -309,7 +361,7 @@ def create_sidebar():
     st.sidebar.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
         <h1 style="color: white; font-size: 24px;">StrataGraph</h1>
-        <p style="color: rgba(255, 255, 255, 0.5); font-size: 14px;">VHydro 1.0</p>
+        <p style="color: #FFD700; font-size: 14px;">VHydro 1.0</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -329,60 +381,74 @@ def create_sidebar():
                                   if st.session_state["current_page"] in main_pages else 0, 
                                   label_visibility="collapsed")
     
+    # VHydro subpages
+    vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
+                  "Facies Classification", "Hydrocarbon Potential Using GCN"]
+    
+    # Create hidden radio for VHydro subpages
+    current_idx = 0
+    if st.session_state["current_page"] in vhydro_pages:
+        current_idx = vhydro_pages.index(st.session_state["current_page"])
+    
+    selected_sub = st.sidebar.radio("VHydro Subpages", vhydro_pages, index=current_idx, label_visibility="collapsed")
+    
     # Render the navigation items with custom HTML
     for page in main_pages:
-        is_active = (page == selected_main) or (selected_main == "VHydro" and st.session_state["current_page"] != "VHydro" 
-                                                 and st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", 
-                                                                                     "Petrophysical Properties", "Facies Classification", 
-                                                                                     "Hydrocarbon Potential Using GCN"])
-        active_style = ""
+        is_active = (page == selected_main)
+        active_class = "active" if is_active else ""
         
-        # Change bullet style to small if VHydro is selected and this is the VHydro item
-        bullet_class = "nav-bullet-primary"
+        # Check if this is VHydro and we should show it as expanded
+        is_vhydro_expanded = page == "VHydro" and (
+            selected_main == "VHydro" or 
+            st.session_state["current_page"] in vhydro_pages
+        )
+        
+        if is_vhydro_expanded:
+            active_class = "active"
         
         st.sidebar.markdown(f"""
-        <div class="nav-item" onclick="document.querySelector('input[type=radio][value="{page}"]').click();" style="cursor: pointer; {active_style}">
-            <span class="{bullet_class}"></span>
+        <div class="nav-item {active_class}" onclick="document.querySelector('input[type=radio][value="{page}"]').click();" style="cursor: pointer;">
+            <span class="nav-bullet-primary"></span>
             <span>{page}</span>
         </div>
         """, unsafe_allow_html=True)
         
-        # If VHydro is the selected main page, show its subpages
-        if page == "VHydro" and (selected_main == "VHydro" or 
-                              st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", 
-                                                                 "Petrophysical Properties", "Facies Classification", 
-                                                                 "Hydrocarbon Potential Using GCN"]):
+        # If VHydro is selected or has an active subpage, show its subpages
+        if page == "VHydro":
+            expanded_class = "subnav-expanded" if is_vhydro_expanded else ""
             
-            vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
-                         "Facies Classification", "Hydrocarbon Potential Using GCN"]
-            
-            # Create hidden radio for VHydro subpages
-            current_idx = 0
-            if st.session_state["current_page"] in vhydro_pages:
-                current_idx = vhydro_pages.index(st.session_state["current_page"])
-            
-            selected_sub = st.sidebar.radio("VHydro Subpages", vhydro_pages, index=current_idx, label_visibility="collapsed")
+            # Start subnav container
+            st.sidebar.markdown(f"""
+            <div class="{expanded_class}">
+                <div class="subnav-container" style="max-height: {300 if is_vhydro_expanded else 0}px;">
+            """, unsafe_allow_html=True)
             
             # Render subpages with custom HTML
             for subpage in vhydro_pages:
-                is_active_sub = subpage == selected_sub
-                active_style_sub = ""
+                is_active_sub = subpage == st.session_state["current_page"]
+                active_class_sub = "active" if is_active_sub else ""
                 
                 st.sidebar.markdown(f"""
-                <div class="nav-item" onclick="document.querySelector('input[type=radio][value="{subpage}"]').click();" style="cursor: pointer; margin-left: 20px; {active_style_sub}">
+                <div class="subnav-item {active_class_sub}" onclick="document.querySelector('input[type=radio][value="{subpage}"]').click();" style="cursor: pointer;">
                     <span class="nav-bullet-secondary"></span>
                     <span>{subpage}</span>
                 </div>
                 """, unsafe_allow_html=True)
             
-            # Update page if subpage selected
-            if selected_sub != st.session_state["current_page"]:
-                st.session_state["current_page"] = selected_sub
-                st.rerun()
+            # Close subnav container
+            st.sidebar.markdown("""
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Update page if main selection changed
     if selected_main != "VHydro" and selected_main != st.session_state["current_page"]:
         st.session_state["current_page"] = selected_main
+        st.rerun()
+    
+    # Update page if subpage selected
+    if selected_sub != st.session_state["current_page"] and st.session_state["current_page"] in vhydro_pages:
+        st.session_state["current_page"] = selected_sub
         st.rerun()
     
     # Versions section
@@ -407,10 +473,6 @@ def create_sidebar():
         Version 1.0.0
     </div>
     """, unsafe_allow_html=True)
-    
-    # Since clickable HTML doesn't work in Streamlit, we need a workaround to handle clicks
-    # For now, we're using the hidden radio buttons but in a real app, you might want to use
-    # Streamlit's session state more directly to handle navigation
     
     # Default analysis parameters for facies classification
     min_clusters = 5
