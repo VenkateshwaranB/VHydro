@@ -185,121 +185,242 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create a simplified sidebar navigation system
+# Create sidebar to exactly match the screenshot
 def create_sidebar():
-    # Logo and title section
-    # Function to load and encode image
-    def get_base64_image(image_path):
-        try:
-            with open(image_path, "rb") as img_file:
-                b64_data = base64.b64encode(img_file.read()).decode()
-            return f"data:image/png;base64,{b64_data}"
-        except Exception as e:
-            logger.error(f"Error loading image: {e}")
-            return None
+    # Add CSS for styling
+    st.markdown("""
+    <style>
+    /* Sidebar main area styling */
+    [data-testid="stSidebar"] {
+        background-color: #0e4194;
+    }
     
-    # Path to your image
-    image_base64 = get_base64_image("src/StrataGraph_White_Logo.png")
+    /* Navigation styling */
+    .nav-header {
+        color: white;
+        font-weight: bold;
+        margin: 20px 0 10px 0;
+    }
     
-    # Inject image via HTML in the sidebar
-    if image_base64:
-        st.sidebar.markdown(
-            f"""
-            <div style="text-align: center;">
-                <img src="{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 250px; margin-bottom: 10px;"/>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    .nav-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        color: white;
+    }
     
-    st.sidebar.markdown(
-        f"""
-        <div style="text-align: center;">
-            <h1 style="font-size: 24px; color: white;">StrataGraph</h1>
-            <div style="font-size: 14px; color: gray;">VHydro 1.0</div>
+    .nav-bullet-primary {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: white;
+        margin-right: 10px;
+        display: inline-block;
+    }
+    
+    .nav-bullet-secondary {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: white;
+        margin-right: 10px;
+        margin-left: 5px;
+        display: inline-block;
+    }
+    
+    /* Versions box styling */
+    .versions-box {
+        background-color: rgba(0, 40, 104, 0.5);
+        border-radius: 5px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+    
+    .versions-title {
+        color: white;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .version-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        color: white;
+    }
+    
+    .version-bullet-current {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #4CAF50;
+        margin-right: 10px;
+    }
+    
+    .version-bullet-coming {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #FFA500;
+        margin-right: 10px;
+    }
+    
+    /* Footer styling */
+    .footer {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+        text-align: center;
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+    }
+    
+    /* Hide radio button appearance but keep functionality */
+    div.row-widget.stRadio > div {
+        flex-direction: column;
+    }
+    
+    div.row-widget.stRadio > div[role="radiogroup"] > label {
+        display: none;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Logo
+    try:
+        st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
+    except:
+        # Fallback SVG logo
+        st.sidebar.markdown("""
+        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+            <svg width="150" height="150" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="75" cy="75" r="60" fill="none" stroke="white" stroke-width="4"/>
+                <path d="M45,85 C55,65 65,95 75,75 C85,55 95,85 105,65" stroke="white" stroke-width="4" fill="none"/>
+                <circle cx="105" cy="65" r="8" fill="white"/>
+                <path d="M45,100 C60,90 75,110 95,100 C105,95 115,105 125,95" stroke="white" stroke-width="3" fill="none"/>
+                <path d="M45,115 C60,105 75,125 95,115 C105,110 115,120 125,110" stroke="white" stroke-width="2" fill="none"/>
+                <text x="75" y="160" text-anchor="middle" fill="white" font-family="Arial" font-size="18">StrataGraph</text>
+            </svg>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        """, unsafe_allow_html=True)
     
-    # Initialize current page if not exists
+    # Title
+    st.sidebar.markdown("""
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: white; font-size: 24px;">StrataGraph</h1>
+        <p style="color: rgba(255, 255, 255, 0.5); font-size: 14px;">VHydro 1.0</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Initialize current page
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Simple navigation using radio buttons
-    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px;">Navigation</div>', unsafe_allow_html=True)
+    # Navigation header
+    st.sidebar.markdown('<div class="nav-header">Navigation</div>', unsafe_allow_html=True)
     
-    # Main navigation as a simple radio
+    # Main navigation items - the visible part is custom HTML
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
-    selected_main = st.sidebar.radio("", main_pages, index=main_pages.index(st.session_state["current_page"]) 
-                                     if st.session_state["current_page"] in main_pages else 0,
-                                     label_visibility="collapsed")
     
-    # If VHydro is selected, show sub-pages
-    vhydro_selected = False
-    if selected_main == "VHydro":
-        vhydro_selected = True
-        st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
-        vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
-                      "Facies Classification", "Hydrocarbon Potential Using GCN"]
-        
-        # Find the index of the current page in vhydro_pages if it exists
-        current_index = 0
-        if st.session_state["current_page"] in vhydro_pages:
-            current_index = vhydro_pages.index(st.session_state["current_page"])
-        
-        selected_vhydro = st.sidebar.radio(
-            "", vhydro_pages, index=current_index, label_visibility="collapsed"
-        )
-        st.sidebar.markdown('</div>', unsafe_allow_html=True)
-        
-        # Update session state with selected VHydro page
-        if selected_vhydro != st.session_state["current_page"]:
-            st.session_state["current_page"] = selected_vhydro
-            st.rerun()
+    # Hidden radio button for main navigation
+    selected_main = st.sidebar.radio("Main Navigation", main_pages, 
+                                  index=main_pages.index(st.session_state["current_page"]) 
+                                  if st.session_state["current_page"] in main_pages else 0, 
+                                  label_visibility="collapsed")
     
-    # Update session state with selected main page
-    if not vhydro_selected and selected_main != st.session_state["current_page"]:
+    # Render the navigation items with custom HTML
+    for page in main_pages:
+        is_active = (page == selected_main) or (selected_main == "VHydro" and st.session_state["current_page"] != "VHydro" 
+                                                 and st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", 
+                                                                                     "Petrophysical Properties", "Facies Classification", 
+                                                                                     "Hydrocarbon Potential Using GCN"])
+        active_style = ""
+        
+        # Change bullet style to small if VHydro is selected and this is the VHydro item
+        bullet_class = "nav-bullet-primary"
+        
+        st.sidebar.markdown(f"""
+        <div class="nav-item" onclick="document.querySelector('input[type=radio][value="{page}"]').click();" style="cursor: pointer; {active_style}">
+            <span class="{bullet_class}"></span>
+            <span>{page}</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # If VHydro is the selected main page, show its subpages
+        if page == "VHydro" and (selected_main == "VHydro" or 
+                              st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", 
+                                                                 "Petrophysical Properties", "Facies Classification", 
+                                                                 "Hydrocarbon Potential Using GCN"]):
+            
+            vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
+                         "Facies Classification", "Hydrocarbon Potential Using GCN"]
+            
+            # Create hidden radio for VHydro subpages
+            current_idx = 0
+            if st.session_state["current_page"] in vhydro_pages:
+                current_idx = vhydro_pages.index(st.session_state["current_page"])
+            
+            selected_sub = st.sidebar.radio("VHydro Subpages", vhydro_pages, index=current_idx, label_visibility="collapsed")
+            
+            # Render subpages with custom HTML
+            for subpage in vhydro_pages:
+                is_active_sub = subpage == selected_sub
+                active_style_sub = ""
+                
+                st.sidebar.markdown(f"""
+                <div class="nav-item" onclick="document.querySelector('input[type=radio][value="{subpage}"]').click();" style="cursor: pointer; margin-left: 20px; {active_style_sub}">
+                    <span class="nav-bullet-secondary"></span>
+                    <span>{subpage}</span>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Update page if subpage selected
+            if selected_sub != st.session_state["current_page"]:
+                st.session_state["current_page"] = selected_sub
+                st.rerun()
+    
+    # Update page if main selection changed
+    if selected_main != "VHydro" and selected_main != st.session_state["current_page"]:
         st.session_state["current_page"] = selected_main
         st.rerun()
     
-    # Version selection section
-    st.sidebar.markdown(
-        """
-        <div style="background-color: rgba(255, 255, 255, 0.1); margin-top: 20px; padding: 10px; border-radius: 5px;">
-            <h4 style="color: white; margin-bottom: 10px;">Versions</h4>
-            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4CAF50; margin-right: 10px;"></div>
-                <span style="color: white;">VHydro 1.0 (Current)</span>
-            </div>
-            <div style="display: flex; align-items: center;">
-                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #FFA500; margin-right: 10px;"></div>
-                <span style="color: white;">CO2 Storage 2.0 (Coming Soon)</span>
-            </div>
+    # Versions section
+    st.sidebar.markdown("""
+    <div class="versions-box">
+        <div class="versions-title">Versions</div>
+        <div class="version-item">
+            <div class="version-bullet-current"></div>
+            <span>VHydro 1.0 (Current)</span>
         </div>
-        """, 
-        unsafe_allow_html=True
-    )
+        <div class="version-item">
+            <div class="version-bullet-coming"></div>
+            <span>CO2 Storage 2.0 (Coming Soon)</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Only show model configuration in analysis pages
+    # Footer
+    st.sidebar.markdown("""
+    <div class="footer">
+        © 2025 StrataGraph. All rights reserved.<br>
+        Version 1.0.0
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Since clickable HTML doesn't work in Streamlit, we need a workaround to handle clicks
+    # For now, we're using the hidden radio buttons but in a real app, you might want to use
+    # Streamlit's session state more directly to handle navigation
+    
+    # Default analysis parameters for facies classification
     min_clusters = 5
     max_clusters = 10
     
+    # Only show analysis parameters in facies classification
     if st.session_state["current_page"] == "Facies Classification":
-        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px;">Analysis Parameters</div>', unsafe_allow_html=True)
+        st.sidebar.markdown('<div class="nav-header">Analysis Parameters</div>', unsafe_allow_html=True)
         min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
         max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
-    
-    # Footer
-    st.sidebar.markdown(
-        """
-        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; text-align: center; position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
-            © 2025 StrataGraph. All rights reserved.<br>
-            Version 1.0.0
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
     
     return {
         "page": st.session_state["current_page"],
