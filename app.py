@@ -41,155 +41,6 @@ def load_css():
                    border-left: 5px solid #0e4194; }
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
-    /* Sidebar styling */
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
-    }
-    
-    /* Sidebar navigation styling */
-    .sidebar-nav {
-        margin-top: 1rem;
-    }
-    
-    .nav-item {
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.25rem;
-        border-radius: 4px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.8);
-        transition: all 0.2s ease;
-    }
-    
-    .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-    
-    .nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-left: 3px solid white;
-    }
-    
-    .nav-sub-item {
-        padding: 0.4rem 1rem 0.4rem 2rem;
-        margin-bottom: 0.15rem;
-        border-radius: 4px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
-    }
-    
-    .nav-sub-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-    
-    .nav-sub-item.active {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        border-left: 2px solid white;
-    }
-    
-    /* Coming soon tag */
-    .coming-soon-tag {
-        background-color: rgba(255, 152, 0, 0.2);
-        color: rgb(255, 152, 0);
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        margin-left: 8px;
-        vertical-align: middle;
-    }
-    
-    /* Coming soon section */
-    .coming-soon-section {
-        background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://placehold.co/600x400');
-        background-size: cover;
-        color: white;
-        padding: 30px;
-        border-radius: 10px;
-        text-align: center;
-        margin: 30px 0;
-        filter: blur(0px); /* Container not blurred */
-    }
-    
-    .coming-soon-section h2 {
-        color: white;
-        margin-bottom: 15px;
-    }
-    
-    .coming-soon-section .content {
-        filter: blur(3px); /* Content inside is blurred */
-        pointer-events: none;
-    }
-    
-    .footer-text {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.8rem;
-        text-align: center;
-        padding: 1rem;
-        margin-top: 2rem;
-    }
-    
-    /* Version section */
-    .version-section {
-        margin-top: 1rem;
-        padding: 0.5rem 1rem;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 5px;
-    }
-    
-    .version-section h4 {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-        color: white;
-    }
-    
-    .version-item {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem 0;
-        color: white;
-    }
-    
-    .version-indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-    
-    .active-version {
-        background-color: #4CAF50;
-    }
-    
-    .coming-version {
-        background-color: #FFA500;
-    }
-    """
-    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
-
-# Helper function to logout
-def logout():
-    for key in ["email", "logged_in", "auth_mode"]:
-        if key in st.session_state:
-            del st.session_state[key]
-
-# Preload and cache images
-@st.cache_data
-def load_image(image_path):
-    try:
-        return Image.open(image_path)
-    except Exception as e:
-        logger.error(f"Error loading image from {image_path}: {e}")
-        return None
-
-# Create sidebar to exactly match the screenshot
-def create_sidebar():
-    # Add CSS for styling
-    st.markdown("""
-    <style>
     /* Sidebar main area styling */
     [data-testid="stSidebar"] {
         background-color: #0e4194;
@@ -336,9 +187,103 @@ def create_sidebar():
     div.row-widget.stRadio > div[role="radiogroup"] > label {
         display: none;
     }
-    </style>
-    """, unsafe_allow_html=True)
+    
+    /* Coming soon tag */
+    .coming-soon-tag {
+        background-color: rgba(255, 152, 0, 0.2);
+        color: rgb(255, 152, 0);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    
+    /* Coming soon section */
+    .coming-soon-section {
+        background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://placehold.co/600x400');
+        background-size: cover;
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 30px 0;
+        filter: blur(0px); /* Container not blurred */
+    }
+    
+    .coming-soon-section h2 {
+        color: white;
+        margin-bottom: 15px;
+    }
+    
+    .coming-soon-section .content {
+        filter: blur(3px); /* Content inside is blurred */
+        pointer-events: none;
+    }
+    
+    .footer-text {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+        text-align: center;
+        padding: 1rem;
+        margin-top: 2rem;
+    }
+    
+    /* Version section */
+    .version-section {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+    }
+    
+    .version-section h4 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+    
+    .version-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        color: white;
+    }
+    
+    .version-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    
+    .active-version {
+        background-color: #4CAF50;
+    }
+    
+    .coming-version {
+        background-color: #FFA500;
+    }
+    """
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
+# Helper function to logout
+def logout():
+    for key in ["email", "logged_in", "auth_mode"]:
+        if key in st.session_state:
+            del st.session_state[key]
+
+# Preload and cache images
+@st.cache_data
+def load_image(image_path):
+    try:
+        return Image.open(image_path)
+    except Exception as e:
+        logger.error(f"Error loading image from {image_path}: {e}")
+        return None
+
+# Create sidebar to exactly match the screenshot
+def create_sidebar():
     # Logo
     try:
         st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
