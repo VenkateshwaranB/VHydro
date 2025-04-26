@@ -47,85 +47,48 @@ def load_css():
     }
     
     /* Sidebar navigation styling */
-    .sidebar-logo {
-        text-align: center;
-        margin-bottom: 30px;
+    .sidebar-nav {
+        margin-top: 1rem;
     }
     
-    .sidebar-nav-header {
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: white;
-        margin-top: 20px;
-    }
-    
-    .sidebar-nav-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        color: white;
+    .nav-item {
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.25rem;
+        border-radius: 4px;
         cursor: pointer;
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.2s ease;
     }
     
-    .sidebar-nav-bullet {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: white;
-        margin-right: 10px;
-        display: inline-block;
-    }
-    
-    .sidebar-nav-text {
-        display: inline-block;
-        color: white;
-    }
-    
-    .sidebar-versions {
+    .nav-item:hover {
         background-color: rgba(255, 255, 255, 0.1);
-        padding: 15px;
-        border-radius: 5px;
-        margin-top: 20px;
-    }
-    
-    .sidebar-version-header {
-        font-weight: bold;
-        margin-bottom: 10px;
         color: white;
     }
     
-    .sidebar-version-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
+    .nav-item.active {
+        background-color: rgba(255, 255, 255, 0.2);
         color: white;
+        border-left: 3px solid white;
     }
     
-    .sidebar-version-bullet-current {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: #4CAF50;
-        margin-right: 10px;
-        display: inline-block;
-    }
-    
-    .sidebar-version-bullet-coming {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: #FFA500;
-        margin-right: 10px;
-        display: inline-block;
-    }
-    
-    .sidebar-footer {
-        position: absolute;
-        bottom: 20px;
+    .nav-sub-item {
+        padding: 0.4rem 1rem 0.4rem 2rem;
+        margin-bottom: 0.15rem;
+        border-radius: 4px;
+        cursor: pointer;
         color: rgba(255, 255, 255, 0.7);
-        font-size: 0.8rem;
-        width: 100%;
-        text-align: center;
+        font-size: 0.9rem;
+    }
+    
+    .nav-sub-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    .nav-sub-item.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        border-left: 2px solid white;
     }
     
     /* Coming soon tag */
@@ -222,7 +185,7 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create a sidebar navigation system matching the exact screenshot
+# Create a simplified sidebar navigation system
 def create_sidebar():
     # Function to load and encode image
     def get_base64_image(image_path):
@@ -234,33 +197,17 @@ def create_sidebar():
             logger.error(f"Error loading image: {e}")
             # Return a placeholder image
             return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzBlNDE5NCIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIj5TdHJhdGFHcmFwaDwvdGV4dD48L3N2Zz4="
-     
-    # Add logo
-    logo_path = "src/StrataGraph_White_Logo.png"
-    try:
-        st.sidebar.image(logo_path, width=150)
-    except:
-        st.sidebar.markdown(
-            f"""
-            <div class="sidebar-logo">
-                <svg width="150" height="150" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="75" cy="75" r="60" fill="none" stroke="white" stroke-width="4"/>
-                    <path d="M45,85 C55,65 65,95 75,75 C85,55 95,85 105,65" stroke="white" stroke-width="4" fill="none"/>
-                    <circle cx="105" cy="65" r="8" fill="white"/>
-                    <path d="M45,100 C60,90 75,110 95,100 C105,95 115,105 125,95" stroke="white" stroke-width="3" fill="none"/>
-                    <path d="M45,115 C60,105 75,125 95,115 C105,110 115,120 125,110" stroke="white" stroke-width="2" fill="none"/>
-                </svg>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
     
-    # App title
+    # Path to logo image
+    image_base64 = get_base64_image("src/StrataGraph_White_Logo.png")
+    
+    # Inject logo via HTML in the sidebar
     st.sidebar.markdown(
-        """
-        <div style="text-align: center; margin-bottom: 40px;">
-            <h2 style="color: white; margin-bottom: 5px;">StrataGraph</h2>
-            <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">VHydro 1.0</p>
+        f"""
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 250px; margin-bottom: 10px;"/>
+            <h1 style="font-size: 24px; color: white; margin: 10px 0 5px 0;">StrataGraph</h1>
+            <div style="font-size: 14px; color: rgba(255, 255, 255, 0.7);">VHydro 1.0</div>
         </div>
         """,
         unsafe_allow_html=True
@@ -270,90 +217,126 @@ def create_sidebar():
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Navigation header
-    st.sidebar.markdown('<div class="sidebar-nav-header">Navigation</div>', unsafe_allow_html=True)
+    # Define main pages and subpages
+    main_pages = {
+        "Home": [],
+        "VHydro": [
+            "VHydro Overview", 
+            "Data Preparation", 
+            "Petrophysical Properties", 
+            "Facies Classification", 
+            "Hydrocarbon Potential Using GCN"
+        ],
+        "CO2 Storage Applications": [],
+        "Help and Contact": [],
+        "About Us": []
+    }
     
-    # Navigation items
-    nav_items = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
+    # Render main navigation
+    st.sidebar.markdown('<div class="sidebar-nav">', unsafe_allow_html=True)
     
-    # Create custom navigation items
-    for item in nav_items:
-        is_active = st.session_state["current_page"] == item
-        item_html = f"""
-        <div class="sidebar-nav-item" id="nav-{item.lower().replace(' ', '-')}">
-            <span class="sidebar-nav-bullet"></span>
-            <span class="sidebar-nav-text">{item}</span>
-        </div>
-        """
-        # Use a unique key for each navigation item
-        if st.sidebar.markdown(item_html, unsafe_allow_html=True):
-            st.session_state["current_page"] = item
-            st.rerun()
+    for page, subpages in main_pages.items():
+        is_active = st.session_state["current_page"] == page or st.session_state["current_page"] in subpages
+        active_class = "active" if is_active else ""
+        
+        # Add "Coming Soon" tag to CO2 Storage
+        coming_soon = ""
+        if page == "CO2 Storage Applications":
+            coming_soon = '<span class="coming-soon-tag">Coming Soon</span>'
+        
+        st.sidebar.markdown(
+            f"""
+            <div class="nav-item {active_class}" id="nav-{page.replace(' ', '-').lower()}" 
+                 onclick="window.streamlitSelectPage('{page}')">
+                {page} {coming_soon}
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+        # Render subpages if the main page is active
+        if is_active and subpages:
+            for subpage in subpages:
+                subpage_active_class = "active" if st.session_state["current_page"] == subpage else ""
+                st.sidebar.markdown(
+                    f"""
+                    <div class="nav-sub-item {subpage_active_class}" id="nav-{subpage.replace(' ', '-').lower()}"
+                         onclick="window.streamlitSelectPage('{subpage}')">
+                        {subpage}
+                    </div>
+                    """, 
+                    unsafe_allow_html=True
+                )
     
-    # Versions section
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    
+    # Add JavaScript for navigation
     st.sidebar.markdown(
         """
-        <div class="sidebar-versions">
-            <div class="sidebar-version-header">Versions</div>
-            <div class="sidebar-version-item">
-                <span class="sidebar-version-bullet-current"></span>
+        <script>
+        window.streamlitSelectPage = (page) => {
+            const event = new CustomEvent('streamlitSelectPage', { detail: { page } });
+            window.dispatchEvent(event);
+        }
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Use a hidden button to handle navigation
+    for page in [p for pages in main_pages.values() for p in ([pages[0]] + pages[1])] + list(main_pages.keys()):
+        if st.sidebar.button(page, key=f"btn_{page}", visible=False):
+            st.session_state["current_page"] = page
+            st.rerun()
+    
+    # Version selection section
+    st.sidebar.markdown(
+        """
+        <div class="version-section">
+            <h4>Versions</h4>
+            <div class="version-item">
+                <div class="version-indicator active-version"></div>
                 VHydro 1.0 (Current)
             </div>
-            <div class="sidebar-version-item">
-                <span class="sidebar-version-bullet-coming"></span>
+            <div class="version-item">
+                <div class="version-indicator coming-version"></div>
                 CO2 Storage 2.0 (Coming Soon)
             </div>
         </div>
-        """,
+        """, 
         unsafe_allow_html=True
     )
     
-    # Footer
-    st.sidebar.markdown(
-        """
-        <div class="sidebar-footer">
-            © 2025 StrataGraph. All rights reserved.<br>
-            Version 1.0.0
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # Set default parameters for analysis
+    # Only show model configuration in analysis pages
     min_clusters = 5
     max_clusters = 10
     
-    # Only show model configuration in Facies Classification page
     if st.session_state["current_page"] == "Facies Classification":
         st.sidebar.markdown("""
-        <div style="margin-top: 20px; color: white;">
+        <div style="margin-top: 20px; color: white; padding-left: 10px;">
             <h4>Analysis Parameters</h4>
         </div>
         """, unsafe_allow_html=True)
         min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
         max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
     
-    # Since Streamlit markdown doesn't create clickable elements, we need to use buttons
-    # We'll create invisible buttons and use JavaScript to handle clicks on our custom elements
-    
-    # Create hidden buttons for navigation
-    for item in nav_items:
-        if st.sidebar.button(item, key=f"btn_{item}", visible=False):
-            st.session_state["current_page"] = item
-            st.rerun()
-    
-    # As a fallback, also include standard buttons that are visible
-    with st.sidebar.expander("Alternative Navigation", expanded=False):
-        for item in nav_items:
-            if st.button(item, key=f"alt_btn_{item}"):
-                st.session_state["current_page"] = item
-                st.rerun()
+    # Footer
+    st.sidebar.markdown(
+        """
+        <div class="footer-text">
+            © 2025 StrataGraph. All rights reserved.<br>
+            Version 1.0.0
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
     
     return {
         "page": st.session_state["current_page"],
         "min_clusters": min_clusters,
         "max_clusters": max_clusters
     }
+
 
 def home_page():
     # Try to load the banner image
