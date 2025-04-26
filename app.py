@@ -185,79 +185,117 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create a sidebar navigation system
+# Create a sidebar navigation system with reliable subsection display
 def create_sidebar():
-    # Function to load and encode image
-    def get_base64_image(image_path):
-        try:
-            with open(image_path, "rb") as img_file:
-                b64_data = base64.b64encode(img_file.read()).decode()
-            return f"data:image/png;base64,{b64_data}"
-        except Exception as e:
-            logger.error(f"Error loading image: {e}")
-            return None
-    
-    # Path to your image
-    image_base64 = get_base64_image("src/StrataGraph_White_Logo.png")
-    
-    # Inject image via HTML in the sidebar
-    if image_base64:
+    # Logo and title
+    try:
+        st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
+    except:
         st.sidebar.markdown(
-            f"""
-            <div style="text-align: center;">
-                <img src="{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 150px; margin-bottom: 10px;"/>
+            """
+            <div style="text-align: center; margin-bottom: 20px;">
+                <svg width="130" height="130" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="65" cy="65" r="50" fill="none" stroke="white" stroke-width="3"/>
+                    <path d="M35,70 C45,55 55,75 65,60 C75,45 85,70 95,50" stroke="white" stroke-width="3" fill="none"/>
+                    <circle cx="95" cy="50" r="6" fill="white"/>
+                    <path d="M35,85 C50,75 65,90 80,80 C90,75 100,85 105,75" stroke="white" stroke-width="2" fill="none"/>
+                    <path d="M35,95 C50,85 65,100 80,90 C90,85 100,95 105,85" stroke="white" stroke-width="2" fill="none"/>
+                </svg>
             </div>
             """,
             unsafe_allow_html=True
         )
     
-    st.sidebar.markdown(
-        """
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: white; font-size: 24px; margin-bottom: 5px;">StrataGraph</h1>
-            <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">VHydro 1.0</p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # App title
+    st.sidebar.markdown('<div style="text-align: center; margin-bottom: 30px;"><h2 style="color: white; margin-bottom: 5px;">StrataGraph</h2><p style="color: rgba(255, 255, 255, 0.7);">VHydro 1.0</p></div>', unsafe_allow_html=True)
     
     # Initialize current page if not exists
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Main navigation
+    # Track expanded state of VHydro in session state
+    if "vhydro_expanded" not in st.session_state:
+        st.session_state["vhydro_expanded"] = False
+    
+    # Define all pages
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
     vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
                    "Facies Classification", "Hydrocarbon Potential Using GCN"]
     
-    # Determine if we're in VHydro or one of its subpages
-    in_vhydro = st.session_state["current_page"] == "VHydro" or st.session_state["current_page"] in vhydro_pages
+    # Check if current page is in VHydro section
+    is_vhydro_page = st.session_state["current_page"] in vhydro_pages
+    if is_vhydro_page and not st.session_state["vhydro_expanded"]:
+        st.session_state["vhydro_expanded"] = True
     
-    # Navigation header
-    st.sidebar.markdown('<div style="color: white; margin-bottom: 10px;">Navigation</div>', unsafe_allow_html=True)
+    # --- The simplest method: Just build the menu directly with selectbox ---
     
-    # Display main navigation items
+    # Display Navigation header
+    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-bottom: 10px;">Navigation</div>', unsafe_allow_html=True)
+    
+    # Create a list of options for the selectbox
+    menu_options = []
+    
+    # Add main pages
     for page in main_pages:
-        # Add "Coming Soon" tag for CO2 Storage
-        coming_soon = ""
         if page == "CO2 Storage Applications":
-            coming_soon = '<span style="background-color: #FF9800; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">Coming Soon</span>'
-        
-        # Create button with the same styling as your image
-        if st.sidebar.button(f"{page} {coming_soon}", key=f"nav_{page}", use_container_width=True, help=page):
-            st.session_state["current_page"] = page
+            menu_options.append(f"{page} (Coming Soon)")
+        else:
+            menu_options.append(page)
+    
+    # Get index of current page
+    selected_index = 0
+    if st.session_state["current_page"] in main_pages:
+        selected_index = main_pages.index(st.session_state["current_page"])
+    elif is_vhydro_page:
+        selected_index = main_pages.index("VHydro")  # Select VHydro parent when on a VHydro page
+    
+    # Display the main navigation
+    selected_option = st.sidebar.selectbox(
+        "Main Pages",
+        menu_options,
+        index=selected_index,
+        label_visibility="collapsed"
+    )
+    
+    # Handle selection
+    selected_page = selected_option.split(" (Coming Soon)")[0]  # Remove the "Coming Soon" suffix if present
+    
+    if selected_page != st.session_state["current_page"] and selected_page in main_pages:
+        # If selecting a main page (that's not VHydro)
+        if selected_page != "VHydro":
+            st.session_state["current_page"] = selected_page
+            st.session_state["vhydro_expanded"] = False
+            st.rerun()
+        # If selecting VHydro but not already on VHydro main page
+        elif st.session_state["current_page"] != "VHydro":
+            st.session_state["current_page"] = "VHydro"
+            st.session_state["vhydro_expanded"] = True
             st.rerun()
     
-    # Show VHydro subpages when in VHydro section
-    if in_vhydro:
-        # Add some space
-        st.sidebar.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    # Display VHydro subpages when appropriate
+    if selected_page == "VHydro" or is_vhydro_page:
+        st.sidebar.markdown('<div style="margin-left: 20px; border-left: 1px solid rgba(255, 255, 255, 0.3); padding-left: 10px;">', unsafe_allow_html=True)
         
-        # Display VHydro subpages with indentation
-        for subpage in vhydro_pages:
-            if st.sidebar.button(f"  • {subpage}", key=f"subnav_{subpage}", use_container_width=True, help=subpage):
-                st.session_state["current_page"] = subpage
-                st.rerun()
+        # Get index of current VHydro subpage
+        subpage_index = 0
+        if is_vhydro_page:
+            subpage_index = vhydro_pages.index(st.session_state["current_page"])
+        
+        # Display VHydro sub-navigation
+        selected_subpage = st.sidebar.radio(
+            "VHydro Pages",
+            vhydro_pages,
+            index=subpage_index,
+            key="vhydro_subpages",
+            label_visibility="collapsed"
+        )
+        
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
+        
+        # Handle sub-selection
+        if selected_subpage != st.session_state["current_page"]:
+            st.session_state["current_page"] = selected_subpage
+            st.rerun()
     
     # Versions section
     st.sidebar.markdown(
@@ -280,7 +318,7 @@ def create_sidebar():
     # Footer
     st.sidebar.markdown(
         """
-        <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; text-align: center; position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
+        <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; text-align: center; margin-top: 30px;">
             © 2025 StrataGraph. All rights reserved.<br>
             Version 1.0.0
         </div>
@@ -288,13 +326,13 @@ def create_sidebar():
         unsafe_allow_html=True
     )
     
-    # Analysis parameters (only shown on certain pages)
+    # Analysis parameters
     min_clusters = 5
     max_clusters = 10
     
     if st.session_state["current_page"] == "Facies Classification":
         st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-        st.sidebar.markdown('<div style="color: white;">Analysis Parameters</div>', unsafe_allow_html=True)
+        st.sidebar.markdown('<div style="color: white; font-weight: bold;">Analysis Parameters</div>', unsafe_allow_html=True)
         min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
         max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
     
@@ -303,7 +341,6 @@ def create_sidebar():
         "min_clusters": min_clusters,
         "max_clusters": max_clusters
     }
-
 def home_page():
     # Try to load the banner image
     banner_path = "src/StrataGraph_Banner.png"
