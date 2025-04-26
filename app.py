@@ -41,144 +41,162 @@ def load_css():
                    border-left: 5px solid #0e4194; }
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
-    /* Sidebar main area styling */
+    /* Sidebar base styling */
     [data-testid="stSidebar"] {
-        background-color: #0e4194;
+        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%);
+        color: white;
     }
     
-    /* Navigation styling */
+    /* Logo and title styling */
+    .sidebar-logo {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .app-title {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .app-title h2 {
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 0.2rem;
+    }
+    
+    .app-title p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+    
+    /* Navigation section styling */
+    .nav-section {
+        margin-bottom: 1.5rem;
+    }
+    
     .nav-header {
         color: white;
         font-weight: bold;
-        margin: 20px 0 10px 0;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        font-size: 16px;
+        margin-bottom: 0.75rem;
     }
     
+    /* Navigation item styling */
     .nav-item {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
+        padding: 0.4rem 0;
         color: white;
-        padding: 8px 10px;
-        border-radius: 6px;
-        transition: all 0.3s ease;
         cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 4px;
+        padding-left: 0.5rem;
     }
     
     .nav-item:hover {
         background-color: rgba(255, 255, 255, 0.1);
     }
     
-    .nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        font-weight: bold;
+    .nav-item-active {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-left: 3px solid white;
     }
     
-    .nav-bullet-primary {
-        width: 12px;
-        height: 12px;
+    .nav-icon {
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         background-color: white;
-        margin-right: 10px;
+        margin-right: 0.75rem;
         display: inline-block;
     }
     
-    /* Subnav items styling */
-    .subnav-container {
-        margin-left: 15px;
-        overflow: hidden;
-        max-height: 0;
-        transition: max-height 0.4s ease;
+    /* Submenu styling */
+    .submenu-container {
+        margin-left: 1.25rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        padding-left: 0.5rem;
     }
     
-    .subnav-expanded .subnav-container {
-        max-height: 300px; /* Adjust as needed */
-    }
-    
-    .subnav-item {
+    .submenu-item {
+        padding: 0.3rem 0;
+        color: rgba(255, 255, 255, 0.85);
+        cursor: pointer;
         display: flex;
         align-items: center;
-        margin: 4px 0;
-        padding: 6px 10px;
-        color: rgba(255, 255, 255, 0.85);
-        font-size: 14px;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 4px;
+        padding-left: 0.5rem;
     }
     
-    .subnav-item:hover {
+    .submenu-item:hover {
         background-color: rgba(255, 255, 255, 0.1);
-        color: white;
     }
     
-    .subnav-item.active {
-        background-color: rgba(255, 255, 255, 0.15);
+    .submenu-item-active {
         color: white;
-        font-weight: bold;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-left: 2px solid white;
     }
     
-    .nav-bullet-secondary {
+    .submenu-icon {
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.7);
-        margin-right: 10px;
+        background-color: rgba(255, 255, 255, 0.85);
+        margin-right: 0.75rem;
         display: inline-block;
     }
     
-    /* Versions box styling */
-    .versions-box {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        padding: 15px;
-        margin: 20px 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Versions section */
+    .versions-section {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 5px;
+        margin-top: 1.5rem;
     }
     
-    .versions-title {
+    .versions-header {
         color: white;
         font-weight: bold;
-        margin-bottom: 15px;
-        font-size: 16px;
+        margin-bottom: 0.75rem;
     }
     
     .version-item {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 0.5rem;
         color: white;
     }
     
-    .version-bullet-current {
+    .version-icon-current {
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background-color: #4CAF50;
-        margin-right: 10px;
+        margin-right: 0.75rem;
     }
     
-    .version-bullet-coming {
+    .version-icon-coming {
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background-color: #FFA500;
-        margin-right: 10px;
+        margin-right: 0.75rem;
     }
     
     /* Footer styling */
-    .footer {
-        color: rgba(255, 255, 255, 0.7);
+    .sidebar-footer {
+        color: rgba(255, 255, 255, 0.6);
         font-size: 0.8rem;
         text-align: center;
+        padding: 1rem 0;
         position: absolute;
-        bottom: 20px;
-        left: 0;
-        right: 0;
+        bottom: 0;
+        width: 100%;
     }
-    
+  
     /* Hide radio button appearance but keep functionality */
     div.row-widget.stRadio > div {
         flex-direction: column;
@@ -282,152 +300,187 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create sidebar to exactly match the screenshot
+# Create an elegant scientific-looking sidebar with proper nesting
 def create_sidebar():
+
     # Logo
     try:
-        st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
+        st.sidebar.image("src/StrataGraph_White_Logo.png", width=120)
     except:
-        # Fallback SVG logo
         st.sidebar.markdown("""
-        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-            <svg width="150" height="150" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="75" cy="75" r="60" fill="none" stroke="white" stroke-width="4"/>
-                <path d="M45,85 C55,65 65,95 75,75 C85,55 95,85 105,65" stroke="white" stroke-width="4" fill="none"/>
-                <circle cx="105" cy="65" r="8" fill="white"/>
-                <path d="M45,100 C60,90 75,110 95,100 C105,95 115,105 125,95" stroke="white" stroke-width="3" fill="none"/>
-                <path d="M45,115 C60,105 75,125 95,115 C105,110 115,120 125,110" stroke="white" stroke-width="2" fill="none"/>
-                <text x="75" y="160" text-anchor="middle" fill="white" font-family="Arial" font-size="18">StrataGraph</text>
+        <div class="sidebar-logo">
+            <svg width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="white" stroke-width="3"/>
+                <path d="M35,70 C45,55 55,75 65,60 C75,45 85,70 95,50" stroke="white" stroke-width="3" fill="none"/>
+                <circle cx="95" cy="50" r="6" fill="white"/>
+                <path d="M35,85 C50,75 65,90 80,80 C90,75 100,85 105,75" stroke="white" stroke-width="2" fill="none"/>
+                <path d="M35,95 C50,85 65,100 80,90 C90,85 100,95 105,85" stroke="white" stroke-width="2" fill="none"/>
             </svg>
         </div>
         """, unsafe_allow_html=True)
     
-    # Title
+    # App title
     st.sidebar.markdown("""
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="color: white; font-size: 24px;">StrataGraph</h1>
-        <p style="color: #FFD700; font-size: 14px;">VHydro 1.0</p>
+    <div class="app-title">
+        <h2>StrataGraph</h2>
+        <p>VHydro 1.0</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Initialize current page
+    # Initialize current page if not exists
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Navigation header
+    # Track if VHydro submenu should be expanded
+    if "vhydro_expanded" not in st.session_state:
+        st.session_state["vhydro_expanded"] = False
+    
+    # Navigation section
     st.sidebar.markdown('<div class="nav-header">Navigation</div>', unsafe_allow_html=True)
     
-    # Main navigation items - the visible part is custom HTML
+    # Main navigation items
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
-    
-    # Hidden radio button for main navigation
-    selected_main = st.sidebar.radio("Main Navigation", main_pages, 
-                                  index=main_pages.index(st.session_state["current_page"]) 
-                                  if st.session_state["current_page"] in main_pages else 0, 
-                                  label_visibility="collapsed")
-    
-    # VHydro subpages
     vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
-                  "Facies Classification", "Hydrocarbon Potential Using GCN"]
+                   "Facies Classification", "Hydrocarbon Potential Using GCN"]
     
-    # Create hidden radio for VHydro subpages
-    current_idx = 0
-    if st.session_state["current_page"] in vhydro_pages:
-        current_idx = vhydro_pages.index(st.session_state["current_page"])
+    # Create container for custom navigation
+    nav_container = st.sidebar.container()
     
-    selected_sub = st.sidebar.radio("VHydro Subpages", vhydro_pages, index=current_idx, label_visibility="collapsed")
-    
-    # Render the navigation items with custom HTML
+    # Use Streamlit's built-in components but with custom styling
     for page in main_pages:
-        is_active = (page == selected_main)
-        active_class = "active" if is_active else ""
+        # Determine if this page is active
+        is_active = st.session_state["current_page"] == page
+        is_vhydro_parent = page == "VHydro" and st.session_state["current_page"] in vhydro_pages
         
-        # Check if this is VHydro and we should show it as expanded
-        is_vhydro_expanded = page == "VHydro" and (
-            selected_main == "VHydro" or 
-            st.session_state["current_page"] in vhydro_pages
-        )
+        # Apply active class if this page or one of its children is active
+        active_class = " nav-item-active" if is_active or is_vhydro_parent else ""
         
-        if is_vhydro_expanded:
-            active_class = "active"
-        
-        st.sidebar.markdown(f"""
-        <div class="nav-item {active_class}" onclick="document.querySelector('input[type=radio][value="{page}"]').click();" style="cursor: pointer;">
-            <span class="nav-bullet-primary"></span>
-            <span>{page}</span>
+        # Create clickable navigation item
+        if nav_container.markdown(f"""
+        <div class="nav-item{active_class}" id="nav-{page.lower().replace(' ', '-')}">
+            <div class="nav-icon"></div>
+            {page}
         </div>
-        """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True):
+            if page == "VHydro":
+                # Toggle VHydro expansion
+                st.session_state["vhydro_expanded"] = not st.session_state["vhydro_expanded"]
+                if not st.session_state["vhydro_expanded"]:
+                    # If collapsing and current page is a VHydro page, go to VHydro main
+                    if st.session_state["current_page"] in vhydro_pages:
+                        st.session_state["current_page"] = "VHydro"
+                        st.rerun()
+            else:
+                # Navigate to the clicked page
+                st.session_state["current_page"] = page
+                st.rerun()
         
-        # If VHydro is selected or has an active subpage, show its subpages
-        if page == "VHydro":
-            expanded_class = "subnav-expanded" if is_vhydro_expanded else ""
+        # Show VHydro submenu if VHydro is selected or a VHydro page is active
+        if page == "VHydro" and (st.session_state["vhydro_expanded"] or 
+                                st.session_state["current_page"] in vhydro_pages):
+            st.sidebar.markdown('<div class="submenu-container">', unsafe_allow_html=True)
             
-            # Start subnav container
-            st.sidebar.markdown(f"""
-            <div class="{expanded_class}">
-                <div class="subnav-container" style="max-height: {300 if is_vhydro_expanded else 0}px;">
-            """, unsafe_allow_html=True)
-            
-            # Render subpages with custom HTML
             for subpage in vhydro_pages:
-                is_active_sub = subpage == st.session_state["current_page"]
-                active_class_sub = "active" if is_active_sub else ""
+                # Determine if this subpage is active
+                sub_active_class = " submenu-item-active" if st.session_state["current_page"] == subpage else ""
                 
-                st.sidebar.markdown(f"""
-                <div class="subnav-item {active_class_sub}" onclick="document.querySelector('input[type=radio][value="{subpage}"]').click();" style="cursor: pointer;">
-                    <span class="nav-bullet-secondary"></span>
-                    <span>{subpage}</span>
+                # Create clickable submenu item
+                if st.sidebar.markdown(f"""
+                <div class="submenu-item{sub_active_class}" id="nav-{subpage.lower().replace(' ', '-')}">
+                    <div class="submenu-icon"></div>
+                    {subpage}
                 </div>
-                """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True):
+                    # Navigate to the clicked subpage
+                    st.session_state["current_page"] = subpage
+                    st.rerun()
             
-            # Close subnav container
-            st.sidebar.markdown("""
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.sidebar.markdown('</div>', unsafe_allow_html=True)
     
-    # Update page if main selection changed
-    if selected_main != "VHydro" and selected_main != st.session_state["current_page"]:
-        st.session_state["current_page"] = selected_main
-        st.rerun()
-    
-    # Update page if subpage selected
-    if selected_sub != st.session_state["current_page"] and st.session_state["current_page"] in vhydro_pages:
-        st.session_state["current_page"] = selected_sub
-        st.rerun()
+    # Since Streamlit markdown doesn't actually create clickable elements,
+    # we need to use buttons for actual navigation and keep them invisible
+    # This is just for functionality - not displayed to the user
+    with st.sidebar:
+        st.write("")  # Add some space
+        
+        # Create hidden column for the actual navigation
+        cols = st.columns([1, 3])
+        with cols[0]:
+            vhydro_selected = False
+            
+            # Create hidden functional buttons for main navigation
+            for i, page in enumerate(main_pages):
+                if st.button(page, key=f"btn_{i}", visible=False):
+                    if page == "VHydro":
+                        vhydro_selected = True
+                    else:
+                        st.session_state["current_page"] = page
+                        st.rerun()
+            
+            # Create hidden functional buttons for VHydro subpages
+            if vhydro_selected or st.session_state["current_page"] in vhydro_pages:
+                for i, subpage in enumerate(vhydro_pages):
+                    if st.button(subpage, key=f"sub_btn_{i}", visible=False):
+                        st.session_state["current_page"] = subpage
+                        st.rerun()
     
     # Versions section
     st.sidebar.markdown("""
-    <div class="versions-box">
-        <div class="versions-title">Versions</div>
+    <div class="versions-section">
+        <div class="versions-header">Versions</div>
         <div class="version-item">
-            <div class="version-bullet-current"></div>
-            <span>VHydro 1.0 (Current)</span>
+            <div class="version-icon-current"></div>
+            VHydro 1.0 (Current)
         </div>
         <div class="version-item">
-            <div class="version-bullet-coming"></div>
-            <span>CO2 Storage 2.0 (Coming Soon)</span>
+            <div class="version-icon-coming"></div>
+            CO2 Storage 2.0 (Coming Soon)
         </div>
     </div>
     """, unsafe_allow_html=True)
     
     # Footer
     st.sidebar.markdown("""
-    <div class="footer">
+    <div class="sidebar-footer">
         © 2025 StrataGraph. All rights reserved.<br>
         Version 1.0.0
     </div>
     """, unsafe_allow_html=True)
     
-    # Default analysis parameters for facies classification
+    # Analysis parameters (only shown on Facies Classification page)
     min_clusters = 5
     max_clusters = 10
     
-    # Only show analysis parameters in facies classification
     if st.session_state["current_page"] == "Facies Classification":
-        st.sidebar.markdown('<div class="nav-header">Analysis Parameters</div>', unsafe_allow_html=True)
+        st.sidebar.markdown('<div style="margin-top: 20px; color: white;"><b>Analysis Parameters</b></div>', unsafe_allow_html=True)
         min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
         max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    
+    # We also need a reliable way to navigate, so let's add radio buttons as a backup navigation method
+    # Since we can't make true clickable HTML in Streamlit, we need a functional fallback
+    with st.sidebar.expander("Direct Navigation", expanded=False):
+        # Main pages
+        main_index = main_pages.index(st.session_state["current_page"]) if st.session_state["current_page"] in main_pages else 0
+        selected_main = st.radio("Main Pages", main_pages, index=main_index)
+        
+        # Show VHydro subpages if VHydro is selected
+        if selected_main == "VHydro":
+            # Find current subpage index
+            sub_index = 0
+            if st.session_state["current_page"] in vhydro_pages:
+                sub_index = vhydro_pages.index(st.session_state["current_page"])
+            
+            selected_sub = st.radio("VHydro Pages", vhydro_pages, index=sub_index)
+            
+            # Update page if a subpage is selected
+            if selected_sub != st.session_state["current_page"]:
+                st.session_state["current_page"] = selected_sub
+                st.rerun()
+        
+        # Update page if main selection changes
+        elif selected_main != st.session_state["current_page"]:
+            st.session_state["current_page"] = selected_main
+            st.rerun()
     
     return {
         "page": st.session_state["current_page"],
