@@ -218,76 +218,52 @@ def create_sidebar():
         st.session_state["current_page"] = "Home"
     
     # Define main pages and subpages
-    main_pages = {
-        "Home": [],
-        "VHydro": [
+    st.sidebar.markdown('<div style="color: white; margin-top: 20px; margin-bottom: 10px; margin-left: 10px;"><b>Navigation</b></div>', unsafe_allow_html=True)
+    
+    # Main navigation using radio buttons
+    main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
+    selected_main = st.sidebar.radio(
+        "Main Navigation", 
+        main_pages, 
+        index=main_pages.index(st.session_state["current_page"]) if st.session_state["current_page"] in main_pages else 0,
+        label_visibility="collapsed"
+    )
+    
+    # If VHydro is selected, show sub-pages
+    vhydro_selected = False
+    if selected_main == "VHydro":
+        vhydro_selected = True
+        st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
+        vhydro_pages = [
             "VHydro Overview", 
             "Data Preparation", 
             "Petrophysical Properties", 
             "Facies Classification", 
             "Hydrocarbon Potential Using GCN"
-        ],
-        "CO2 Storage Applications": [],
-        "Help and Contact": [],
-        "About Us": []
-    }
-    
-    # Render main navigation
-    st.sidebar.markdown('<div class="sidebar-nav">', unsafe_allow_html=True)
-    
-    for page, subpages in main_pages.items():
-        is_active = st.session_state["current_page"] == page or st.session_state["current_page"] in subpages
-        active_class = "active" if is_active else ""
+        ]
         
-        # Add "Coming Soon" tag to CO2 Storage
-        coming_soon = ""
-        if page == "CO2 Storage Applications":
-            coming_soon = '<span class="coming-soon-tag">Coming Soon</span>'
+        # Find the index of the current page in vhydro_pages if it exists
+        current_index = 0
+        if st.session_state["current_page"] in vhydro_pages:
+            current_index = vhydro_pages.index(st.session_state["current_page"])
         
-        st.sidebar.markdown(
-            f"""
-            <div class="nav-item {active_class}" id="nav-{page.replace(' ', '-').lower()}" 
-                 onclick="window.streamlitSelectPage('{page}')">
-                {page} {coming_soon}
-            </div>
-            """, 
-            unsafe_allow_html=True
+        selected_vhydro = st.sidebar.radio(
+            "VHydro Pages", 
+            vhydro_pages, 
+            index=current_index, 
+            label_visibility="collapsed"
         )
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
         
-        # Render subpages if the main page is active
-        if is_active and subpages:
-            for subpage in subpages:
-                subpage_active_class = "active" if st.session_state["current_page"] == subpage else ""
-                st.sidebar.markdown(
-                    f"""
-                    <div class="nav-sub-item {subpage_active_class}" id="nav-{subpage.replace(' ', '-').lower()}"
-                         onclick="window.streamlitSelectPage('{subpage}')">
-                        {subpage}
-                    </div>
-                    """, 
-                    unsafe_allow_html=True
-                )
-    
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-    
-    # Add JavaScript for navigation
-    st.sidebar.markdown(
-        """
-        <script>
-        window.streamlitSelectPage = (page) => {
-            const event = new CustomEvent('streamlitSelectPage', { detail: { page } });
-            window.dispatchEvent(event);
-        }
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # Use a hidden button to handle navigation
-    for page in [p for pages in main_pages.values() for p in ([pages[0]] + pages[1])] + list(main_pages.keys()):
-        if st.sidebar.button(page, key=f"btn_{page}", visible=False):
-            st.session_state["current_page"] = page
+        # Update session state with selected VHydro page
+        if selected_vhydro != st.session_state["current_page"]:
+            st.session_state["current_page"] = selected_vhydro
             st.rerun()
+    
+    # Update session state with selected main page
+    if not vhydro_selected and selected_main != st.session_state["current_page"]:
+        st.session_state["current_page"] = selected_main
+        st.rerun()
     
     # Version selection section
     st.sidebar.markdown(
