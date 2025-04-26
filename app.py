@@ -46,51 +46,6 @@ def load_css():
         background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
     }
     
-    /* Sidebar navigation styling */
-    .sidebar-nav {
-        margin-top: 1rem;
-    }
-    
-    .nav-item {
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.25rem;
-        border-radius: 4px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.8);
-        transition: all 0.2s ease;
-    }
-    
-    .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-    
-    .nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-left: 3px solid white;
-    }
-    
-    .nav-sub-item {
-        padding: 0.4rem 1rem 0.4rem 2rem;
-        margin-bottom: 0.15rem;
-        border-radius: 4px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
-    }
-    
-    .nav-sub-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-    
-    .nav-sub-item.active {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        border-left: 2px solid white;
-    }
-    
     /* Coming soon tag */
     .coming-soon-tag {
         background-color: rgba(255, 152, 0, 0.2);
@@ -218,76 +173,52 @@ def create_sidebar():
         st.session_state["current_page"] = "Home"
     
     # Define main pages and subpages
-    main_pages = {
-        "Home": [],
-        "VHydro": [
+    st.sidebar.markdown('<div style="color: white; margin-top: 20px; margin-bottom: 10px; margin-left: 10px;"><b>Navigation</b></div>', unsafe_allow_html=True)
+    
+    # Main navigation using radio buttons
+    main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
+    selected_main = st.sidebar.radio(
+        "Main Navigation", 
+        main_pages, 
+        index=main_pages.index(st.session_state["current_page"]) if st.session_state["current_page"] in main_pages else 0,
+        label_visibility="collapsed"
+    )
+    
+    # If VHydro is selected, show sub-pages
+    vhydro_selected = False
+    if selected_main == "VHydro":
+        vhydro_selected = True
+        st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
+        vhydro_pages = [
             "VHydro Overview", 
             "Data Preparation", 
             "Petrophysical Properties", 
             "Facies Classification", 
             "Hydrocarbon Potential Using GCN"
-        ],
-        "CO2 Storage Applications": [],
-        "Help and Contact": [],
-        "About Us": []
-    }
-    
-    # Render main navigation
-    st.sidebar.markdown('<div class="sidebar-nav">', unsafe_allow_html=True)
-    
-    for page, subpages in main_pages.items():
-        is_active = st.session_state["current_page"] == page or st.session_state["current_page"] in subpages
-        active_class = "active" if is_active else ""
+        ]
         
-        # Add "Coming Soon" tag to CO2 Storage
-        coming_soon = ""
-        if page == "CO2 Storage Applications":
-            coming_soon = '<span class="coming-soon-tag">Coming Soon</span>'
+        # Find the index of the current page in vhydro_pages if it exists
+        current_index = 0
+        if st.session_state["current_page"] in vhydro_pages:
+            current_index = vhydro_pages.index(st.session_state["current_page"])
         
-        st.sidebar.markdown(
-            f"""
-            <div class="nav-item {active_class}" id="nav-{page.replace(' ', '-').lower()}" 
-                 onclick="window.streamlitSelectPage('{page}')">
-                {page} {coming_soon}
-            </div>
-            """, 
-            unsafe_allow_html=True
+        selected_vhydro = st.sidebar.radio(
+            "VHydro Pages", 
+            vhydro_pages, 
+            index=current_index, 
+            label_visibility="collapsed"
         )
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
         
-        # Render subpages if the main page is active
-        if is_active and subpages:
-            for subpage in subpages:
-                subpage_active_class = "active" if st.session_state["current_page"] == subpage else ""
-                st.sidebar.markdown(
-                    f"""
-                    <div class="nav-sub-item {subpage_active_class}" id="nav-{subpage.replace(' ', '-').lower()}"
-                         onclick="window.streamlitSelectPage('{subpage}')">
-                        {subpage}
-                    </div>
-                    """, 
-                    unsafe_allow_html=True
-                )
-    
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-    
-    # Add JavaScript for navigation
-    st.sidebar.markdown(
-        """
-        <script>
-        window.streamlitSelectPage = (page) => {
-            const event = new CustomEvent('streamlitSelectPage', { detail: { page } });
-            window.dispatchEvent(event);
-        }
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # Use a hidden button to handle navigation
-    for page in [p for pages in main_pages.values() for p in ([pages[0]] + pages[1])] + list(main_pages.keys()):
-        if st.sidebar.button(page, key=f"btn_{page}", visible=False):
-            st.session_state["current_page"] = page
+        # Update session state with selected VHydro page
+        if selected_vhydro != st.session_state["current_page"]:
+            st.session_state["current_page"] = selected_vhydro
             st.rerun()
+    
+    # Update session state with selected main page
+    if not vhydro_selected and selected_main != st.session_state["current_page"]:
+        st.session_state["current_page"] = selected_main
+        st.rerun()
     
     # Version selection section
     st.sidebar.markdown(
@@ -627,116 +558,6 @@ def petrophysical_properties_page():
             # Button to proceed to next step
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
-                if st.button("Proceed to Facies Classification", use_container_width=True):
-                    st.session_state["current_page"] = "Facies Classification"
-                    st.rerun()
-
-def facies_classification_page():
-    st.markdown("""
-    <div class="colored-header">
-        <h1>Facies Classification</h1>
-        <p>Identify geological facies using machine learning</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Check if properties have been calculated
-    if "property_data" not in st.session_state:
-        st.warning("Please calculate petrophysical properties first.")
-        
-        # Button to go back to property calculation tab
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("Go to Petrophysical Properties", use_container_width=True):
-                st.session_state["current_page"] = "Petrophysical Properties"
-                st.rerun()
-        return
-    
-    st.markdown("""
-    <div class="card">
-        <p>This step identifies natural rock types (facies) using K-means clustering:</p>
-        <ul>
-            <li>Groups similar depth points based on petrophysical properties</li>
-            <li>Optimizes the number of clusters using silhouette scores</li>
-            <li>Generates depth-based facies maps</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Clustering parameters
-    with st.expander("Clustering Parameters", expanded=True):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            min_clusters = st.number_input("Minimum Clusters", min_value=2, max_value=15, value=5, step=1)
-            feature_cols = st.multiselect("Features for Clustering", 
-                                         options=["VSHALE", "PHI", "SW", "SO", "PERM", "GR", "DENSITY"],
-                                         default=["VSHALE", "PHI", "SW", "GR", "DENSITY"])
-        
-        with col2:
-            max_clusters = st.number_input("Maximum Clusters", min_value=min_clusters, max_value=15, value=10, step=1)
-            algorithm = st.selectbox("Clustering Algorithm", ["K-means", "Agglomerative", "DBSCAN"])
-    
-    # Run clustering button
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("Run Facies Classification", use_container_width=True):
-            with st.spinner("Running facies classification..."):
-                # Simpler progress indicator
-                progress_bar = st.progress(0)
-                for i in range(0, 101, 20):
-                    progress_bar.progress(i)
-                    time.sleep(0.1)
-            
-            st.success("Facies classification completed successfully!")
-            
-            # Generate simulated silhouette scores
-            silhouette_scores = {
-                i: np.random.uniform(0.4, 0.7) for i in range(min_clusters, max_clusters + 1)
-            }
-            
-            # Find optimal clusters
-            optimal_clusters = max(silhouette_scores, key=silhouette_scores.get)
-            st.info(f"Optimal number of clusters: {optimal_clusters}")
-            
-            # Create a simple facies dataset for download
-            facies_df = pd.DataFrame({
-                "DEPTH": np.arange(1000, 1100),
-                "FACIES": np.random.randint(0, optimal_clusters, size=100)
-            })
-            
-            # Visualization in an expander to keep the UI clean
-            with st.expander("Facies Visualization", expanded=True):
-                # Create a simple visualization
-                plt.figure(figsize=(10, 7))
-                plt.imshow(facies_df['FACIES'].values.reshape(-1, 1), aspect='auto', cmap='viridis',
-                          extent=[0, 1, facies_df['DEPTH'].max(), facies_df['DEPTH'].min()])
-                plt.title(f"Facies Classification (Clusters: {optimal_clusters})")
-                plt.ylabel("Depth")
-                plt.xticks([])
-                plt.colorbar(label="Facies")
-                st.pyplot(plt)
-            
-            # Show sample data
-            st.subheader("Sample Data")
-            st.dataframe(facies_df.head())
-            
-            # Download button
-            csv = facies_df.to_csv(index=False)
-            st.download_button(
-                label="Download Facies CSV",
-                data=csv,
-                file_name="facies_classification.csv",
-                mime="text/csv"
-            )
-            
-            # Store in session state
-            st.session_state["facies_data"] = True
-            st.session_state["best_clusters"] = optimal_clusters
-            st.session_state["analysis_stage"] = "gcn_model"
-            
-            # Button to proceed to next step
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
                 if st.button("Proceed to Hydrocarbon Potential Prediction", use_container_width=True):
                     st.session_state["current_page"] = "Hydrocarbon Potential Using GCN"
                     st.rerun()
@@ -841,25 +662,25 @@ def hydrocarbon_prediction_page():
                 st.subheader("Learning Curves")
                 
                 # Create sample data for learning curves
-                epochs = np.arange(1, 101)
-                train_loss = 1.0 - 0.8 * np.exp(-epochs/30) + 0.05 * np.random.randn(100)
-                val_loss = 1.2 - 0.7 * np.exp(-epochs/25) + 0.1 * np.random.randn(100)
-                train_acc = 0.3 + 0.6 * (1 - np.exp(-epochs/30)) + 0.03 * np.random.randn(100)
-                val_acc = 0.2 + 0.6 * (1 - np.exp(-epochs/35)) + 0.05 * np.random.randn(100)
+                epochs_arr = np.arange(1, 101)
+                train_loss = 1.0 - 0.8 * np.exp(-epochs_arr/30) + 0.05 * np.random.randn(100)
+                val_loss = 1.2 - 0.7 * np.exp(-epochs_arr/25) + 0.1 * np.random.randn(100)
+                train_acc = 0.3 + 0.6 * (1 - np.exp(-epochs_arr/30)) + 0.03 * np.random.randn(100)
+                val_acc = 0.2 + 0.6 * (1 - np.exp(-epochs_arr/35)) + 0.05 * np.random.randn(100)
                 
                 # Create and display the learning curves
                 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
                 
-                ax1.plot(epochs, train_loss, 'b-', label='Training Loss')
-                ax1.plot(epochs, val_loss, 'r-', label='Validation Loss')
+                ax1.plot(epochs_arr, train_loss, 'b-', label='Training Loss')
+                ax1.plot(epochs_arr, val_loss, 'r-', label='Validation Loss')
                 ax1.set_xlabel('Epoch')
                 ax1.set_ylabel('Loss')
                 ax1.set_title('Training and Validation Loss')
                 ax1.legend()
                 ax1.grid(alpha=0.3)
                 
-                ax2.plot(epochs, train_acc, 'b-', label='Training Accuracy')
-                ax2.plot(epochs, val_acc, 'r-', label='Validation Accuracy')
+                ax2.plot(epochs_arr, train_acc, 'b-', label='Training Accuracy')
+                ax2.plot(epochs_arr, val_acc, 'r-', label='Validation Accuracy')
                 ax2.set_xlabel('Epoch')
                 ax2.set_ylabel('Accuracy')
                 ax2.set_title('Training and Validation Accuracy')
@@ -1066,7 +887,8 @@ def co2_storage_page():
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.button("Notify Me", use_container_width=True)
+        if st.button("Notify Me", use_container_width=True):
+            st.success("Thank you for your interest! We'll keep you updated on CO2 Storage Applications development.")
 
 def help_contact_page():
     st.markdown("""
@@ -1265,3 +1087,113 @@ def main():
 
 if __name__ == "__main__":
     main()
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                if st.button("Proceed to Facies Classification", use_container_width=True):
+                    st.session_state["current_page"] = "Facies Classification"
+                    st.rerun()
+
+def facies_classification_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Facies Classification</h1>
+        <p>Identify geological facies using machine learning</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Check if properties have been calculated
+    if "property_data" not in st.session_state:
+        st.warning("Please calculate petrophysical properties first.")
+        
+        # Button to go back to property calculation tab
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("Go to Petrophysical Properties", use_container_width=True):
+                st.session_state["current_page"] = "Petrophysical Properties"
+                st.rerun()
+        return
+    
+    st.markdown("""
+    <div class="card">
+        <p>This step identifies natural rock types (facies) using K-means clustering:</p>
+        <ul>
+            <li>Groups similar depth points based on petrophysical properties</li>
+            <li>Optimizes the number of clusters using silhouette scores</li>
+            <li>Generates depth-based facies maps</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Clustering parameters
+    with st.expander("Clustering Parameters", expanded=True):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            min_clusters = st.number_input("Minimum Clusters", min_value=2, max_value=15, value=5, step=1)
+            feature_cols = st.multiselect("Features for Clustering", 
+                                         options=["VSHALE", "PHI", "SW", "SO", "PERM", "GR", "DENSITY"],
+                                         default=["VSHALE", "PHI", "SW", "GR", "DENSITY"])
+        
+        with col2:
+            max_clusters = st.number_input("Maximum Clusters", min_value=min_clusters, max_value=15, value=10, step=1)
+            algorithm = st.selectbox("Clustering Algorithm", ["K-means", "Agglomerative", "DBSCAN"])
+    
+    # Run clustering button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Run Facies Classification", use_container_width=True):
+            with st.spinner("Running facies classification..."):
+                # Simpler progress indicator
+                progress_bar = st.progress(0)
+                for i in range(0, 101, 20):
+                    progress_bar.progress(i)
+                    time.sleep(0.1)
+            
+            st.success("Facies classification completed successfully!")
+            
+            # Generate simulated silhouette scores
+            silhouette_scores = {
+                i: np.random.uniform(0.4, 0.7) for i in range(min_clusters, max_clusters + 1)
+            }
+            
+            # Find optimal clusters
+            optimal_clusters = max(silhouette_scores, key=silhouette_scores.get)
+            st.info(f"Optimal number of clusters: {optimal_clusters}")
+            
+            # Create a simple facies dataset for download
+            facies_df = pd.DataFrame({
+                "DEPTH": np.arange(1000, 1100),
+                "FACIES": np.random.randint(0, optimal_clusters, size=100)
+            })
+            
+            # Visualization in an expander to keep the UI clean
+            with st.expander("Facies Visualization", expanded=True):
+                # Create a simple visualization
+                plt.figure(figsize=(10, 7))
+                plt.imshow(facies_df['FACIES'].values.reshape(-1, 1), aspect='auto', cmap='viridis',
+                          extent=[0, 1, facies_df['DEPTH'].max(), facies_df['DEPTH'].min()])
+                plt.title(f"Facies Classification (Clusters: {optimal_clusters})")
+                plt.ylabel("Depth")
+                plt.xticks([])
+                plt.colorbar(label="Facies")
+                st.pyplot(plt)
+            
+            # Show sample data
+            st.subheader("Sample Data")
+            st.dataframe(facies_df.head())
+            
+            # Download button
+            csv = facies_df.to_csv(index=False)
+            st.download_button(
+                label="Download Facies CSV",
+                data=csv,
+                file_name="facies_classification.csv",
+                mime="text/csv"
+            )
+            
+            # Store in session state
+            st.session_state["facies_data"] = True
+            st.session_state["best_clusters"] = optimal_clusters
+            st.session_state["analysis_stage"] = "gcn_model"
+            
+            # Button to proceed to next step
