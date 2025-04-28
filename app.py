@@ -45,6 +45,50 @@ def load_css():
     [data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
     }
+    /* Logo centering fix */
+    [data-testid="stSidebar"] .element-container:first-child {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    
+    [data-testid="stSidebar"] .element-container:first-child img {
+        max-width: 80% !important;
+        margin: 0 auto;
+    }
+    
+    /* Fallback logo styling */
+    .logo-fallback {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 1.5rem auto;
+        text-align: center;
+    }
+    
+    .logo-icon {
+        background-color: rgba(255, 255, 255, 0.1);
+        width: the 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .logo-title {
+        color: white;
+        font-size: 1.5rem;
+        margin: 0.5rem 0 0.25rem 0;
+    }
+    
+    .logo-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin: 0;
+    }
     
     /* Sidebar navigation styling */
     .sidebar-nav {
@@ -331,305 +375,152 @@ def load_image(image_path):
 def create_sidebar():
     # Logo and title
     try:
-        st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
+        st.sidebar.image("src/StrataGraph_White_Logo.png", width=150)
     except:
         st.sidebar.markdown(
             """
-            <div style="text-align: center; margin: 20px 0;">
-                <div style="background-color: #f0f2f6; width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;">
-                    <span style="color: #8c9196; font-size: 24px;">SG</span>
+            <div class="logo-fallback">
+                <div class="logo-icon">
+                    <span style="color: white; font-size: 36px;">SG</span>
                 </div>
-                <h2 style="color: white; font-size: 20px; margin-top: 10px; margin-bottom: 0;">StrataGraph</h2>
-                <p style="color: #8c9196; font-size: 14px; margin-top: 4px;">VHydro 1.0</p>
+                <h2 class="logo-title">StrataGraph</h2>
+                <p class="logo-subtitle">VHydro 1.0</p>
             </div>
             """,
             unsafe_allow_html=True
         )
     
+    # Rest of your existing sidebar code...
+    
     # Initialize current page if not exists
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Track expanded state of modules section
-    if "modules_expanded" not in st.session_state:
-        st.session_state["modules_expanded"] = False
-        
-    # Define CSS for the sidebar
-    st.markdown("""
-    <style>
-    /* Navigation section titles */
-    .nav-section {
-        color: #8c9196;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 20px 0 10px 10px;
-    }
+    # Track expanded state of VHydro in session state
+    if "vhydro_expanded" not in st.session_state:
+        st.session_state["vhydro_expanded"] = False
     
-    /* Navigation item styling */
-    .nav-item {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        margin: 4px 0;
-        border-radius: 4px;
-        color: #f0f2f6;
-        text-decoration: none;
-        transition: background-color 0.2s;
-    }
-    
-    .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-    
-    .nav-item.active {
-        background-color: rgba(144, 202, 249, 0.1);
-        border-left: 3px solid #90CAF9;
-    }
-    
-    .nav-icon {
-        width: 20px;
-        margin-right: 10px;
-        text-align: center;
-    }
-    
-    /* Coming soon tag */
-    .coming-soon-tag {
-        background-color: #f8cd5a;
-        color: #664d03;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 10px;
-        margin-left: 10px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # --- MAIN NAVIGATION SECTION ---
-    st.sidebar.markdown('<div class="nav-section">MAIN NAVIGATION</div>', unsafe_allow_html=True)
-    
-    # Home navigation item
-    home_active = "active" if st.session_state["current_page"] == "Home" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {home_active}" id="nav-home">
-            <div class="nav-icon">🏠</div>
-            <div>Home</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # VHydro navigation item
+    # Define all pages
+    main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
     vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
-                   "Facies Classification", "Hydrocarbon Potential Using GCN", "VHydro"]
-    vhydro_active = "active" if st.session_state["current_page"] in vhydro_pages else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {vhydro_active}" id="nav-vhydro">
-            <div class="nav-icon">📈</div>
-            <div>VHydro</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
+                   "Facies Classification", "Hydrocarbon Potential Using GCN"]
+    
+    # Check if current page is in VHydro section
+    is_vhydro_page = st.session_state["current_page"] in vhydro_pages
+    if is_vhydro_page and not st.session_state["vhydro_expanded"]:
+        st.session_state["vhydro_expanded"] = True
+    
+    # Display Navigation header
+    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-bottom: 10px; margin-top: 20px;">Navigation</div>', unsafe_allow_html=True)
+    
+    # Create a list of options for the selectbox
+    menu_options = []
+    
+    # Add main pages
+    for page in main_pages:
+        if page == "CO2 Storage Applications":
+            menu_options.append(f"{page} (Coming Soon)")
+        else:
+            menu_options.append(page)
+    
+    # Get index of current page
+    selected_index = 0
+    if st.session_state["current_page"] in main_pages:
+        selected_index = main_pages.index(st.session_state["current_page"])
+    elif is_vhydro_page:
+        selected_index = main_pages.index("VHydro")  # Select VHydro parent when on a VHydro page
+    
+    # Display the main navigation
+    selected_option = st.sidebar.selectbox(
+        "Main Pages",
+        menu_options,
+        index=selected_index,
+        label_visibility="collapsed"
     )
     
-    # CO2 Storage navigation item (with coming soon tag)
-    co2_active = "active" if st.session_state["current_page"] == "CO2 Storage Applications" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {co2_active}" id="nav-co2">
-            <div class="nav-icon">⭕</div>
-            <div>CO2 Storage</div>
-            <span class="coming-soon-tag">Soon</span>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Handle selection
+    selected_page = selected_option.split(" (Coming Soon)")[0]  # Remove the "Coming Soon" suffix if present
     
-    # --- MODULES SECTION ---
-    st.sidebar.markdown('<div class="nav-section">MODULES</div>', unsafe_allow_html=True)
-    
-    # Data Preparation navigation item
-    data_active = "active" if st.session_state["current_page"] == "Data Preparation" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {data_active}" id="nav-data">
-            <div class="nav-icon">📈</div>
-            <div>Data Preparation</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # Petrophysical Properties navigation item
-    petro_active = "active" if st.session_state["current_page"] == "Petrophysical Properties" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {petro_active}" id="nav-petro">
-            <div class="nav-icon">⚙️</div>
-            <div>Petrophysical Properties</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # Facies Classification navigation item
-    facies_active = "active" if st.session_state["current_page"] == "Facies Classification" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {facies_active}" id="nav-facies">
-            <div class="nav-icon">📊</div>
-            <div>Facies Classification</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # GCN Analysis navigation item
-    gcn_active = "active" if st.session_state["current_page"] == "Hydrocarbon Potential Using GCN" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {gcn_active}" id="nav-gcn">
-            <div class="nav-icon">🌐</div>
-            <div>GCN Analysis</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # --- SUPPORT SECTION ---
-    st.sidebar.markdown('<div class="nav-section">SUPPORT</div>', unsafe_allow_html=True)
-    
-    # Help and Contact navigation item
-    help_active = "active" if st.session_state["current_page"] == "Help and Contact" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {help_active}" id="nav-help">
-            <div class="nav-icon">❓</div>
-            <div>Help and Contact</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # About Us navigation item
-    about_active = "active" if st.session_state["current_page"] == "About Us" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {about_active}" id="nav-about">
-            <div class="nav-icon">ℹ️</div>
-            <div>About Us</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # JavaScript for handling navigation clicks
-    st.sidebar.markdown("""
-    <script>
-        // Wait for the DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Home navigation
-            document.getElementById('nav-home').addEventListener('click', function() {
-                window.location.href = '/?page=Home';
-            });
-            
-            // VHydro navigation
-            document.getElementById('nav-vhydro').addEventListener('click', function() {
-                window.location.href = '/?page=VHydro Overview';
-            });
-            
-            // CO2 Storage navigation
-            document.getElementById('nav-co2').addEventListener('click', function() {
-                window.location.href = '/?page=CO2 Storage Applications';
-            });
-            
-            // Data Preparation navigation
-            document.getElementById('nav-data').addEventListener('click', function() {
-                window.location.href = '/?page=Data Preparation';
-            });
-            
-            // Petrophysical Properties navigation
-            document.getElementById('nav-petro').addEventListener('click', function() {
-                window.location.href = '/?page=Petrophysical Properties';
-            });
-            
-            // Facies Classification navigation
-            document.getElementById('nav-facies').addEventListener('click', function() {
-                window.location.href = '/?page=Facies Classification';
-            });
-            
-            // GCN Analysis navigation
-            document.getElementById('nav-gcn').addEventListener('click', function() {
-                window.location.href = '/?page=Hydrocarbon Potential Using GCN';
-            });
-            
-            // Help and Contact navigation
-            document.getElementById('nav-help').addEventListener('click', function() {
-                window.location.href = '/?page=Help and Contact';
-            });
-            
-            // About Us navigation
-            document.getElementById('nav-about').addEventListener('click', function() {
-                window.location.href = '/?page=About Us';
-            });
-        });
-    </script>
-    """, unsafe_allow_html=True)
-    
-    # Handle navigation based on clicked elements
-    # This is a fallback mechanism since the JavaScript might not work in all cases
-    query_params = st.experimental_get_query_params()
-    if "page" in query_params:
-        page = query_params["page"][0]
-        if page != st.session_state["current_page"]:
-            st.session_state["current_page"] = page
+    if selected_page != st.session_state["current_page"] and selected_page in main_pages:
+        # If selecting a main page (that's not VHydro)
+        if selected_page != "VHydro":
+            st.session_state["current_page"] = selected_page
+            st.session_state["vhydro_expanded"] = False
+            st.rerun()
+        # If selecting VHydro but not already on VHydro main page
+        elif st.session_state["current_page"] != "VHydro":
+            st.session_state["current_page"] = "VHydro"
+            st.session_state["vhydro_expanded"] = True
             st.rerun()
     
-    # Create navigation callback for each section
-    if st.sidebar.button("Home", key="btn_home", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Home"
-        st.rerun()
+    # Display VHydro subpages when appropriate
+    if selected_page == "VHydro" or is_vhydro_page:
+        st.sidebar.markdown('<div style="margin-left: 20px; border-left: 1px solid rgba(255, 255, 255, 0.3); padding-left: 10px;">', unsafe_allow_html=True)
         
-    if st.sidebar.button("VHydro", key="btn_vhydro", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "VHydro Overview"
-        st.rerun()
+        # Get index of current VHydro subpage
+        subpage_index = 0
+        if is_vhydro_page:
+            subpage_index = vhydro_pages.index(st.session_state["current_page"])
         
-    if st.sidebar.button("CO2 Storage", key="btn_co2", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "CO2 Storage Applications"
-        st.rerun()
+        # Display VHydro sub-navigation
+        selected_subpage = st.sidebar.radio(
+            "VHydro Pages",
+            vhydro_pages,
+            index=subpage_index,
+            key="vhydro_subpages",
+            label_visibility="collapsed"
+        )
         
-    if st.sidebar.button("Data Preparation", key="btn_data", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Data Preparation"
-        st.rerun()
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
         
-    if st.sidebar.button("Petrophysical Properties", key="btn_petro", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Petrophysical Properties"
-        st.rerun()
-        
-    if st.sidebar.button("Facies Classification", key="btn_facies", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Facies Classification"
-        st.rerun()
-        
-    if st.sidebar.button("GCN Analysis", key="btn_gcn", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Hydrocarbon Potential Using GCN"
-        st.rerun()
-        
-    if st.sidebar.button("Help and Contact", key="btn_help", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Help and Contact"
-        st.rerun()
-        
-    if st.sidebar.button("About Us", key="btn_about", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "About Us"
-        st.rerun()
+        # Handle sub-selection
+        if selected_subpage != st.session_state["current_page"]:
+            st.session_state["current_page"] = selected_subpage
+            st.rerun()
     
-    # Return the current page and other options
+    # Versions section
+    st.sidebar.markdown(
+        """
+        <div style="background-color: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <div style="font-weight: bold; color: white; margin-bottom: 10px;">Versions</div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4CAF50; margin-right: 10px;"></div>
+                <span style="color: white;">VHydro 1.0 (Current)</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #FFA500; margin-right: 10px;"></div>
+                <span style="color: white;">CO2 Storage 2.0 (Coming Soon)</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Footer
+    st.sidebar.markdown(
+        """
+        <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; text-align: center; margin-top: 30px;">
+            © 2025 StrataGraph. All rights reserved.<br>
+            Version 1.0.0
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Analysis parameters
+    min_clusters = 5
+    max_clusters = 10
+    
+    if st.session_state["current_page"] == "Facies Classification":
+        st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+        st.sidebar.markdown('<div style="color: white; font-weight: bold;">Analysis Parameters</div>', unsafe_allow_html=True)
+        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
+        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    
     return {
         "page": st.session_state["current_page"],
-        "min_clusters": 5,  # Default value
-        "max_clusters": 10  # Default value
+        "min_clusters": min_clusters,
+        "max_clusters": max_clusters
     }
 
 def home_page():
