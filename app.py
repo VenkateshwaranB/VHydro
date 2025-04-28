@@ -41,11 +41,6 @@ def load_css():
                    border-left: 5px solid #0e4194; }
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
-    /* Sidebar styling */
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
-    }
-    
     /* Sidebar navigation styling */
     .sidebar-nav {
         margin-top: 1rem;
@@ -311,6 +306,21 @@ def load_css():
     }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+# Helper function to logout
+def logout():
+    for key in ["email", "logged_in", "auth_mode"]:
+        if key in st.session_state:
+            del st.session_state[key]
+
+# Preload and cache images
+@st.cache_data
+def load_image(image_path):
+    try:
+        return Image.open(image_path)
+    except Exception as e:
+        logger.error(f"Error loading image from {image_path}: {e}")
+        return None
 
 # Helper function to logout
 def create_sidebar():
