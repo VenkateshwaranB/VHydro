@@ -104,19 +104,216 @@ def load_css():
     
     /* CO2 Storage section styling */
     .co2-section {
-@@ -332,10 +272,11 @@ def create_sidebar():
-    try:
-        st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
-    except:
+        background: linear-gradient(to right, rgba(13, 31, 51, 0.9), rgba(29, 68, 111, 0.9)), url('https://placehold.co/600x400');
+        background-size: cover;
+        color: white;
+        padding: 35px;
+        border-radius: 15px;
+        margin: 30px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .co2-section h2 {
+        color: white;
+        margin-bottom: 15px;
+        font-size: 2rem;
+        position: relative;
+    }
+    
+    .co2-section h2::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: #4CAF50;
+        margin-top: 10px;
+    }
+    
+    .co2-section p {
+        font-size: 1.1rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        max-width: 80%;
+    }
+    
+    .co2-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 25px;
+    }
+    
+    .co2-feature {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        width: calc(50% - 10px);
+        margin-bottom: 10px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .co2-feature h3 {
+        color: #4CAF50;
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .co2-feature p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .release-date {
+        margin-top: 30px;
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+    
+    /* Team and profile cards for About page */
+    .team-section {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .profile-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        border-left: 5px solid #0e4194;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 15px;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #0e4194;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 36px;
+        margin-right: 20px;
+    }
+    
+    .profile-title h3 {
+        margin: 0;
+        color: #0e4194;
+    }
+    
+    .profile-title p {
+        margin: 5px 0 0 0;
+        color: #6c757d;
+    }
+    
+    .profile-bio {
+        margin-bottom: 15px;
+    }
+    
+    .profile-links {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .profile-link {
+        padding: 5px 10px;
+        border-radius: 5px;
+        background-color: #f1f3f5;
+        text-decoration: none;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+    
+    .profile-link:hover {
+        background-color: #e9ecef;
+    }
+    
+    .supervisor-section, .collaborator-section {
+        margin-top: 30px;
+    }
+    
+    /* Footer text */
+    .footer-text {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+        text-align: center;
+        padding: 1rem;
+        margin-top: 2rem;
+    }
+    
+    /* Version section */
+    .version-section {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+    }
+    
+    .version-section h4 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+    
+    .version-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        color: white;
+    }
+    
+    .version-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    
+    .active-version {
+        background-color: #4CAF50;
+    }
+    
+    .coming-version {
+        background-color: #FFA500;
+    }
+    
+    /* Waitlist form styling */
+    .waitlist-form {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .co2-feature {
+            width: 100%;
+        }
+        
+        .co2-section p {
+            max-width: 100%;
+        }
+    }
+    """
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
-        st.sidebar.markdown(
-            """
-            <div style="text-align: center; margin: 20px 0;">
-                <div style="background-color: #f0f2f6; width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;">
-                    <span style="color: #8c9196; font-size: 24px;">SG</span>
-                </div>
-                <h2 style="color: white; font-size: 20px; margin-top: 10px; margin-bottom: 0;">StrataGraph</h2>
-@@ -349,287 +290,267 @@ def create_sidebar():
+# Helper function to logout
+def create_sidebar():
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
 
