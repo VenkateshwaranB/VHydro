@@ -102,28 +102,150 @@ def load_css():
         vertical-align: middle;
     }
     
-    /* Coming soon section */
-    .coming-soon-section {
-        background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://placehold.co/600x400');
+    /* CO2 Storage section styling */
+    .co2-section {
+        background: linear-gradient(to right, rgba(13, 31, 51, 0.9), rgba(29, 68, 111, 0.9)), url('https://placehold.co/600x400');
         background-size: cover;
         color: white;
-        padding: 30px;
-        border-radius: 10px;
-        text-align: center;
+        padding: 35px;
+        border-radius: 15px;
         margin: 30px 0;
-        filter: blur(0px); /* Container not blurred */
+        position: relative;
+        overflow: hidden;
     }
     
-    .coming-soon-section h2 {
+    .co2-section h2 {
         color: white;
+        margin-bottom: 15px;
+        font-size: 2rem;
+        position: relative;
+    }
+    
+    .co2-section h2::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: #4CAF50;
+        margin-top: 10px;
+    }
+    
+    .co2-section p {
+        font-size: 1.1rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        max-width: 80%;
+    }
+    
+    .co2-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 25px;
+    }
+    
+    .co2-feature {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        width: calc(50% - 10px);
+        margin-bottom: 10px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .co2-feature h3 {
+        color: #4CAF50;
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .co2-feature p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .release-date {
+        margin-top: 30px;
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+    
+    /* Team and profile cards for About page */
+    .team-section {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .profile-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        border-left: 5px solid #0e4194;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 15px;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #0e4194;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 36px;
+        margin-right: 20px;
+    }
+    
+    .profile-title h3 {
+        margin: 0;
+        color: #0e4194;
+    }
+    
+    .profile-title p {
+        margin: 5px 0 0 0;
+        color: #6c757d;
+    }
+    
+    .profile-bio {
         margin-bottom: 15px;
     }
     
-    .coming-soon-section .content {
-        filter: blur(3px); /* Content inside is blurred */
-        pointer-events: none;
+    .profile-links {
+        display: flex;
+        gap: 10px;
     }
     
+    .profile-link {
+        padding: 5px 10px;
+        border-radius: 5px;
+        background-color: #f1f3f5;
+        text-decoration: none;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+    
+    .profile-link:hover {
+        background-color: #e9ecef;
+    }
+    
+    .supervisor-section, .collaborator-section {
+        margin-top: 30px;
+    }
+    
+    /* Footer text */
     .footer-text {
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.8rem;
@@ -166,6 +288,26 @@ def load_css():
     
     .coming-version {
         background-color: #FFA500;
+    }
+    
+    /* Waitlist form styling */
+    .waitlist-form {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .co2-feature {
+            width: 100%;
+        }
+        
+        .co2-section p {
+            max-width: 100%;
+        }
     }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -341,6 +483,7 @@ def create_sidebar():
         "min_clusters": min_clusters,
         "max_clusters": max_clusters
     }
+
 def home_page():
     # Try to load the banner image
     banner_path = "src/StrataGraph_Banner.png"
@@ -358,6 +501,7 @@ def home_page():
     <div class="card">
         <h2>About StrataGraph</h2>
         <p>StrataGraph is a cutting-edge platform for geoscience modeling and analysis, combining advanced machine learning techniques with traditional geological and petrophysical analysis.</p>
+        <p>Our innovative approach utilizes graph-based data structures to represent complex subsurface relationships, enabling more accurate predictions and insights for both hydrocarbon exploration and carbon storage applications.</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -389,22 +533,75 @@ def home_page():
             st.session_state["current_page"] = "VHydro Overview"
             st.rerun()
 
-    # Second section: CO2 Storage (Coming Soon) - directly below VHydro
+    # Second section: CO2 Storage (Coming Soon) - Enhanced version based on image
     st.markdown("""
-    <div class="coming-soon-section">
+    <div class="co2-section">
+        <span class="coming-soon-tag">COMING SOON</span>
         <h2>StrataGraph 2.0 - CO2 Storage Potential Analysis</h2>
-        <div class="content">
-            <p>Advanced carbon capture utilization and storage (CCUS) modules powered by Graph Neural Networks.</p>
-            <ul>
-                <li>CO2 storage capacity prediction</li>
-                <li>Caprock integrity analysis using geomechanical properties</li>
-                <li>Built upon VHydro reservoir identification techniques</li>
-                <li>Long-term storage monitoring</li>
-            </ul>
+        <p>Building upon VHydro's graph-based geological modeling, StrataGraph 2.0 will focus on carbon capture and storage applications with these advanced features:</p>
+        
+        <div class="co2-features">
+            <div class="co2-feature">
+                <h3>CO2 Storage Capacity Prediction</h3>
+                <p>Advanced modeling of reservoir storage capacity using graph neural networks trained on petrophysical properties.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Caprock Integrity Analysis</h3>
+                <p>Assessment of caprock integrity using geomechanical properties to ensure long-term CO2 containment.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Risk Assessment</h3>
+                <p>Comprehensive risk assessment for long-term storage using graph-based connectivity analysis.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Physics-Informed GNNs</h3>
+                <p>Integration of physical laws with data-driven approaches for more accurate geomechanical simulations.</p>
+            </div>
         </div>
-        <h3>Coming Soon</h3>
+        
+        <div class="release-date">Anticipated Release: Q3 2025</div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Join Waitlist Button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Join StrataGraph 2.0 Waitlist", key="co2_waitlist_btn", 
+                    use_container_width=True):
+            st.session_state["show_waitlist_form"] = True
+    
+    # Waitlist form if button clicked
+    if st.session_state.get("show_waitlist_form", False):
+        st.markdown("""
+        <style>
+        .waitlist-form {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        </style>
+        <div class="waitlist-form">
+            <h3>Join the StrataGraph 2.0 Waitlist</h3>
+            <p>Be the first to know when our CO2 Storage Potential Analysis tools become available.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.text_input("Full Name")
+            st.text_input("Email Address")
+        with col2:
+            st.text_input("Organization")
+            st.selectbox("Primary Interest", ["Carbon Storage", "Hydrocarbon Exploration", "Research", "Education", "Other"])
+        
+        if st.button("Submit", use_container_width=True):
+            st.success("Thank you for joining the waitlist! We'll notify you when StrataGraph 2.0 becomes available.")
+            st.session_state["show_waitlist_form"] = False
 
 def vhydro_overview_page():
     st.markdown("""
@@ -1020,41 +1217,57 @@ def co2_storage_page():
     </div>
     """, unsafe_allow_html=True)
     
-    # Blurred coming soon section
+    # Enhanced CO2 Storage section from the home page
     st.markdown("""
-    <div class="coming-soon-section">
+    <div class="co2-section">
+        <span class="coming-soon-tag">COMING SOON</span>
         <h2>CO2 Storage Potential Analysis</h2>
-        <div class="content">
-            <p>Advanced carbon capture utilization and storage (CCUS) modules powered by Graph Neural Networks.</p>
-            <ul>
-                <li>CO2 storage capacity prediction</li>
-                <li>Caprock integrity analysis using geomechanical properties</li>
-                <li>Built upon VHydro reservoir identification techniques</li>
-                <li>Long-term storage monitoring</li>
-            </ul>
+        <p>Building upon VHydro's graph-based geological modeling, StrataGraph 2.0 will focus on carbon capture and storage applications with these advanced features:</p>
+        
+        <div class="co2-features">
+            <div class="co2-feature">
+                <h3>CO2 Storage Capacity Prediction</h3>
+                <p>Advanced modeling of reservoir storage capacity using graph neural networks trained on petrophysical properties.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Caprock Integrity Analysis</h3>
+                <p>Assessment of caprock integrity using geomechanical properties to ensure long-term CO2 containment.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Risk Assessment</h3>
+                <p>Comprehensive risk assessment for long-term storage using graph-based connectivity analysis.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Physics-Informed GNNs</h3>
+                <p>Integration of physical laws with data-driven approaches for more accurate geomechanical simulations.</p>
+            </div>
         </div>
-        <h3>Coming Soon in StrataGraph 2.0</h3>
+        
+        <div class="release-date">Anticipated Release: Q3 2025</div>
     </div>
     """, unsafe_allow_html=True)
     
     # Feature preview
     st.markdown("""
     <div class="card">
-        <h2>Upcoming Features</h2>
-        <p>StrataGraph 2.0 will build upon the graph-based reservoir characterization from VHydro 1.0 to assess CO2 storage potential:</p>
+        <h2>Technical Development</h2>
+        <p>StrataGraph 2.0 will build upon the graph-based reservoir characterization from VHydro 1.0 with several scientific advancements:</p>
         <ul>
-            <li>CO2 storage capacity estimation based on reservoir properties</li>
-            <li>Caprock integrity assessment using Graph Neural Networks</li>
-            <li>Integration with existing carbon storage databases</li>
-            <li>Long-term storage simulation and monitoring</li>
-            <li>Risk assessment and mitigation strategies</li>
+            <li>Physics-Informed Graph Neural Networks (PI-GNNs) for improved prediction accuracy</li>
+            <li>Integration with existing carbon storage databases for more robust model training</li>
+            <li>Enhanced visualization tools for long-term storage simulation monitoring</li>
+            <li>Comprehensive risk assessment methodologies based on graph connectivity analysis</li>
+            <li>Specialized caprock integrity models using geomechanical properties</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
     
     # Simplified sign up form
     st.markdown("""
-    <div class="card">
+    <div class="waitlist-form">
         <h2>Stay Updated</h2>
         <p>Sign up to receive updates when CO2 Storage Applications becomes available.</p>
     </div>
@@ -1066,11 +1279,12 @@ def co2_storage_page():
         st.text_input("Email")
     with col2:
         st.text_input("Organization")
-        st.selectbox("Area of Interest", ["Carbon Storage", "Hydrocarbon Production", "Research", "Other"])
+        st.selectbox("Area of Interest", ["Carbon Storage", "Hydrocarbon Production", "Research", "Education", "Other"])
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.button("Notify Me", use_container_width=True)
+        if st.button("Notify Me", use_container_width=True):
+            st.success("Thank you for your interest! We'll notify you when StrataGraph 2.0 becomes available.")
 
 def help_contact_page():
     st.markdown("""
@@ -1158,10 +1372,14 @@ def about_us_page():
     st.markdown("""
     <div class="card">
         <h2>Our Mission</h2>
-        <p>StrataGraph is committed to revolutionizing geoscience analysis through advanced machine learning techniques. Our mission is to provide geoscientists and engineers with powerful, intuitive tools that transform complex subsurface data into actionable insights.</p>
+        <p>StrataGraph is committed to revolutionizing geoscience analysis through advanced machine learning techniques. 
+        Our mission is to provide geoscientists and engineers with powerful, intuitive tools that transform complex subsurface 
+        data into actionable insights through innovative graph-based approaches.</p>
         
         <h2>Our Vision</h2>
-        <p>We envision a future where geological and petrophysical data analysis is enhanced by the power of graph-based deep learning, enabling more accurate predictions for both hydrocarbon exploration and carbon storage applications. By bridging traditional geoscience with cutting-edge AI, we aim to contribute to both energy security and climate solutions.</p>
+        <p>We envision a future where geological and petrophysical data analysis is enhanced by the power of graph-based 
+        deep learning, enabling more accurate predictions for both hydrocarbon exploration and carbon storage applications. 
+        By bridging traditional geoscience with cutting-edge AI, we aim to contribute to both energy security and climate solutions.</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1171,41 +1389,141 @@ def about_us_page():
         <h2>Research and Publications</h2>
         <p>Our technology is built on peer-reviewed research:</p>
         <ul>
-            <li><a href="https://link.springer.com/article/10.1007/s11053-024-10311-x" target="_blank">Hydrocarbon Potential Prediction Using Novel Graph Dataset</a> - This paper introduces our approach to hydrocarbon potential prediction using Graph Convolutional Networks.</li>
+            <li><a href="https://link.springer.com/article/10.1007/s11053-024-10311-x" target="_blank">Hydrocarbon Potential Prediction Using Novel Graph Dataset</a> - 
+            This paper introduces our approach to hydrocarbon potential prediction using Graph Convolutional Networks.</li>
+            <li>Graph-based methodologies for subsurface characterization using machine learning techniques.</li>
             <li>Forthcoming research on CO2 storage potential assessment using graph-based approaches.</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
     
-    # Team section
-    st.markdown("<h2>Leadership Team</h2>", unsafe_allow_html=True)
+    # Lead Developer & Research Team
+    st.markdown('<h2 class="team-section">Lead Developer</h2>', unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns([1, 2])
     
     with col1:
         st.markdown("""
-        <div class="card" style="text-align: center;">
-            <h3>Dr. Sarah Chen</h3>
-            <p>Founder & CEO</p>
-            <p>Ph.D. in Reservoir Engineering</p>
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">VB</div>
+                <div class="profile-title">
+                    <h3>Venkateshwaran Baskaran, Ph.D.</h3>
+                    <p>Computational Geoscientist</p>
+                </div>
+            </div>
+            <div class="profile-bio">
+                <p>Ph.D. in Petroleum Geoscience from Universiti Teknologi PETRONAS. Specializes in graph-based machine learning 
+                applications for subsurface analysis and geological modeling.</p>
+            </div>
+            <div class="profile-links">
+                <a href="https://www.linkedin.com/in/venkateshwaran-baskaran/" target="_blank" class="profile-link">LinkedIn</a>
+                <a href="https://scholar.google.com/citations?user=YOURID" target="_blank" class="profile-link">Google Scholar</a>
+                <a href="https://github.com/venkateshwaranb" target="_blank" class="profile-link">GitHub</a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Research Advisors & Supervisors
+    st.markdown('<h2 class="supervisor-section">Research Advisors & Supervisors</h2>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">AH</div>
+                <div class="profile-title">
+                    <h3>Dr. AKM Eashanul Haque</h3>
+                    <p>Assistant Professor</p>
+                    <p>Universiti Teknologi PETRONAS</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">HR</div>
+                <div class="profile-title">
+                    <h3>Dr. Hariharan Ramachandran</h3>
+                    <p>Research Associate</p>
+                    <p>Heriot Watt University</p>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div class="card" style="text-align: center;">
-            <h3>Dr. Michael Rodriguez</h3>
-            <p>CTO</p>
-            <p>Ph.D. in Machine Learning</p>
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">NA</div>
+                <div class="profile-title">
+                    <h3>Dr. Numair Ahmed Siddiqui</h3>
+                    <p>Associate Professor</p>
+                    <p>Universiti Teknologi PETRONAS</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">RK</div>
+                <div class="profile-title">
+                    <h3>Dr. Ramkumar Krishnan</h3>
+                    <p>Professor</p>
+                    <p>Periyar University</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Collaborators & Contributors
+    st.markdown('<h2 class="collaborator-section">Collaborators & Contributors</h2>', unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">SG</div>
+                <div class="profile-title">
+                    <h3>Sugavanam</h3>
+                    <p>ExLog, Kuwait</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">MB</div>
+                <div class="profile-title">
+                    <h3>Manobalaji</h3>
+                    <p>Curtin University</p>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div class="card" style="text-align: center;">
-            <h3>Dr. Emily Patel</h3>
-            <p>Chief Scientist</p>
-            <p>Ph.D. in Geophysics</p>
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">JO</div>
+                <div class="profile-title">
+                    <h3>John Olutoki</h3>
+                    <p>Universiti Teknologi PETRONAS</p>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1219,6 +1537,7 @@ def about_us_page():
             <li>Graph Convolutional Networks (GCNs) for spatial relationship modeling</li>
             <li>Advanced data visualization techniques for intuitive interpretation</li>
             <li>Cloud-based processing for scalable analysis</li>
+            <li>Physics-Informed Graph Neural Networks (PI-GNNs) for geomechanical simulations</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
@@ -1228,8 +1547,7 @@ def about_us_page():
     <div class="card">
         <h2>Contact Information</h2>
         <p><strong>Email:</strong> info@stratagraph.ai</p>
-        <p><strong>Address:</strong> 123 Innovation Way, Houston, TX 77002</p>
-        <p><strong>Phone:</strong> +1 (713) 555-0123</p>
+        <p><strong>Research Lab:</strong> Universiti Teknologi PETRONAS, 32610 Seri Iskandar, Perak, Malaysia</p>
     </div>
     """, unsafe_allow_html=True)
 
