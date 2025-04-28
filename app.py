@@ -41,7 +41,128 @@ def load_css():
                    border-left: 5px solid #0e4194; }
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
+    /* Sidebar styling */
+    [data-testid="stSidebar"] { 
+        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
+    }
     
+    /* Sidebar navigation styling */
+    .sidebar-nav {
+        margin-top: 1rem;
+    }
+    
+    .nav-item {
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.25rem;
+        border-radius: 4px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.2s ease;
+    }
+    
+    .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    .nav-item.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        border-left: 3px solid white;
+    }
+    
+    .nav-sub-item {
+        padding: 0.4rem 1rem 0.4rem 2rem;
+        margin-bottom: 0.15rem;
+        border-radius: 4px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+    
+    .nav-sub-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    .nav-sub-item.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        border-left: 2px solid white;
+    }
+    
+    /* Coming soon tag */
+    .coming-soon-tag {
+        background-color: rgba(255, 152, 0, 0.2);
+        color: rgb(255, 152, 0);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    
+    /* CO2 Storage section styling */
+    .co2-section {
+@@ -332,10 +272,11 @@ def create_sidebar():
+    try:
+        st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
+    except:
+
+        st.sidebar.markdown(
+            """
+            <div style="text-align: center; margin: 20px 0;">
+                <div style="background-color: #f0f2f6; width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;">
+                    <span style="color: #8c9196; font-size: 24px;">SG</span>
+                </div>
+                <h2 style="color: white; font-size: 20px; margin-top: 10px; margin-bottom: 0;">StrataGraph</h2>
+@@ -349,287 +290,267 @@ def create_sidebar():
+    if "current_page" not in st.session_state:
+        st.session_state["current_page"] = "Home"
+
+    # Track expanded state of modules section
+    if "modules_expanded" not in st.session_state:
+        st.session_state["modules_expanded"] = False
+        
+    # Define CSS for the sidebar
+    st.markdown("""
+    <style>
+    /* Navigation section titles */
+    .nav-section {
+        color: #8c9196;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 20px 0 10px 10px;
+    }
+    
+    /* Navigation item styling */
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin: 4px 0;
+        border-radius: 4px;
+        color: #f0f2f6;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-item.active {
+        background-color: rgba(144, 202, 249, 0.1);
+        border-left: 3px solid #90CAF9;
+    }
+    
+    .nav-icon {
+        width: 20px;
+        margin-right: 10px;
+        text-align: center;
+    }
     /* CO2 Storage section styling */
     .co2-section {
         background: linear-gradient(to right, rgba(13, 31, 51, 0.9), rgba(29, 68, 111, 0.9)), url('https://placehold.co/600x400');
