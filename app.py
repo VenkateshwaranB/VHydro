@@ -41,66 +41,6 @@ def load_css():
                    border-left: 5px solid #0e4194; }
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
-    /* Sidebar styling */
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
-    }
-    
-    /* Sidebar navigation styling */
-    .sidebar-nav {
-        margin-top: 1rem;
-    }
-    
-    .nav-item {
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.25rem;
-        border-radius: 4px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.8);
-        transition: all 0.2s ease;
-    }
-    
-    .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-    
-    .nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-left: 3px solid white;
-    }
-    
-    .nav-sub-item {
-        padding: 0.4rem 1rem 0.4rem 2rem;
-        margin-bottom: 0.15rem;
-        border-radius: 4px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
-    }
-    
-    .nav-sub-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-    
-    .nav-sub-item.active {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        border-left: 2px solid white;
-    }
-    
-    /* Coming soon tag */
-    .coming-soon-tag {
-        background-color: rgba(255, 152, 0, 0.2);
-        color: rgb(255, 152, 0);
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        margin-left: 8px;
-        vertical-align: middle;
-    }
     
     /* CO2 Storage section styling */
     .co2-section {
@@ -332,10 +272,11 @@ def create_sidebar():
     try:
         st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
     except:
+        # Fallback for logo
         st.sidebar.markdown(
             """
             <div style="text-align: center; margin: 20px 0;">
-                <div style="background-color: #f0f2f6; width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;">
+                <div style="background-color: #f0f2f6; width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 auto;">
                     <span style="color: #8c9196; font-size: 24px;">SG</span>
                 </div>
                 <h2 style="color: white; font-size: 20px; margin-top: 10px; margin-bottom: 0;">StrataGraph</h2>
@@ -349,287 +290,267 @@ def create_sidebar():
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Track expanded state of modules section
-    if "modules_expanded" not in st.session_state:
-        st.session_state["modules_expanded"] = False
-        
-    # Define CSS for the sidebar
+    # Add custom CSS for the sidebar styling
     st.markdown("""
     <style>
-    /* Navigation section titles */
+    /* Navigation section styling */
     .nav-section {
         color: #8c9196;
         font-size: 12px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        padding: 20px 0 10px 10px;
+        padding: 18px 0 8px 10px;
+        margin: 0;
     }
     
-    /* Navigation item styling */
-    .nav-item {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        margin: 4px 0;
-        border-radius: 4px;
-        color: #f0f2f6;
-        text-decoration: none;
-        transition: background-color 0.2s;
-    }
-    
-    .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-    
-    .nav-item.active {
-        background-color: rgba(144, 202, 249, 0.1);
-        border-left: 3px solid #90CAF9;
-    }
-    
-    .nav-icon {
-        width: 20px;
-        margin-right: 10px;
-        text-align: center;
-    }
-    
-    /* Coming soon tag */
-    .coming-soon-tag {
+    /* Style for soon tag */
+    .soon-tag {
         background-color: #f8cd5a;
         color: #664d03;
         font-size: 10px;
+        font-weight: 600;
         padding: 2px 6px;
         border-radius: 10px;
-        margin-left: 10px;
+        margin-left: 8px;
+    }
+    
+    /* Hide default Streamlit button styling */
+    div[data-testid="stVerticalBlock"] div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+        border: none !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     </style>
     """, unsafe_allow_html=True)
     
-    # --- MAIN NAVIGATION SECTION ---
+    # MAIN NAVIGATION SECTION
     st.sidebar.markdown('<div class="nav-section">MAIN NAVIGATION</div>', unsafe_allow_html=True)
     
-    # Home navigation item
-    home_active = "active" if st.session_state["current_page"] == "Home" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {home_active}" id="nav-home">
-            <div class="nav-icon">🏠</div>
-            <div>Home</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Define which pages are in each section
+    main_pages = ["Home", "VHydro", "CO2 Storage Applications"]
+    vhydro_pages = ["VHydro Overview", "VHydro"]
+    modules_pages = ["Data Preparation", "Petrophysical Properties", "Facies Classification", "Hydrocarbon Potential Using GCN"]
+    support_pages = ["Help and Contact", "About Us"]
     
-    # VHydro navigation item
-    vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
-                   "Facies Classification", "Hydrocarbon Potential Using GCN", "VHydro"]
-    vhydro_active = "active" if st.session_state["current_page"] in vhydro_pages else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {vhydro_active}" id="nav-vhydro">
-            <div class="nav-icon">📈</div>
-            <div>VHydro</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Define the navigation items with icons
+    main_nav = [
+        {"page": "Home", "icon": "🏠", "label": "Home"},
+        {"page": "VHydro", "icon": "📈", "label": "VHydro"},
+        {"page": "CO2 Storage Applications", "icon": "⭕", "label": "CO2 Storage", "tag": '<span class="soon-tag">Soon</span>'}
+    ]
     
-    # CO2 Storage navigation item (with coming soon tag)
-    co2_active = "active" if st.session_state["current_page"] == "CO2 Storage Applications" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {co2_active}" id="nav-co2">
-            <div class="nav-icon">⭕</div>
-            <div>CO2 Storage</div>
-            <span class="coming-soon-tag">Soon</span>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Create clickable navigation items for main section
+    for item in main_nav:
+        page = item["page"]
+        is_current = st.session_state["current_page"] == page or (page == "VHydro" and st.session_state["current_page"] in vhydro_pages)
+        
+        # Create a container for each nav item to style it properly
+        container = st.sidebar.container()
+        
+        # Use columns to create the icon + text layout
+        col1, col2 = container.columns([1, 9])
+        
+        with col1:
+            st.markdown(f'<div style="text-align: center; font-size: 18px;">{item["icon"]}</div>', unsafe_allow_html=True)
+        
+        with col2:
+            label_html = f'{item["label"]}{item.get("tag", "")}'
+            
+            # Handle click with a button disguised as a nav item
+            if st.button(
+                item["label"], 
+                key=f"nav_{page.replace(' ', '_').lower()}", 
+                use_container_width=True
+            ):
+                st.session_state["current_page"] = page
+                st.rerun()
+                
+            # Apply styling based on active state
+            bg_color = "rgba(144, 202, 249, 0.1)" if is_current else "transparent"
+            border_left = "3px solid #90CAF9" if is_current else "none"
+            
+            # Inject the styling for the container
+            st.markdown(f"""
+            <style>
+            div[data-testid="column"]:has(button#{f"nav_{page.replace(' ', '_').lower()}"}:first-of-type) {{
+                background-color: {bg_color};
+                border-left: {border_left};
+                border-radius: 4px;
+                padding: 8px 0;
+                margin: 2px 0;
+            }}
+            button#{f"nav_{page.replace(' ', '_').lower()}"} {{
+                color: #f0f2f6 !important;
+                text-align: left !important;
+                font-weight: 500 !important;
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # Inject the badge if needed
+            if "tag" in item:
+                st.markdown(f"""
+                <style>
+                button#{f"nav_{page.replace(' ', '_').lower()}"} + div {{
+                    display: inline !important;
+                    position: absolute !important;
+                    right: 10px !important;
+                    top: 10px !important;
+                }}
+                button#{f"nav_{page.replace(' ', '_').lower()}"} + div:after {{
+                    content: '{item["tag"]}';
+                    background-color: #f8cd5a;
+                    color: #664d03;
+                    font-size: 10px;
+                    font-weight: 600;
+                    padding: 2px 6px;
+                    border-radius: 10px;
+                    margin-left: 8px;
+                }}
+                </style>
+                """, unsafe_allow_html=True)
     
-    # --- MODULES SECTION ---
+    # MODULES SECTION
     st.sidebar.markdown('<div class="nav-section">MODULES</div>', unsafe_allow_html=True)
     
-    # Data Preparation navigation item
-    data_active = "active" if st.session_state["current_page"] == "Data Preparation" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {data_active}" id="nav-data">
-            <div class="nav-icon">📈</div>
-            <div>Data Preparation</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Module navigation items
+    modules_nav = [
+        {"page": "Data Preparation", "icon": "📈", "label": "Data Preparation"},
+        {"page": "Petrophysical Properties", "icon": "⚙️", "label": "Petrophysical Properties"},
+        {"page": "Facies Classification", "icon": "📊", "label": "Facies Classification"},
+        {"page": "Hydrocarbon Potential Using GCN", "icon": "🌐", "label": "GCN Analysis"}
+    ]
     
-    # Petrophysical Properties navigation item
-    petro_active = "active" if st.session_state["current_page"] == "Petrophysical Properties" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {petro_active}" id="nav-petro">
-            <div class="nav-icon">⚙️</div>
-            <div>Petrophysical Properties</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Create clickable navigation items for modules section
+    for item in modules_nav:
+        page = item["page"]
+        is_current = st.session_state["current_page"] == page
+        
+        # Create a container for each nav item
+        container = st.sidebar.container()
+        
+        # Use columns to create the icon + text layout
+        col1, col2 = container.columns([1, 9])
+        
+        with col1:
+            st.markdown(f'<div style="text-align: center; font-size: 18px;">{item["icon"]}</div>', unsafe_allow_html=True)
+        
+        with col2:
+            if st.button(
+                item["label"], 
+                key=f"nav_{page.replace(' ', '_').lower()}", 
+                use_container_width=True
+            ):
+                st.session_state["current_page"] = page
+                st.rerun()
+            
+            # Apply styling based on active state
+            bg_color = "rgba(144, 202, 249, 0.1)" if is_current else "transparent"
+            border_left = "3px solid #90CAF9" if is_current else "none"
+            
+            # Inject the styling for the container
+            st.markdown(f"""
+            <style>
+            div[data-testid="column"]:has(button#{f"nav_{page.replace(' ', '_').lower()}"}:first-of-type) {{
+                background-color: {bg_color};
+                border-left: {border_left};
+                border-radius: 4px;
+                padding: 8px 0;
+                margin: 2px 0;
+            }}
+            button#{f"nav_{page.replace(' ', '_').lower()}"} {{
+                color: #f0f2f6 !important;
+                text-align: left !important;
+                font-weight: 500 !important;
+            }}
+            </style>
+            """, unsafe_allow_html=True)
     
-    # Facies Classification navigation item
-    facies_active = "active" if st.session_state["current_page"] == "Facies Classification" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {facies_active}" id="nav-facies">
-            <div class="nav-icon">📊</div>
-            <div>Facies Classification</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # GCN Analysis navigation item
-    gcn_active = "active" if st.session_state["current_page"] == "Hydrocarbon Potential Using GCN" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {gcn_active}" id="nav-gcn">
-            <div class="nav-icon">🌐</div>
-            <div>GCN Analysis</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    # --- SUPPORT SECTION ---
+    # SUPPORT SECTION
     st.sidebar.markdown('<div class="nav-section">SUPPORT</div>', unsafe_allow_html=True)
     
-    # Help and Contact navigation item
-    help_active = "active" if st.session_state["current_page"] == "Help and Contact" else ""
+    # Support navigation items
+    support_nav = [
+        {"page": "Help and Contact", "icon": "❓", "label": "Help and Contact"},
+        {"page": "About Us", "icon": "ℹ️", "label": "About Us"}
+    ]
+    
+    # Create clickable navigation items for support section
+    for item in support_nav:
+        page = item["page"]
+        is_current = st.session_state["current_page"] == page
+        
+        # Create a container for each nav item
+        container = st.sidebar.container()
+        
+        # Use columns to create the icon + text layout
+        col1, col2 = container.columns([1, 9])
+        
+        with col1:
+            st.markdown(f'<div style="text-align: center; font-size: 18px;">{item["icon"]}</div>', unsafe_allow_html=True)
+        
+        with col2:
+            if st.button(
+                item["label"], 
+                key=f"nav_{page.replace(' ', '_').lower()}", 
+                use_container_width=True
+            ):
+                st.session_state["current_page"] = page
+                st.rerun()
+            
+            # Apply styling based on active state
+            bg_color = "rgba(144, 202, 249, 0.1)" if is_current else "transparent"
+            border_left = "3px solid #90CAF9" if is_current else "none"
+            
+            # Inject the styling for the container
+            st.markdown(f"""
+            <style>
+            div[data-testid="column"]:has(button#{f"nav_{page.replace(' ', '_').lower()}"}:first-of-type) {{
+                background-color: {bg_color};
+                border-left: {border_left};
+                border-radius: 4px;
+                padding: 8px 0;
+                margin: 2px 0;
+            }}
+            button#{f"nav_{page.replace(' ', '_').lower()}"} {{
+                color: #f0f2f6 !important;
+                text-align: left !important;
+                font-weight: 500 !important;
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+    
+    # Add footer to sidebar
+    st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
     st.sidebar.markdown(
-        f"""
-        <div class="nav-item {help_active}" id="nav-help">
-            <div class="nav-icon">❓</div>
-            <div>Help and Contact</div>
+        """
+        <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; text-align: center; margin-top: 30px;">
+            © 2025 StrataGraph. All rights reserved.<br>
+            Version 1.0.0
         </div>
-        """, 
+        """,
         unsafe_allow_html=True
     )
     
-    # About Us navigation item
-    about_active = "active" if st.session_state["current_page"] == "About Us" else ""
-    st.sidebar.markdown(
-        f"""
-        <div class="nav-item {about_active}" id="nav-about">
-            <div class="nav-icon">ℹ️</div>
-            <div>About Us</div>
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Analysis parameters for Facies Classification page
+    min_clusters = 5
+    max_clusters = 10
     
-    # JavaScript for handling navigation clicks
-    st.sidebar.markdown("""
-    <script>
-        // Wait for the DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Home navigation
-            document.getElementById('nav-home').addEventListener('click', function() {
-                window.location.href = '/?page=Home';
-            });
-            
-            // VHydro navigation
-            document.getElementById('nav-vhydro').addEventListener('click', function() {
-                window.location.href = '/?page=VHydro Overview';
-            });
-            
-            // CO2 Storage navigation
-            document.getElementById('nav-co2').addEventListener('click', function() {
-                window.location.href = '/?page=CO2 Storage Applications';
-            });
-            
-            // Data Preparation navigation
-            document.getElementById('nav-data').addEventListener('click', function() {
-                window.location.href = '/?page=Data Preparation';
-            });
-            
-            // Petrophysical Properties navigation
-            document.getElementById('nav-petro').addEventListener('click', function() {
-                window.location.href = '/?page=Petrophysical Properties';
-            });
-            
-            // Facies Classification navigation
-            document.getElementById('nav-facies').addEventListener('click', function() {
-                window.location.href = '/?page=Facies Classification';
-            });
-            
-            // GCN Analysis navigation
-            document.getElementById('nav-gcn').addEventListener('click', function() {
-                window.location.href = '/?page=Hydrocarbon Potential Using GCN';
-            });
-            
-            // Help and Contact navigation
-            document.getElementById('nav-help').addEventListener('click', function() {
-                window.location.href = '/?page=Help and Contact';
-            });
-            
-            // About Us navigation
-            document.getElementById('nav-about').addEventListener('click', function() {
-                window.location.href = '/?page=About Us';
-            });
-        });
-    </script>
-    """, unsafe_allow_html=True)
+    if st.session_state["current_page"] == "Facies Classification":
+        st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+        st.sidebar.markdown('<div style="color: white; font-weight: bold;">Analysis Parameters</div>', unsafe_allow_html=True)
+        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
+        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
     
-    # Handle navigation based on clicked elements
-    # This is a fallback mechanism since the JavaScript might not work in all cases
-    query_params = st.experimental_get_query_params()
-    if "page" in query_params:
-        page = query_params["page"][0]
-        if page != st.session_state["current_page"]:
-            st.session_state["current_page"] = page
-            st.rerun()
-    
-    # Create navigation callback for each section
-    if st.sidebar.button("Home", key="btn_home", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Home"
-        st.rerun()
-        
-    if st.sidebar.button("VHydro", key="btn_vhydro", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "VHydro Overview"
-        st.rerun()
-        
-    if st.sidebar.button("CO2 Storage", key="btn_co2", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "CO2 Storage Applications"
-        st.rerun()
-        
-    if st.sidebar.button("Data Preparation", key="btn_data", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Data Preparation"
-        st.rerun()
-        
-    if st.sidebar.button("Petrophysical Properties", key="btn_petro", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Petrophysical Properties"
-        st.rerun()
-        
-    if st.sidebar.button("Facies Classification", key="btn_facies", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Facies Classification"
-        st.rerun()
-        
-    if st.sidebar.button("GCN Analysis", key="btn_gcn", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Hydrocarbon Potential Using GCN"
-        st.rerun()
-        
-    if st.sidebar.button("Help and Contact", key="btn_help", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "Help and Contact"
-        st.rerun()
-        
-    if st.sidebar.button("About Us", key="btn_about", use_container_width=True, type="secondary"):
-        st.session_state["current_page"] = "About Us"
-        st.rerun()
-    
-    # Return the current page and other options
     return {
         "page": st.session_state["current_page"],
-        "min_clusters": 5,  # Default value
-        "max_clusters": 10  # Default value
+        "min_clusters": min_clusters,
+        "max_clusters": max_clusters
     }
+    
 def home_page():
     # Try to load the banner image
     banner_path = "src/StrataGraph_Banner.png"
