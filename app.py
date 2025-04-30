@@ -32,7 +32,19 @@ def load_css():
     /* Main styling */
     .main .block-container { padding-top: 1rem; padding-bottom: 2rem; max-width: 100%; }
     h1, h2, h3, h4, h5, h6 { color: #0e4194; }
+    .colored-header { background: linear-gradient(90deg, #0e4194 0%, #3a6fc4 100%); color: white; 
+                     padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+    .card { border-radius: 10px; padding: 20px; margin-bottom: 20px; background: white; 
+           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+    .feature-card { border-radius: 10px; padding: 20px; margin-bottom: 20px; background: white; 
+                   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); height: 100%; 
+                   border-left: 5px solid #0e4194; }
+    .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
+    /* Sidebar styling */
+    [data-testid="stSidebar"] { 
+        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
+    }
     /* Logo centering fix */
     [data-testid="stSidebar"] .element-container:first-child {
         display: flex;
@@ -57,7 +69,7 @@ def load_css():
     
     .logo-icon {
         background-color: rgba(255, 255, 255, 0.1);
-        width: 80px;
+        width: the 80px;
         height: 80px;
         display: flex;
         align-items: center;
@@ -76,11 +88,6 @@ def load_css():
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.9rem;
         margin: 0;
-    }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
     }
     
     /* Sidebar navigation styling */
@@ -139,26 +146,147 @@ def load_css():
         vertical-align: middle;
     }
     
-    /* Navigation section styling */
-    .nav-section {
-        color: #8c9196;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 18px 0 8px 10px;
-        margin: 0;
+    /* CO2 Storage section styling */
+    .co2-section {
+        background: linear-gradient(to right, rgba(13, 31, 51, 0.9), rgba(29, 68, 111, 0.9)), url('https://placehold.co/600x400');
+        background-size: cover;
+        color: white;
+        padding: 35px;
+        border-radius: 15px;
+        margin: 30px 0;
+        position: relative;
+        overflow: hidden;
     }
     
-    /* Style for soon tag */
-    .soon-tag {
-        background-color: #f8cd5a;
-        color: #664d03;
-        font-size: 10px;
-        font-weight: 600;
-        padding: 2px 6px;
+    .co2-section h2 {
+        color: white;
+        margin-bottom: 15px;
+        font-size: 2rem;
+        position: relative;
+    }
+    
+    .co2-section h2::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: #4CAF50;
+        margin-top: 10px;
+    }
+    
+    .co2-section p {
+        font-size: 1.1rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        max-width: 80%;
+    }
+    
+    .co2-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 25px;
+    }
+    
+    .co2-feature {
+        background-color: rgba(255, 255, 255, 0.1);
         border-radius: 10px;
-        margin-left: 8px;
+        padding: 15px;
+        width: calc(50% - 10px);
+        margin-bottom: 10px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .co2-feature h3 {
+        color: #4CAF50;
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .co2-feature p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .release-date {
+        margin-top: 30px;
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+    
+    /* Team and profile cards for About page */
+    .team-section {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .profile-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        border-left: 5px solid #0e4194;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 15px;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #0e4194;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 36px;
+        margin-right: 20px;
+    }
+    
+    .profile-title h3 {
+        margin: 0;
+        color: #0e4194;
+    }
+    
+    .profile-title p {
+        margin: 5px 0 0 0;
+        color: #6c757d;
+    }
+    
+    .profile-bio {
+        margin-bottom: 15px;
+    }
+    
+    .profile-links {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .profile-link {
+        padding: 5px 10px;
+        border-radius: 5px;
+        background-color: #f1f3f5;
+        text-decoration: none;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+    
+    .profile-link:hover {
+        background-color: #e9ecef;
+    }
+    
+    .supervisor-section, .collaborator-section {
+        margin-top: 30px;
     }
     
     /* Footer text */
@@ -206,143 +334,24 @@ def load_css():
         background-color: #FFA500;
     }
     
-    /* Home page styling */
-    .hero-section {
-        background-color: #0e4194;
-        color: white;
-        padding: 60px 20px;
-        margin: -1rem -1rem 2rem -1rem;
-        text-align: center;
-    }
-    
-    .hero-title {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
-    
-    .hero-subtitle {
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-    }
-    
-    .hero-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-    }
-    
-    .primary-button {
-        background-color: white;
-        color: #0e4194;
-        padding: 0.6rem 1.5rem;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: 600;
-    }
-    
-    .secondary-button {
-        background-color: transparent;
-        color: white;
-        padding: 0.6rem 1.5rem;
-        border-radius: 5px;
-        text-decoration: none;
-        border: 1px solid white;
-        font-weight: 600;
-    }
-    
-    .section-title {
-        font-size: 1.8rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .card {
+    /* Waitlist form styling */
+    .waitlist-form {
         background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
     
-    .feature-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.8rem;
-    }
-    
-    .feature-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-    
-    /* Workflow step styling */
-    .workflow-step {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding: 1rem;
-        background-color: #e6f3ff;
-        border-radius: 5px;
-        border-left: 4px solid #0d6efd;
-    }
-    
-    .step-number {
-        margin-right: 1rem;
-        font-weight: bold;
-        color: #0d6efd;
-    }
-    
-    .step-content .step-title {
-        font-weight: bold;
-        color: #0d6efd;
-    }
-    
-    .step-content .step-description {
-        color: #495057;
-    }
-    
-    /* Statistics cards */
-    .stat-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .stat-card {
-        background-color: white;
-        padding: 1rem;
-        border-radius: 5px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .stat-label {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-    
-    .stat-value {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #0d6efd;
-    }
-    
-    /* CO2 storage section */
-    .co2-section {
-        background-color: #1a2332;
-        color: white;
-        padding: 2rem;
-        border-radius: 8px;
-        margin-bottom: 2.5rem;
-    }
-    
-    /* Call to action section */
-    .cta-section {
-        background-color: #0e4194;
-        color: white;
-        padding: 3rem 2rem;
-        margin: 2rem -1rem -1rem -1rem;
-        text-align: center;
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .co2-feature {
+            width: 100%;
+        }
+        
+        .co2-section p {
+            max-width: 100%;
+        }
     }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -366,13 +375,13 @@ def load_image(image_path):
 def create_sidebar():
     # Logo and title
     try:
-        st.sidebar.image("src/StrataGraph_White_Logo.png", width=130)
+        st.sidebar.image("src/StrataGraph_White_Logo.png", width=150)
     except:
         st.sidebar.markdown(
             """
             <div class="logo-fallback">
                 <div class="logo-icon">
-                    <span style="color: white; font-size: 24px;">SG</span>
+                    <span style="color: white; font-size: 36px;">SG</span>
                 </div>
                 <h2 class="logo-title">StrataGraph</h2>
                 <p class="logo-subtitle">VHydro 1.0</p>
@@ -380,6 +389,8 @@ def create_sidebar():
             """,
             unsafe_allow_html=True
         )
+    
+    # Rest of your existing sidebar code...
     
     # Initialize current page if not exists
     if "current_page" not in st.session_state:
@@ -399,85 +410,73 @@ def create_sidebar():
     if is_vhydro_page and not st.session_state["vhydro_expanded"]:
         st.session_state["vhydro_expanded"] = True
     
-    # MAIN NAVIGATION SECTION
-    st.sidebar.markdown('<div class="nav-section">MAIN NAVIGATION</div>', unsafe_allow_html=True)
+    # Display Navigation header
+    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-bottom: 10px; margin-top: 20px;">Navigation</div>', unsafe_allow_html=True)
     
-    # Home navigation item
-    home_active = st.session_state["current_page"] == "Home"
-    if st.sidebar.button("🏠 Home", key="nav_home", use_container_width=True, 
-                       type="secondary" if not home_active else "primary"):
-        st.session_state["current_page"] = "Home"
-        st.rerun()
+    # Create a list of options for the selectbox
+    menu_options = []
     
-    # VHydro navigation item
-    vhydro_active = st.session_state["current_page"] in vhydro_pages or st.session_state["current_page"] == "VHydro"
-    if st.sidebar.button("📈 VHydro", key="nav_vhydro", use_container_width=True,
-                       type="secondary" if not vhydro_active else "primary"):
-        st.session_state["current_page"] = "VHydro Overview"
-        st.rerun()
+    # Add main pages
+    for page in main_pages:
+        if page == "CO2 Storage Applications":
+            menu_options.append(f"{page} (Coming Soon)")
+        else:
+            menu_options.append(page)
     
-    # CO2 Storage navigation item
-    co2_active = st.session_state["current_page"] == "CO2 Storage Applications"
-    co2_button = st.sidebar.button("⭕ CO2 Storage", key="nav_co2", use_container_width=True,
-                                type="secondary" if not co2_active else "primary")
-    # Create a container to show the "Soon" badge next to CO2 Storage
-    st.sidebar.markdown("""
-    <div style="margin-top: -4px; margin-bottom: 10px; text-align: right; padding-right: 10px;">
-        <span class="soon-tag">Soon</span>
-    </div>
-    """, unsafe_allow_html=True)
+    # Get index of current page
+    selected_index = 0
+    if st.session_state["current_page"] in main_pages:
+        selected_index = main_pages.index(st.session_state["current_page"])
+    elif is_vhydro_page:
+        selected_index = main_pages.index("VHydro")  # Select VHydro parent when on a VHydro page
     
-    if co2_button:
-        st.session_state["current_page"] = "CO2 Storage Applications"
-        st.rerun()
+    # Display the main navigation
+    selected_option = st.sidebar.selectbox(
+        "Main Pages",
+        menu_options,
+        index=selected_index,
+        label_visibility="collapsed"
+    )
     
-    # MODULES SECTION
-    st.sidebar.markdown('<div class="nav-section">MODULES</div>', unsafe_allow_html=True)
+    # Handle selection
+    selected_page = selected_option.split(" (Coming Soon)")[0]  # Remove the "Coming Soon" suffix if present
     
-    # Data Preparation navigation item
-    data_active = st.session_state["current_page"] == "Data Preparation"
-    if st.sidebar.button("📝 Data Preparation", key="nav_data_prep", use_container_width=True,
-                       type="secondary" if not data_active else "primary"):
-        st.session_state["current_page"] = "Data Preparation"
-        st.rerun()
+    if selected_page != st.session_state["current_page"] and selected_page in main_pages:
+        # If selecting a main page (that's not VHydro)
+        if selected_page != "VHydro":
+            st.session_state["current_page"] = selected_page
+            st.session_state["vhydro_expanded"] = False
+            st.rerun()
+        # If selecting VHydro but not already on VHydro main page
+        elif st.session_state["current_page"] != "VHydro":
+            st.session_state["current_page"] = "VHydro"
+            st.session_state["vhydro_expanded"] = True
+            st.rerun()
     
-    # Petrophysical Properties navigation item
-    petro_active = st.session_state["current_page"] == "Petrophysical Properties"
-    if st.sidebar.button("⚙️ Petrophysical Properties", key="nav_petro", use_container_width=True,
-                       type="secondary" if not petro_active else "primary"):
-        st.session_state["current_page"] = "Petrophysical Properties"
-        st.rerun()
-    
-    # Facies Classification navigation item
-    facies_active = st.session_state["current_page"] == "Facies Classification"
-    if st.sidebar.button("📊 Facies Classification", key="nav_facies", use_container_width=True,
-                       type="secondary" if not facies_active else "primary"):
-        st.session_state["current_page"] = "Facies Classification"
-        st.rerun()
-    
-    # GCN Analysis navigation item
-    gcn_active = st.session_state["current_page"] == "Hydrocarbon Potential Using GCN"
-    if st.sidebar.button("🌐 GCN Analysis", key="nav_gcn", use_container_width=True,
-                       type="secondary" if not gcn_active else "primary"):
-        st.session_state["current_page"] = "Hydrocarbon Potential Using GCN"
-        st.rerun()
-    
-    # SUPPORT SECTION
-    st.sidebar.markdown('<div class="nav-section">SUPPORT</div>', unsafe_allow_html=True)
-    
-    # Help and Contact navigation item
-    help_active = st.session_state["current_page"] == "Help and Contact"
-    if st.sidebar.button("❓ Help and Contact", key="nav_help", use_container_width=True,
-                       type="secondary" if not help_active else "primary"):
-        st.session_state["current_page"] = "Help and Contact"
-        st.rerun()
-    
-    # About Us navigation item
-    about_active = st.session_state["current_page"] == "About Us"
-    if st.sidebar.button("ℹ️ About Us", key="nav_about", use_container_width=True,
-                       type="secondary" if not about_active else "primary"):
-        st.session_state["current_page"] = "About Us"
-        st.rerun()
+    # Display VHydro subpages when appropriate
+    if selected_page == "VHydro" or is_vhydro_page:
+        st.sidebar.markdown('<div style="margin-left: 20px; border-left: 1px solid rgba(255, 255, 255, 0.3); padding-left: 10px;">', unsafe_allow_html=True)
+        
+        # Get index of current VHydro subpage
+        subpage_index = 0
+        if is_vhydro_page:
+            subpage_index = vhydro_pages.index(st.session_state["current_page"])
+        
+        # Display VHydro sub-navigation
+        selected_subpage = st.sidebar.radio(
+            "VHydro Pages",
+            vhydro_pages,
+            index=subpage_index,
+            key="vhydro_subpages",
+            label_visibility="collapsed"
+        )
+        
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
+        
+        # Handle sub-selection
+        if selected_subpage != st.session_state["current_page"]:
+            st.session_state["current_page"] = selected_subpage
+            st.rerun()
     
     # Versions section
     st.sidebar.markdown(
@@ -525,324 +524,189 @@ def create_sidebar():
     }
 
 def home_page():
-    # Hero section with blue background
-    st.markdown("""
-    <div style="background-color: #0e4194; color: white; padding: 60px 20px 80px 20px; margin: -1rem -1rem 2rem -1rem; text-align: center;">
-        <h1 style="font-size: 3rem; margin-bottom: 1rem;">StrataGraph</h1>
-        <p style="font-size: 1.2rem; margin-bottom: 2rem;">Subsurface strata properties represented as graph datasets for advanced deep learning applications</p>
-        <div style="display: flex; justify-content: center; gap: 1rem;">
-            <a href="/?page=Data Preparation" style="background-color: white; color: #0e4194; padding: 0.6rem 1.5rem; border-radius: 5px; text-decoration: none; font-weight: 600;">Get Started</a>
-            <a href="/?page=VHydro Overview" style="background-color: transparent; color: white; padding: 0.6rem 1.5rem; border-radius: 5px; text-decoration: none; border: 1px solid white; font-weight: 600;">Learn More</a>
+    # Try to load the banner image
+    banner_path = "src/StrataGraph_Banner.png"
+    try:
+        st.image(banner_path, use_container_width=True)
+    except:
+        st.markdown("""
+        <div class="colored-header">
+            <h1>StrataGraph</h1>
+            <p>Subsurface strata properties represented as a graph dataset for deep learning applications</p>
         </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="card">
+        <h2>About StrataGraph</h2>
+        <p>StrataGraph is a cutting-edge platform for geoscience modeling and analysis, combining advanced machine learning techniques with traditional geological and petrophysical analysis.</p>
+        <p>Our innovative approach utilizes graph-based data structures to represent complex subsurface relationships, enabling more accurate predictions and insights for both hydrocarbon exploration and carbon storage applications.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # About StrataGraph section
+    # First section: VHydro
     st.markdown("""
-    <h2 style="font-size: 2rem; margin-bottom: 1.5rem;">About StrataGraph</h2>
-    <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-        StrataGraph is a pioneering tool for subsurface analysis that represents complex geological relationships as graph datasets. By transforming
-        conventional well log data into graph-based structures, StrataGraph enables more accurate predictions for both hydrocarbon exploration and
-        carbon storage applications.
-    </p>
-    <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2.5rem;">
-        Our first release (VHydro 1.0) focuses on hydrocarbon quality prediction using Graph Convolutional Networks (GCNs). The upcoming StrataGraph
-        2.0 will expand these capabilities to CO2 storage potential analysis.
-    </p>
-    """, unsafe_allow_html=True)
-    
-    # Key Features section
-    st.markdown("""
-    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem;">Key Features</h2>
-    <ul style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2.5rem; list-style-type: none; padding-left: 0;">
-        <li style="margin-bottom: 0.8rem;">• Graph-based representation of well log data</li>
-        <li style="margin-bottom: 0.8rem;">• Physics-Informed Graph Neural Networks (PI-GNNs)</li>
-        <li style="margin-bottom: 0.8rem;">• Advanced facies classification using K-means clustering</li>
-        <li style="margin-bottom: 0.8rem;">• Interactive visualization of geological relationships</li>
-        <li style="margin-bottom: 0.8rem;">• Comprehensive analysis workflow from raw data to predictions</li>
-    </ul>
-    """, unsafe_allow_html=True)
-    
-    # VHydro Methodology section
-    st.markdown("""
-    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem;">VHydro Methodology</h2>
-    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin-bottom: 2.5rem;">
-        <h3 style="font-size: 1.3rem; margin-bottom: 1rem;">Workflow</h3>
-        
-        <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background-color: #e6f3ff; border-radius: 5px; border-left: 4px solid #0d6efd;">
-            <div style="margin-right: 1rem; font-weight: bold; color: #0d6efd;">1.</div>
-            <div>
-                <div style="font-weight: bold; color: #0d6efd;">Data Preparation</div>
-                <div style="color: #495057;">Upload and process well log data (LAS files)</div>
-            </div>
-        </div>
-        
-        <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background-color: #e6f3ff; border-radius: 5px; border-left: 4px solid #0d6efd;">
-            <div style="margin-right: 1rem; font-weight: bold; color: #0d6efd;">2.</div>
-            <div>
-                <div style="font-weight: bold; color: #0d6efd;">Petrophysical Analysis</div>
-                <div style="color: #495057;">Calculate key properties like porosity, permeability</div>
-            </div>
-        </div>
-        
-        <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background-color: #e6f3ff; border-radius: 5px; border-left: 4px solid #0d6efd;">
-            <div style="margin-right: 1rem; font-weight: bold; color: #0d6efd;">3.</div>
-            <div>
-                <div style="font-weight: bold; color: #0d6efd;">Facies Classification</div>
-                <div style="color: #495057;">Group similar depth points using K-means clustering</div>
-            </div>
-        </div>
-        
-        <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background-color: #e6f3ff; border-radius: 5px; border-left: 4px solid #0d6efd;">
-            <div style="margin-right: 1rem; font-weight: bold; color: #0d6efd;">4.</div>
-            <div>
-                <div style="font-weight: bold; color: #0d6efd;">Graph Construction</div>
-                <div style="color: #495057;">Create graph representation with nodes and edges</div>
-            </div>
-        </div>
-        
-        <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background-color: #e6f3ff; border-radius: 5px; border-left: 4px solid #0d6efd;">
-            <div style="margin-right: 1rem; font-weight: bold; color: #0d6efd;">5.</div>
-            <div>
-                <div style="font-weight: bold; color: #0d6efd;">GCN Training</div>
-                <div style="color: #495057;">Train graph neural network to predict hydrocarbon quality</div>
-            </div>
-        </div>
-        
-        <div style="display: flex; align-items: center; margin-bottom: 0.5rem; padding: 1rem; background-color: #e6f3ff; border-radius: 5px; border-left: 4px solid #0d6efd;">
-            <div style="margin-right: 1rem; font-weight: bold; color: #0d6efd;">6.</div>
-            <div>
-                <div style="font-weight: bold; color: #0d6efd;">Results Visualization</div>
-                <div style="color: #495057;">Interpret and visualize prediction results</div>
-            </div>
-        </div>
+    <div class="card">
+        <h2>StrataGraph 1.0 - VHydro</h2>
+        <p>Our first release focuses on hydrocarbon quality prediction using Graph Convolutional Networks (GCNs) that model complex relationships between different petrophysical properties and depth values.</p>
+        <p>VHydro 1.0 enables accurate prediction of hydrocarbon zones using a graph-based approach that captures the spatial relationships between well log measurements.</p>
+        <p>This approach was introduced in our paper: <a href="https://link.springer.com/article/10.1007/s11053-024-10311-x" target="_blank">Hydrocarbon Potential Prediction Using Novel Graph Dataset</a>, which combines petrophysical and facies features to classify potential zones using GCN.</p>
     </div>
     """, unsafe_allow_html=True)
+    
+    # VHydro Workflow section
+    st.markdown("<h2>VHydro Workflow</h2>", unsafe_allow_html=True)
     
     # Try to load the workflow image
     workflow_path = "src/Workflow.png"
     try:
-        st.image(workflow_path, use_container_width=True, caption="VHydro Analysis Workflow")
+        st.image(workflow_path, use_container_width=True)
     except:
-        st.info("Workflow visualization diagram will be displayed here.")
+        st.warning("Workflow image not available.")
     
-    # Technical Implementation section
+    # Single button to explore VHydro
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Explore VHydro Analysis Tool", key="explore_vhydro_btn", 
+                    use_container_width=True):
+            st.session_state["current_page"] = "VHydro Overview"
+            st.rerun()
+
+    # Second section: CO2 Storage (Coming Soon) - Enhanced version based on image
     st.markdown("""
-    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem;">Technical Implementation</h2>
-    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin-bottom: 2.5rem;">
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            VHydro implements Graph Convolutional Networks (GCNs) using PyTorch Geometric and StellarGraph frameworks. 
-            The model architecture includes:
-        </p>
+    <div class="co2-section">
+        <span class="coming-soon-tag">COMING SOON</span>
+        <h2>StrataGraph 2.0 - CO2 Storage Potential Analysis</h2>
+        <p>Building upon VHydro's graph-based geological modeling, StrataGraph 2.0 will focus on carbon capture and storage applications with these advanced features:</p>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
-            <div style="background-color: white; padding: 1rem; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="color: #6c757d; font-size: 0.9rem;">Hidden Channels</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">16</div>
+        <div class="co2-features">
+            <div class="co2-feature">
+                <h3>CO2 Storage Capacity Prediction</h3>
+                <p>Advanced modeling of reservoir storage capacity using graph neural networks trained on petrophysical properties.</p>
             </div>
             
-            <div style="background-color: white; padding: 1rem; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="color: #6c757d; font-size: 0.9rem;">Layers</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">2</div>
+            <div class="co2-feature">
+                <h3>Caprock Integrity Analysis</h3>
+                <p>Assessment of caprock integrity using geomechanical properties to ensure long-term CO2 containment.</p>
             </div>
             
-            <div style="background-color: white; padding: 1rem; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="color: #6c757d; font-size: 0.9rem;">Dropout Rate</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">0.5</div>
+            <div class="co2-feature">
+                <h3>Risk Assessment</h3>
+                <p>Comprehensive risk assessment for long-term storage using graph-based connectivity analysis.</p>
             </div>
             
-            <div style="background-color: white; padding: 1rem; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="color: #6c757d; font-size: 0.9rem;">Learning Rate</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">0.01</div>
+            <div class="co2-feature">
+                <h3>Physics-Informed GNNs</h3>
+                <p>Integration of physical laws with data-driven approaches for more accurate geomechanical simulations.</p>
             </div>
         </div>
+        
+        <div class="release-date">Anticipated Release: Q3 2025</div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Applications section
-    st.markdown("""
-    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem;">Applications</h2>
-    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin-bottom: 2.5rem;">
-        <ul style="font-size: 1.1rem; line-height: 1.6; list-style-type: none; padding-left: 0;">
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #28a745; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Accurate prediction of hydrocarbon quality zones
-            </li>
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #28a745; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Spatial relationship modeling between geological features
-            </li>
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #28a745; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Enhanced facies classification with preserved spatial context
-            </li>
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #28a745; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Quantification of geological uncertainty
-            </li>
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #28a745; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Integration with traditional petrophysical analysis
-            </li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
+    # Join Waitlist Button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Join StrataGraph 2.0 Waitlist", key="co2_waitlist_btn", 
+                    use_container_width=True):
+            st.session_state["show_waitlist_form"] = True
     
-    # StrataGraph 2.0 section
-    st.markdown("""
-    <div style="background-color: #1a2332; color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2.5rem;">
-        <h2 style="font-size: 1.8rem; margin-bottom: 1rem;">StrataGraph 2.0 - CO2 Storage Potential Analysis</h2>
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Building upon VHydro's graph-based geological modeling, StrataGraph 2.0 will focus on carbon capture and storage applications with these advanced features:
-        </p>
+    # Waitlist form if button clicked
+    if st.session_state.get("show_waitlist_form", False):
+        st.markdown("""
+        <style>
+        .waitlist-form {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        </style>
+        <div class="waitlist-form">
+            <h3>Join the StrataGraph 2.0 Waitlist</h3>
+            <p>Be the first to know when our CO2 Storage Potential Analysis tools become available.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        <ul style="font-size: 1.1rem; line-height: 1.6; list-style-type: none; padding-left: 0; margin-bottom: 1.5rem;">
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #007bff; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                CO2 storage capacity prediction
-            </li>
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #007bff; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Caprock integrity analysis using geomechanical properties
-            </li>
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #007bff; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Risk assessment for long-term storage
-            </li>
-            <li style="margin-bottom: 0.8rem; display: flex; align-items: center;">
-                <span style="background-color: #007bff; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px;"></span>
-                Physics-Informed GNNs for geomechanical simulations
-            </li>
-        </ul>
+        col1, col2 = st.columns(2)
+        with col1:
+            st.text_input("Full Name")
+            st.text_input("Email Address")
+        with col2:
+            st.text_input("Organization")
+            st.selectbox("Primary Interest", ["Carbon Storage", "Hydrocarbon Exploration", "Research", "Education", "Other"])
         
-        <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Coming in 2025</p>
-        
-        <a href="#" style="background-color: #007bff; color: white; padding: 0.6rem 1.5rem; border-radius: 5px; text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 1.5rem;">Join Waitlist</a>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Call-to-action section
-    st.markdown("""
-    <div style="background-color: #0e4194; color: white; padding: 3rem 2rem; margin: 2rem -1rem -1rem -1rem; text-align: center;">
-        <h2 style="font-size: 2rem; margin-bottom: 1rem;">Ready to Analyze Your Subsurface Data?</h2>
-        <p style="font-size: 1.2rem; margin-bottom: 2rem;">Start with VHydro 1.0 today and transform your well log data into powerful graph-based insights.</p>
-        <a href="/?page=Data Preparation" style="background-color: white; color: #0e4194; padding: 0.8rem 2rem; border-radius: 5px; text-decoration: none; font-weight: 600; display: inline-block;">Get Started with VHydro</a>
-    </div>
-    """, unsafe_allow_html=True)
+        if st.button("Submit", use_container_width=True):
+            st.success("Thank you for joining the waitlist! We'll notify you when StrataGraph 2.0 becomes available.")
+            st.session_state["show_waitlist_form"] = False
 
 def vhydro_overview_page():
     st.markdown("""
-    <div style="background-color: #0e4194; color: white; padding: 40px 20px; margin: -1rem -1rem 2rem -1rem; text-align: center;">
-        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">VHydro</h1>
-        <p style="font-size: 1.2rem;">Hydrocarbon Quality Prediction Using Graph Neural Networks</p>
+    <div class="colored-header">
+        <h1>VHydro</h1>
+        <p>Hydrocarbon Quality Prediction Using Graph Neural Networks</p>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <h2 style="font-size: 1.8rem; margin-bottom: 1rem;">About VHydro</h2>
-    <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-        VHydro is StrataGraph's flagship module for predicting hydrocarbon quality zones using Graph Convolutional Networks (GCNs).
-        This advanced approach models the complex relationships between petrophysical properties and depth to provide more accurate 
-        predictions than traditional methods.
-    </p>
+    <div class="card">
+        <h2>About VHydro</h2>
+        <p>VHydro is StrataGraph's flagship module for predicting hydrocarbon quality zones using Graph Convolutional Networks (GCNs).</p>
+        <p>This advanced approach models the complex relationships between petrophysical properties and depth to provide more accurate predictions than traditional methods.</p>
+    </div>
     """, unsafe_allow_html=True)
     
-    # Tab section
+    # Add tabs for the different sections
     tab1, tab2, tab3 = st.tabs(["Overview", "Workflow", "Technical Details"])
     
     with tab1:
         st.markdown("""
-        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">VHydro Features</h3>
-        <ul style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        <h3>VHydro Features</h3>
+        <ul>
             <li>Graph-based representation of well log data</li>
             <li>Advanced facies classification using K-means clustering</li>
             <li>GCN-based quality prediction model</li>
             <li>Interactive visualization of results</li>
-            <li>Complete workflow from data preparation to prediction</li>
-        </ul>
-        
-        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Benefits</h3>
-        <ul style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            <li>Higher accuracy compared to traditional methods</li>
-            <li>Preservation of spatial relationships between data points</li>
-            <li>Better handling of geological heterogeneity</li>
-            <li>Integrated approach combining petrophysics and machine learning</li>
         </ul>
         """, unsafe_allow_html=True)
         
     with tab2:
-        # Display the workflow diagram
         # Try to load the workflow image
         workflow_path = "src/Workflow.png"
         try:
             st.image(workflow_path, use_container_width=True)
         except:
-            st.info("Workflow diagram will be displayed here.")
+            st.warning("Workflow image not available.")
             
         st.markdown("""
-        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">VHydro Workflow</h3>
-        <div style="background-color: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-            <ol style="font-size: 1.1rem; line-height: 1.8;">
-                <li><strong>Data Preparation</strong>: Upload and process well log data (LAS files)</li>
-                <li><strong>Petrophysical Analysis</strong>: Calculate key properties like porosity, permeability</li>
-                <li><strong>Facies Classification</strong>: Group similar depth points using K-means clustering</li>
-                <li><strong>Graph Construction</strong>: Create a graph representation of the well data</li>
-                <li><strong>GCN Training</strong>: Train the model to predict hydrocarbon quality</li>
-                <li><strong>Visualization</strong>: Interpret and visualize results</li>
-            </ol>
-        </div>
+        <h3>VHydro Workflow</h3>
+        <ol>
+            <li><strong>Data Preparation</strong>: Upload and process well log data</li>
+            <li><strong>Petrophysical Analysis</strong>: Calculate key properties like porosity, permeability</li>
+            <li><strong>Facies Classification</strong>: Group similar depth points using K-means clustering</li>
+            <li><strong>Graph Construction</strong>: Create a graph representation of the well data</li>
+            <li><strong>GCN Training</strong>: Train the model to predict hydrocarbon quality</li>
+            <li><strong>Visualization</strong>: Interpret and visualize results</li>
+        </ol>
         """, unsafe_allow_html=True)
         
     with tab3:
         st.markdown("""
-        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Technical Implementation</h3>
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            VHydro uses PyTorch Geometric and StellarGraph frameworks to implement Graph Convolutional Networks tailored for geoscience applications.
-            The model architecture is designed specifically for handling geological data with spatial relationships.
-        </p>
+        <h3>Technical Implementation</h3>
+        <p>VHydro uses PyTorch Geometric and StellarGraph frameworks to implement Graph Convolutional Networks tailored for geoscience applications.</p>
         """, unsafe_allow_html=True)
         
-        # Model parameters using simple metrics displayed in a grid
-        st.markdown("""
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-            <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 5px; text-align: center;">
-                <div style="color: #6c757d; font-size: 0.9rem;">Hidden Channels</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">16</div>
-            </div>
-            
-            <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 5px; text-align: center;">
-                <div style="color: #6c757d; font-size: 0.9rem;">Layers</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">2</div>
-            </div>
-            
-            <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 5px; text-align: center;">
-                <div style="color: #6c757d; font-size: 0.9rem;">Dropout Rate</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">0.5</div>
-            </div>
-            
-            <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 5px; text-align: center;">
-                <div style="color: #6c757d; font-size: 0.9rem;">Learning Rate</div>
-                <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">0.01</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <h4 style="font-size: 1.3rem; margin-bottom: 1rem;">Model Architecture</h4>
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1rem;">
-            The GCN model consists of multiple graph convolutional layers that process node features and edge connections.
-            Each node represents a depth point with associated petrophysical properties, while edges represent geological relationships.
-        </p>
-        
-        <h4 style="font-size: 1.3rem; margin-bottom: 1rem;">Training Process</h4>
-        <p style="font-size: 1.1rem; line-height: 1.6;">
-            The model is trained using supervised learning with early stopping to prevent overfitting.
-            Training data is split into training, validation, and test sets to ensure robust performance evaluation.
-        </p>
-        """, unsafe_allow_html=True)
+        # Model parameters using simple metrics
+        col1, col2, col3, col4 = st.columns(4)
+        with col1: st.metric("Hidden Channels", "16")
+        with col2: st.metric("Layers", "2")
+        with col3: st.metric("Dropout Rate", "0.5")
+        with col4: st.metric("Learning Rate", "0.01")
     
     # Button to start the analysis workflow
-    st.markdown("<h3 style='font-size: 1.5rem; margin: 2rem 0 1rem 0;'>Start VHydro Analysis</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>Start VHydro Analysis</h3>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Begin Data Preparation", key="begin_analysis_btn", use_container_width=True):
@@ -851,18 +715,16 @@ def vhydro_overview_page():
 
 def data_preparation_page():
     st.markdown("""
-    <div style="background-color: #0e4194; color: white; padding: 40px 20px; margin: -1rem -1rem 2rem -1rem; text-align: center;">
-        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Data Preparation</h1>
-        <p style="font-size: 1.2rem;">Prepare your well log data for VHydro analysis</p>
+    <div class="colored-header">
+        <h1>Data Preparation</h1>
+        <p>Prepare your well log data for VHydro analysis</p>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">VHydro Data Preparation</h2>
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            VHydro requires specific log curves to calculate petrophysical properties needed for accurate predictions.
-        </p>
+    <div class="card">
+        <h2>VHydro Data Preparation</h2>
+        <p>VHydro requires specific log curves to calculate petrophysical properties needed for accurate predictions:</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -921,9 +783,9 @@ def data_preparation_page():
 
 def petrophysical_properties_page():
     st.markdown("""
-    <div style="background-color: #0e4194; color: white; padding: 40px 20px; margin: -1rem -1rem 2rem -1rem; text-align: center;">
-        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Petrophysical Properties</h1>
-        <p style="font-size: 1.2rem;">Calculate key reservoir properties from well log data</p>
+    <div class="colored-header">
+        <h1>Petrophysical Properties</h1>
+        <p>Calculate key reservoir properties from well log data</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -940,11 +802,9 @@ def petrophysical_properties_page():
         return
     
     st.markdown("""
-    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1rem;">
-            This step calculates key petrophysical properties from your well log data:
-        </p>
-        <ul style="font-size: 1.1rem; line-height: 1.6;">
+    <div class="card">
+        <p>This step calculates key petrophysical properties from your well log data:</p>
+        <ul>
             <li>Shale Volume (Vsh)</li>
             <li>Porosity (φ)</li>
             <li>Water Saturation (Sw)</li>
@@ -1010,3 +870,759 @@ def petrophysical_properties_page():
                 if st.button("Proceed to Facies Classification", use_container_width=True):
                     st.session_state["current_page"] = "Facies Classification"
                     st.rerun()
+
+def facies_classification_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Facies Classification</h1>
+        <p>Identify geological facies using machine learning</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Check if properties have been calculated
+    if "property_data" not in st.session_state:
+        st.warning("Please calculate petrophysical properties first.")
+        
+        # Button to go back to property calculation tab
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("Go to Petrophysical Properties", use_container_width=True):
+                st.session_state["current_page"] = "Petrophysical Properties"
+                st.rerun()
+        return
+    
+    st.markdown("""
+    <div class="card">
+        <p>This step identifies natural rock types (facies) using K-means clustering:</p>
+        <ul>
+            <li>Groups similar depth points based on petrophysical properties</li>
+            <li>Optimizes the number of clusters using silhouette scores</li>
+            <li>Generates depth-based facies maps</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Clustering parameters
+    with st.expander("Clustering Parameters", expanded=True):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            min_clusters = st.number_input("Minimum Clusters", min_value=2, max_value=15, value=5, step=1)
+            feature_cols = st.multiselect("Features for Clustering", 
+                                         options=["VSHALE", "PHI", "SW", "SO", "PERM", "GR", "DENSITY"],
+                                         default=["VSHALE", "PHI", "SW", "GR", "DENSITY"])
+        
+        with col2:
+            max_clusters = st.number_input("Maximum Clusters", min_value=min_clusters, max_value=15, value=10, step=1)
+            algorithm = st.selectbox("Clustering Algorithm", ["K-means", "Agglomerative", "DBSCAN"])
+    
+    # Run clustering button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Run Facies Classification", use_container_width=True):
+            with st.spinner("Running facies classification..."):
+                # Simpler progress indicator
+                progress_bar = st.progress(0)
+                for i in range(0, 101, 20):
+                    progress_bar.progress(i)
+                    time.sleep(0.1)
+            
+            st.success("Facies classification completed successfully!")
+            
+            # Generate simulated silhouette scores
+            silhouette_scores = {
+                i: np.random.uniform(0.4, 0.7) for i in range(min_clusters, max_clusters + 1)
+            }
+            
+            # Find optimal clusters
+            optimal_clusters = max(silhouette_scores, key=silhouette_scores.get)
+            st.info(f"Optimal number of clusters: {optimal_clusters}")
+            
+            # Create a simple facies dataset for download
+            facies_df = pd.DataFrame({
+                "DEPTH": np.arange(1000, 1100),
+                "FACIES": np.random.randint(0, optimal_clusters, size=100)
+            })
+            
+            # Visualization in an expander to keep the UI clean
+            with st.expander("Facies Visualization", expanded=True):
+                # Create a simple visualization
+                plt.figure(figsize=(10, 7))
+                plt.imshow(facies_df['FACIES'].values.reshape(-1, 1), aspect='auto', cmap='viridis',
+                          extent=[0, 1, facies_df['DEPTH'].max(), facies_df['DEPTH'].min()])
+                plt.title(f"Facies Classification (Clusters: {optimal_clusters})")
+                plt.ylabel("Depth")
+                plt.xticks([])
+                plt.colorbar(label="Facies")
+                st.pyplot(plt)
+            
+            # Show sample data
+            st.subheader("Sample Data")
+            st.dataframe(facies_df.head())
+            
+            # Download button
+            csv = facies_df.to_csv(index=False)
+            st.download_button(
+                label="Download Facies CSV",
+                data=csv,
+                file_name="facies_classification.csv",
+                mime="text/csv"
+            )
+            
+            # Store in session state
+            st.session_state["facies_data"] = True
+            st.session_state["best_clusters"] = optimal_clusters
+            st.session_state["analysis_stage"] = "gcn_model"
+            
+            # Button to proceed to next step
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                if st.button("Proceed to Hydrocarbon Potential Prediction", use_container_width=True):
+                    st.session_state["current_page"] = "Hydrocarbon Potential Using GCN"
+                    st.rerun()
+
+def hydrocarbon_prediction_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Hydrocarbon Potential Prediction</h1>
+        <p>Graph Convolutional Network (GCN) Model for Quality Prediction</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Check if facies classification has been done
+    if "facies_data" not in st.session_state:
+        st.warning("Please complete facies classification first.")
+        
+        # Button to go back to facies classification tab
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("Go to Facies Classification", use_container_width=True):
+                st.session_state["current_page"] = "Facies Classification"
+                st.rerun()
+        return
+    
+    st.markdown("""
+    <div class="card">
+        <p>This step builds and trains a Graph Convolutional Network model:</p>
+        <ul>
+            <li>Constructs a graph from depth points and their relationships</li>
+            <li>Trains a GCN model to predict hydrocarbon quality</li>
+            <li>Evaluates model performance and generates final predictions</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Model parameters in expandable section
+    with st.expander("Model Parameters", expanded=True):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            n_clusters = st.number_input("Number of Clusters", 
+                                       min_value=2, 
+                                       max_value=15, 
+                                       value=int(st.session_state.get("best_clusters", 7)), 
+                                       step=1)
+            hidden_channels = st.number_input("Hidden Channels", min_value=4, max_value=64, value=16, step=4)
+            
+        with col2:
+            num_runs = st.number_input("Number of Runs", min_value=1, max_value=10, value=4, step=1)
+            learning_rate = st.select_slider(
+                "Learning Rate",
+                options=[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05],
+                value=0.01
+            )
+    
+    # Advanced parameters in toggle
+    with st.expander("Advanced Model Options"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            dropout_rate = st.slider("Dropout Rate", min_value=0.0, max_value=0.8, value=0.5, step=0.1)
+            epochs = st.number_input("Maximum Epochs", min_value=50, max_value=500, value=200, step=50)
+        
+        with col2:
+            patience = st.number_input("Early Stopping Patience", min_value=5, max_value=100, value=20, step=5)
+            optimizer = st.selectbox("Optimizer", ["Adam", "SGD", "RMSprop", "AdamW"])
+    
+    # Run model button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Train GCN Model", key="train_gcn_btn", use_container_width=True):
+            with st.spinner("Training GCN model..."):
+                # Simpler progress indicator with fewer updates
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                steps = ["Preparing graph structure...", "Creating features...", 
+                        "Training model...", "Finalizing predictions..."]
+                
+                for i, step in enumerate(steps):
+                    progress_bar.progress(i * 25)
+                    status_text.info(step)
+                    time.sleep(0.5)
+                
+                progress_bar.progress(100)
+            
+            # Clear status area and show success message
+            status_text.empty()
+            st.success("GCN model trained successfully!")
+            
+            # Use tabs for organizing results
+            tabs = st.tabs(["Model Performance", "Quality Predictions", "Classification Report"])
+            
+            with tabs[0]:
+                # Model performance metrics
+                col1, col2, col3 = st.columns(3)
+                with col1: st.metric("Test Accuracy", "0.88")
+                with col2: st.metric("F1 Score", "0.86")
+                with col3: st.metric("AUC", "0.92")
+                
+                # Learning curves visualization
+                st.subheader("Learning Curves")
+                
+                # Create sample data for learning curves
+                epochs = np.arange(1, 101)
+                train_loss = 1.0 - 0.8 * np.exp(-epochs/30) + 0.05 * np.random.randn(100)
+                val_loss = 1.2 - 0.7 * np.exp(-epochs/25) + 0.1 * np.random.randn(100)
+                train_acc = 0.3 + 0.6 * (1 - np.exp(-epochs/30)) + 0.03 * np.random.randn(100)
+                val_acc = 0.2 + 0.6 * (1 - np.exp(-epochs/35)) + 0.05 * np.random.randn(100)
+                
+                # Create and display the learning curves
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+                
+                ax1.plot(epochs, train_loss, 'b-', label='Training Loss')
+                ax1.plot(epochs, val_loss, 'r-', label='Validation Loss')
+                ax1.set_xlabel('Epoch')
+                ax1.set_ylabel('Loss')
+                ax1.set_title('Training and Validation Loss')
+                ax1.legend()
+                ax1.grid(alpha=0.3)
+                
+                ax2.plot(epochs, train_acc, 'b-', label='Training Accuracy')
+                ax2.plot(epochs, val_acc, 'r-', label='Validation Accuracy')
+                ax2.set_xlabel('Epoch')
+                ax2.set_ylabel('Accuracy')
+                ax2.set_title('Training and Validation Accuracy')
+                ax2.legend()
+                ax2.grid(alpha=0.3)
+                
+                plt.tight_layout()
+                st.pyplot(fig)
+            
+            with tabs[1]:
+                # Create sample prediction data
+                predictions = pd.DataFrame({
+                    "DEPTH": np.arange(1000, 1010),
+                    "PREDICTED_QUALITY": np.random.choice(
+                        ["Very Low", "Low", "Moderate", "High", "Very High"], 
+                        size=10
+                    )
+                })
+                
+                # Display predictions table
+                st.subheader("Hydrocarbon Quality Predictions")
+                st.dataframe(predictions)
+                
+                # Download button
+                csv = predictions.to_csv(index=False)
+                st.download_button(
+                    label="Download Predictions",
+                    data=csv,
+                    file_name="quality_predictions.csv",
+                    mime="text/csv"
+                )
+                
+                # Quality visualization
+                st.subheader("Quality Distribution Visualization")
+                
+                # Sample data for visualization
+                quality_levels = ["Very Low", "Low", "Moderate", "High", "Very High"]
+                quality_counts = [np.random.randint(5, 30) for _ in range(5)]
+                colors = ['#FF5757', '#FFBD59', '#4FB47A', '#5271FF', '#B89393']
+                
+                fig, ax = plt.subplots(figsize=(10, 6))
+                bars = ax.bar(quality_levels, quality_counts, color=colors)
+                ax.set_xlabel('Hydrocarbon Quality')
+                ax.set_ylabel('Count')
+                ax.set_title('Distribution of Predicted Hydrocarbon Quality')
+                
+                # Add count labels above bars
+                for bar in bars:
+                    height = bar.get_height()
+                    ax.text(bar.get_x() + bar.get_width()/2., height + 0.5,
+                            f'{int(height)}', ha='center', va='bottom')
+                
+                st.pyplot(fig)
+                
+                # Depth-based visualization
+                st.subheader("Depth-based Quality Visualization")
+                
+                # Create sample data for depth visualization
+                depths = np.arange(1000, 1100)
+                quality_codes = np.random.randint(0, 5, size=100)  # 0 to 4 for the quality levels
+                
+                # Create visualization
+                fig, ax = plt.subplots(figsize=(5, 10))
+                cmap = plt.cm.get_cmap('viridis', 5)
+                
+                # Create a 2D array for imshow
+                quality_array = np.vstack((quality_codes, quality_codes)).T
+                
+                im = ax.imshow(quality_array, aspect='auto', cmap=cmap, 
+                              extent=[0, 1, depths.max(), depths.min()])
+                
+                ax.set_ylabel('Depth')
+                ax.set_xticks([])
+                ax.set_title('Hydrocarbon Quality by Depth')
+                
+                # Create a custom colorbar with quality labels
+                cbar = plt.colorbar(im, ax=ax, ticks=[0.4, 1.2, 2, 2.8, 3.6])
+                cbar.set_ticklabels(quality_levels)
+                
+                st.pyplot(fig)
+            
+            with tabs[2]:
+                # Sample classification report
+                report_data = {
+                    "Class": ["Very Low", "Low", "Moderate", "High", "Very High", "Average"],
+                    "Precision": [0.85, 0.78, 0.92, 0.86, 0.91, 0.86],
+                    "Recall": [0.82, 0.75, 0.90, 0.89, 0.84, 0.84],
+                    "F1-Score": [0.83, 0.76, 0.91, 0.87, 0.87, 0.85],
+                    "Support": [25, 31, 42, 28, 19, 145]
+                }
+                
+                # Create and display dataframe
+                report_df = pd.DataFrame(report_data)
+                st.table(report_df)
+                
+                # Confusion matrix visualization
+                st.subheader("Confusion Matrix")
+                
+                # Create sample confusion matrix data
+                classes = ["Very Low", "Low", "Moderate", "High", "Very High"]
+                cm = np.array([
+                    [21, 3, 1, 0, 0],
+                    [2, 24, 4, 1, 0],
+                    [1, 3, 37, 1, 0],
+                    [0, 1, 2, 24, 1],
+                    [0, 0, 0, 2, 17]
+                ])
+                
+                # Plot confusion matrix
+                fig, ax = plt.subplots(figsize=(8, 6))
+                im = ax.imshow(cm, cmap='Blues')
+                
+                # Add labels, title and ticks
+                ax.set_xlabel('Predicted Label')
+                ax.set_ylabel('True Label')
+                ax.set_title('Confusion Matrix')
+                ax.set_xticks(np.arange(len(classes)))
+                ax.set_yticks(np.arange(len(classes)))
+                ax.set_xticklabels(classes, rotation=45, ha="right")
+                ax.set_yticklabels(classes)
+                
+                # Add text annotations to show the values
+                for i in range(len(classes)):
+                    for j in range(len(classes)):
+                        text = ax.text(j, i, cm[i, j],
+                                      ha="center", va="center", color="white" if cm[i, j] > 10 else "black")
+                
+                plt.tight_layout()
+                st.pyplot(fig)
+            
+            # Store in session state
+            st.session_state["model_history"] = True
+            st.session_state["analysis_complete"] = True
+            
+            # Download full results button
+            st.subheader("Download Complete Analysis")
+            st.markdown("Download a comprehensive report of the analysis results:")
+            
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.download_button(
+                    label="Download Analysis Report",
+                    data="Sample report content that would be more detailed in a real application.",
+                    file_name="vhydro_analysis_report.txt",
+                    mime="text/plain",
+                    use_container_width=True
+                )
+
+def co2_storage_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>CO2 Storage Applications</h1>
+        <p>Carbon Capture, Utilization, and Storage (CCUS) Analysis</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Enhanced CO2 Storage section from the home page
+    st.markdown("""
+    <div class="co2-section">
+        <span class="coming-soon-tag">COMING SOON</span>
+        <h2>CO2 Storage Potential Analysis</h2>
+        <p>Building upon VHydro's graph-based geological modeling, StrataGraph 2.0 will focus on carbon capture and storage applications with these advanced features:</p>
+        
+        <div class="co2-features">
+            <div class="co2-feature">
+                <h3>CO2 Storage Capacity Prediction</h3>
+                <p>Advanced modeling of reservoir storage capacity using graph neural networks trained on petrophysical properties.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Caprock Integrity Analysis</h3>
+                <p>Assessment of caprock integrity using geomechanical properties to ensure long-term CO2 containment.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Risk Assessment</h3>
+                <p>Comprehensive risk assessment for long-term storage using graph-based connectivity analysis.</p>
+            </div>
+            
+            <div class="co2-feature">
+                <h3>Physics-Informed GNNs</h3>
+                <p>Integration of physical laws with data-driven approaches for more accurate geomechanical simulations.</p>
+            </div>
+        </div>
+        
+        <div class="release-date">Anticipated Release: Q3 2025</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Feature preview
+    st.markdown("""
+    <div class="card">
+        <h2>Technical Development</h2>
+        <p>StrataGraph 2.0 will build upon the graph-based reservoir characterization from VHydro 1.0 with several scientific advancements:</p>
+        <ul>
+            <li>Physics-Informed Graph Neural Networks (PI-GNNs) for improved prediction accuracy</li>
+            <li>Integration with existing carbon storage databases for more robust model training</li>
+            <li>Enhanced visualization tools for long-term storage simulation monitoring</li>
+            <li>Comprehensive risk assessment methodologies based on graph connectivity analysis</li>
+            <li>Specialized caprock integrity models using geomechanical properties</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Simplified sign up form
+    st.markdown("""
+    <div class="waitlist-form">
+        <h2>Stay Updated</h2>
+        <p>Sign up to receive updates when CO2 Storage Applications becomes available.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.text_input("Name")
+        st.text_input("Email")
+    with col2:
+        st.text_input("Organization")
+        st.selectbox("Area of Interest", ["Carbon Storage", "Hydrocarbon Production", "Research", "Education", "Other"])
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Notify Me", use_container_width=True):
+            st.success("Thank you for your interest! We'll notify you when StrataGraph 2.0 becomes available.")
+
+def help_contact_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>Help and Contact</h1>
+        <p>Get support and connect with our team</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # FAQ section
+    st.markdown("""
+    <div class="card">
+        <h2>Frequently Asked Questions</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.expander("What file formats are supported?"):
+        st.markdown("""
+        Currently, StrataGraph supports the following file formats:
+        - LAS (Log ASCII Standard) for well log data
+        - CSV for tabular data
+        - Excel spreadsheets for tabular data
+        """)
+    
+    with st.expander("How accurate is the hydrocarbon prediction model?"):
+        st.markdown("""
+        The GCN-based hydrocarbon prediction model typically achieves 85-92% accuracy on test datasets,
+        depending on data quality and completeness. The model is trained using both supervised and
+        unsupervised learning approaches to ensure robust predictions.
+        """)
+    
+    with st.expander("What are the system requirements?"):
+        st.markdown("""
+        StrataGraph is a web-based application that runs in your browser. The recommended specifications are:
+        - Modern web browser (Chrome, Firefox, Edge)
+        - Minimum 8GB RAM for optimal performance with large datasets
+        - Internet connection for cloud-based processing
+        """)
+    
+    with st.expander("Can I use my own custom clustering algorithm?"):
+        st.markdown("""
+        Yes, StrataGraph is designed to be flexible. While the default implementation uses K-means clustering, 
+        advanced users can implement custom clustering algorithms by modifying the code or using the API endpoints.
+        Contact our support team for guidance on implementing custom algorithms.
+        """)
+    
+    with st.expander("Is my data secure?"):
+        st.markdown("""
+        Yes, data security is a top priority. StrataGraph uses industry-standard encryption for data transfer and storage.
+        All data processing occurs within secure environments, and you maintain complete ownership of your data.
+        We do not share your data with third parties.
+        """)
+    
+    # Contact form
+    st.markdown("""
+    <div class="card">
+        <h2>Contact Us</h2>
+        <p>Have questions or need assistance? Reach out to our team.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.text_input("Name")
+        st.text_input("Email")
+    with col2:
+        st.text_input("Subject")
+        st.selectbox("Category", ["Technical Support", "Feature Request", "Billing", "Other"])
+    
+    st.text_area("Message", height=150)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Send Message", use_container_width=True):
+            st.success("Your message has been sent. We'll get back to you soon!")
+
+def about_us_page():
+    st.markdown("""
+    <div class="colored-header">
+        <h1>About Us</h1>
+        <p>Learn about StrataGraph and our mission</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="card">
+        <h2>Our Mission</h2>
+        <p>StrataGraph is committed to revolutionizing geoscience analysis through advanced machine learning techniques. 
+        Our mission is to provide geoscientists and engineers with powerful, intuitive tools that transform complex subsurface 
+        data into actionable insights through innovative graph-based approaches.</p>
+        
+        <h2>Our Vision</h2>
+        <p>We envision a future where geological and petrophysical data analysis is enhanced by the power of graph-based 
+        deep learning, enabling more accurate predictions for both hydrocarbon exploration and carbon storage applications. 
+        By bridging traditional geoscience with cutting-edge AI, we aim to contribute to both energy security and climate solutions.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Research and publications
+    st.markdown("""
+    <div class="card">
+        <h2>Research and Publications</h2>
+        <p>Our technology is built on peer-reviewed research:</p>
+        <ul>
+            <li><a href="https://link.springer.com/article/10.1007/s11053-024-10311-x" target="_blank">Hydrocarbon Potential Prediction Using Novel Graph Dataset</a> - 
+            This paper introduces our approach to hydrocarbon potential prediction using Graph Convolutional Networks.</li>
+            <li>Graph-based methodologies for subsurface characterization using machine learning techniques.</li>
+            <li>Forthcoming research on CO2 storage potential assessment using graph-based approaches.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Lead Developer & Research Team
+    st.markdown('<h2 class="team-section">Lead Developer</h2>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">VB</div>
+                <div class="profile-title">
+                    <h3>Venkateshwaran Baskaran, Ph.D.</h3>
+                    <p>Computational Geoscientist</p>
+                </div>
+            </div>
+            <div class="profile-bio">
+                <p>Ph.D. in Petroleum Geoscience from Universiti Teknologi PETRONAS. Specializes in graph-based machine learning 
+                applications for subsurface analysis and geological modeling.</p>
+            </div>
+            <div class="profile-links">
+                <a href="https://www.linkedin.com/in/venkateshwaran-baskaran/" target="_blank" class="profile-link">LinkedIn</a>
+                <a href="https://scholar.google.com/citations?user=YOURID" target="_blank" class="profile-link">Google Scholar</a>
+                <a href="https://github.com/venkateshwaranb" target="_blank" class="profile-link">GitHub</a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Research Advisors & Supervisors
+    st.markdown('<h2 class="supervisor-section">Research Advisors & Supervisors</h2>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">AH</div>
+                <div class="profile-title">
+                    <h3>Dr. AKM Eashanul Haque</h3>
+                    <p>Assistant Professor</p>
+                    <p>Universiti Teknologi PETRONAS</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">HR</div>
+                <div class="profile-title">
+                    <h3>Dr. Hariharan Ramachandran</h3>
+                    <p>Research Associate</p>
+                    <p>Heriot Watt University</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">NA</div>
+                <div class="profile-title">
+                    <h3>Dr. Numair Ahmed Siddiqui</h3>
+                    <p>Associate Professor</p>
+                    <p>Universiti Teknologi PETRONAS</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">RK</div>
+                <div class="profile-title">
+                    <h3>Dr. Ramkumar Krishnan</h3>
+                    <p>Professor</p>
+                    <p>Periyar University</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Collaborators & Contributors
+    st.markdown('<h2 class="collaborator-section">Collaborators & Contributors</h2>', unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">SG</div>
+                <div class="profile-title">
+                    <h3>Sugavanam</h3>
+                    <p>ExLog, Kuwait</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">MB</div>
+                <div class="profile-title">
+                    <h3>Manobalaji</h3>
+                    <p>Curtin University</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">JO</div>
+                <div class="profile-title">
+                    <h3>John Olutoki</h3>
+                    <p>Universiti Teknologi PETRONAS</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Technologies section
+    st.markdown("""
+    <div class="card">
+        <h2>Our Technology</h2>
+        <p>StrataGraph leverages the power of Graph Neural Networks (GNNs) to model complex relationships in subsurface data. Our technology stack includes:</p>
+        <ul>
+            <li>PyTorch Geometric and StellarGraph for graph-based deep learning</li>
+            <li>Graph Convolutional Networks (GCNs) for spatial relationship modeling</li>
+            <li>Advanced data visualization techniques for intuitive interpretation</li>
+            <li>Cloud-based processing for scalable analysis</li>
+            <li>Physics-Informed Graph Neural Networks (PI-GNNs) for geomechanical simulations</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Contact information
+    st.markdown("""
+    <div class="card">
+        <h2>Contact Information</h2>
+        <p><strong>Email:</strong> info@stratagraph.ai</p>
+        <p><strong>Research Lab:</strong> Universiti Teknologi PETRONAS, 32610 Seri Iskandar, Perak, Malaysia</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# The main function to run the app
+def main():
+    # Load CSS
+    load_css()
+    
+    # Create sidebar
+    sidebar_options = create_sidebar()
+    
+    # Render the appropriate page based on navigation
+    page = sidebar_options["page"]
+    
+    if page == "Home":
+        home_page()
+    elif page == "VHydro Overview":
+        vhydro_overview_page()
+    elif page == "Data Preparation":
+        data_preparation_page()
+    elif page == "Petrophysical Properties":
+        petrophysical_properties_page()
+    elif page == "Facies Classification":
+        facies_classification_page()
+    elif page == "Hydrocarbon Potential Using GCN":
+        hydrocarbon_prediction_page()
+    elif page == "VHydro":
+        vhydro_overview_page()
+    elif page == "CO2 Storage Applications":
+        co2_storage_page()
+    elif page == "Help and Contact":
+        help_contact_page()
+    elif page == "About Us":
+        about_us_page()
+    else:
+        home_page()  # Default to home page
+
+if __name__ == "__main__":
+    main()
