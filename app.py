@@ -46,15 +46,43 @@ def load_css():
         background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
     }
     
-    /* Button styling enhancements */
-    /* These apply to all buttons in the app for consistency */
+    /* Enhance all buttons in the app */
     button {
         transition: all 0.2s ease !important;
     }
     
     button:hover {
         filter: brightness(105%) !important;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* Add a subtle shine effect on hover for main buttons */
+    .stButton > button:not([kind^="nav_"]):not([kind^="subnav_"]):hover {
+        background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0)) !important;
+    }
+    
+    /* Elegant section headers */
+    .section-header {
+        background: linear-gradient(90deg, rgba(14,65,148,0.8) 0%, rgba(20,90,198,0.8) 100%);
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border-left: 4px solid rgba(255,255,255,0.6);
+        color: white;
+        font-weight: 600;
+    }
+    
+    /* Enhanced card styling */
+    .card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        border-top: 4px solid #0e4194;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     }
     
     /* Coming soon tag */
@@ -90,28 +118,50 @@ def load_css():
         pointer-events: none;
     }
     
+    /* Footer text */
     .footer-text {
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.8rem;
         text-align: center;
         padding: 1rem;
-        margin-top: 2rem;
     }
     
-    /* Custom styles for selected navigation elements */
-    .selected-nav {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-left: 4px solid #4CAF50;
-        font-weight: bold;
-        color: white !important;
+    /* Make tabs more elegant */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1px;
     }
     
-    /* Divider styles */
-    .nav-divider {
-        margin: 15px 0;
-        border-color: rgba(255, 255, 255, 0.2);
-        border-style: solid;
-        border-width: 0 0 1px 0;
+    .stTabs [data-baseweb="tab"] {
+        height: 40px;
+        background-color: rgba(14, 65, 148, 0.05);
+        border-radius: 5px 5px 0 0;
+        gap: 1px;
+        transition: all 0.2s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background-color: rgba(14, 65, 148, 0.1);
+        border-top: 3px solid #0e4194;
+    }
+    
+    /* Metrics styling */
+    [data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="stMetric"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Streamlit dataframe styling */
+    .stDataFrame {
+        border-radius: 5px;
+        overflow: hidden;
     }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -131,7 +181,7 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create a simplified sidebar navigation system with moderate UI enhancements
+# Create an elegant sidebar with fixed footer and refined section headers
 def create_sidebar():
     # Logo and title section
     # Function to load and encode image
@@ -147,11 +197,39 @@ def create_sidebar():
     # Path to your image
     image_base64 = get_base64_image("src/StrataGraph_White_Logo.png")
     
+    # Create sidebar container with fixed height and scrolling
+    st.sidebar.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"] > div:first-child {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        [data-testid="stSidebar"] > div:first-child > div:first-child {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .sidebar-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .footer-container {
+            margin-top: auto;
+            padding-bottom: 20px;
+        }
+        </style>
+        <div class="sidebar-content">
+        """, 
+        unsafe_allow_html=True
+    )
+    
     # Inject image via HTML in the sidebar
     if image_base64:
         st.sidebar.markdown(
             f"""
-            <div style="text-align: center;">
+            <div style="text-align: center; margin-bottom: 10px;">
                 <img src="{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 250px; margin-bottom: 10px;"/>
             </div>
             """,
@@ -160,9 +238,9 @@ def create_sidebar():
     
     st.sidebar.markdown(
         f"""
-        <div style="text-align: center;">
-            <h1 style="font-size: 24px; color: white;">StrataGraph</h1>
-            <div style="font-size: 14px; color: gray;">VHydro 1.0</div>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="font-size: 24px; color: white; margin-bottom: 0;">StrataGraph</h1>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.6);">VHydro 1.0</div>
         </div>
         """,
         unsafe_allow_html=True
@@ -172,8 +250,17 @@ def create_sidebar():
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Navigation header
-    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">Navigation</div>', unsafe_allow_html=True)
+    # Navigation header with elegant styling
+    st.sidebar.markdown(
+        """
+        <div style="background: linear-gradient(90deg, rgba(14,65,148,0.8) 0%, rgba(20,90,198,0.8) 100%); 
+                   padding: 8px 12px; border-radius: 5px; margin-bottom: 15px; 
+                   border-left: 3px solid rgba(255,255,255,0.6);">
+            <div style="color: white; font-weight: 600; font-size: 0.95rem;">NAVIGATION</div>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
     
     # Define main pages
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
@@ -229,8 +316,8 @@ def create_sidebar():
                     margin-bottom: 8px;
                     border-radius: 4px;
                     height: auto;
-                    padding-top: 6px;
-                    padding-bottom: 6px;
+                    padding-top: 8px;
+                    padding-bottom: 8px;
                     transition: all 0.2s;
                 }}
                 div[data-testid="stButton"] > button[kind="{button_key}"]:hover {{
@@ -248,11 +335,17 @@ def create_sidebar():
     
     current_page = st.session_state["current_page"]
     if current_page == "VHydro" or current_page in vhydro_subpages:
-        # Add divider
-        st.sidebar.markdown('<hr style="margin: 15px 0; border-color: rgba(255,255,255,0.2);">', unsafe_allow_html=True)
-        
-        # Module header
-        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 10px; margin-bottom: 10px;">VHydro Modules</div>', unsafe_allow_html=True)
+        # Add VHydro modules header with elegant styling
+        st.sidebar.markdown(
+            """
+            <div style="background: linear-gradient(90deg, rgba(76,175,80,0.5) 0%, rgba(56,142,60,0.5) 100%); 
+                      padding: 8px 12px; border-radius: 5px; margin-top: 20px; margin-bottom: 15px; 
+                      border-left: 3px solid rgba(255,255,255,0.6);">
+                <div style="color: white; font-weight: 600; font-size: 0.95rem;">VHYDRO MODULES</div>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
         
         # Create subpage navigation
         for subpage in vhydro_subpages:
@@ -299,8 +392,8 @@ def create_sidebar():
                         margin-bottom: 6px;
                         border-radius: 4px;
                         height: auto;
-                        padding-top: 4px;
-                        padding-bottom: 4px;
+                        padding-top: 6px;
+                        padding-bottom: 6px;
                         transition: all 0.2s;
                     }}
                     div[data-testid="stButton"] > button[kind="{button_key}"]:hover {{
@@ -312,49 +405,55 @@ def create_sidebar():
                 unsafe_allow_html=True
             )
     
-    # Only show model configuration in analysis pages
-    min_clusters = 5
-    max_clusters = 10
-    
-    if st.session_state["current_page"] == "Facies Classification":
-        st.sidebar.markdown('<hr style="margin: 15px 0; border-color: rgba(255,255,255,0.2);">', unsafe_allow_html=True)
-        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 10px;">Analysis Parameters</div>', unsafe_allow_html=True)
-        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
-        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
-    
-    # Version selection section
+    # Version selection section with elegant styling
     st.sidebar.markdown(
         """
-        <div style="background-color: rgba(255, 255, 255, 0.1); margin-top: 20px; padding: 10px; border-radius: 5px;">
-            <h4 style="color: white; margin-bottom: 10px;">Versions</h4>
-            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        <div style="background: linear-gradient(90deg, rgba(30,41,59,0.5) 0%, rgba(41,56,78,0.5) 100%); 
+                  padding: 8px 12px; border-radius: 5px; margin-top: 30px; margin-bottom: 15px; 
+                  border-left: 3px solid rgba(255,255,255,0.4);">
+            <div style="color: white; font-weight: 600; font-size: 0.95rem;">VERSIONS</div>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
+    
+    st.sidebar.markdown(
+        """
+        <div style="background-color: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 5px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
                 <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4CAF50; margin-right: 10px;"></div>
-                <span style="color: white;">VHydro 1.0 (Current)</span>
+                <span style="color: white; font-size: 0.9rem;">VHydro 1.0 (Current)</span>
             </div>
             <div style="display: flex; align-items: center;">
                 <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #FFA500; margin-right: 10px;"></div>
-                <span style="color: white;">CO2 Storage 2.0 (Coming Soon)</span>
+                <span style="color: white; font-size: 0.9rem;">CO2 Storage 2.0 (Coming Soon)</span>
             </div>
         </div>
         """, 
         unsafe_allow_html=True
     )
     
-    # Footer
+    # Close the sidebar content div
+    st.sidebar.markdown("</div>", unsafe_allow_html=True)
+    
+    # Fixed footer positioned at the bottom
     st.sidebar.markdown(
         """
-        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; text-align: center; position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
-            © 2025 StrataGraph. All rights reserved.<br>
-            Version 1.0.0
+        <div class="footer-container">
+            <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; text-align: center; padding: 0 20px;">
+                © 2025 StrataGraph. All rights reserved.<br>
+                Version 1.0.0
+            </div>
         </div>
         """, 
         unsafe_allow_html=True
     )
     
+    # Return the settings as before, but without the model parameters
     return {
         "page": st.session_state["current_page"],
-        "min_clusters": min_clusters,
-        "max_clusters": max_clusters
+        "min_clusters": 5,
+        "max_clusters": 10
     }
     
 def home_page():
