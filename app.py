@@ -50,6 +50,16 @@ def load_css():
     .sidebar-nav {
         margin-top: 1rem;
     }
+
+    div[data-testid="stRadio"] label {
+        color: white !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] label {
+        color: white !important;
+    }
+    div[role="radiogroup"] label {
+        color: white !important;
+    }
     
     .nav-item {
         padding: 0.5rem 1rem;
