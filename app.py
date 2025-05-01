@@ -42,94 +42,105 @@ def load_css():
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
     /* Sidebar styling */
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
+    [data-testid="stSidebar"] {
+        background-color: white;
+        color: #333;
     }
     
-    /* Sidebar navigation styling */
-    .sidebar-nav {
-        margin-top: 1rem;
+    /* Logo and title */
+    .sidebar-logo {
+        text-align: center;
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
     
+    /* Navigation section headers */
+    .nav-section {
+        color: #6c757d;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        padding-left: 1rem;
+    }
+    
+    /* Navigation item styling */
     .nav-item {
+        display: flex;
+        align-items: center;
         padding: 0.5rem 1rem;
-        margin-bottom: 0.25rem;
-        border-radius: 4px;
+        border-radius: 0px;
+        text-decoration: none;
+        color: #212529;
         cursor: pointer;
-        color: rgba(255, 255, 255, 0.8);
-        transition: all 0.2s ease;
+        transition: background-color 0.2s;
+        border-left: 3px solid transparent;
     }
     
     .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
+        background-color: #f8f9fa;
+        border-left: 3px solid #007bff;
     }
     
     .nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-left: 3px solid white;
+        border-left: 3px solid #007bff;
+        color: #007bff;
+        font-weight: 500;
+        background-color: #f8f9fa;
     }
     
-    .nav-sub-item {
-        padding: 0.4rem 1rem 0.4rem 2rem;
-        margin-bottom: 0.15rem;
-        border-radius: 4px;
+    /* Submodule item styling */
+    .nav-submodule {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem 0.5rem 2rem;
+        text-decoration: none;
+        color: #212529;
         cursor: pointer;
-        color: rgba(255, 255, 255, 0.7);
+        transition: background-color 0.2s;
+        border-left: 3px solid transparent;
         font-size: 0.9rem;
     }
     
-    .nav-sub-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
+    .nav-submodule:hover {
+        background-color: #f8f9fa;
+        border-left: 3px solid #007bff;
     }
     
-    .nav-sub-item.active {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        border-left: 2px solid white;
+    .nav-submodule.active {
+        border-left: 3px solid #007bff;
+        color: #007bff;
+        font-weight: 500;
+        background-color: #f8f9fa;
+    }
+    
+    /* Icon styling */
+    .nav-icon {
+        margin-right: 10px;
+        width: 16px;
+        text-align: center;
     }
     
     /* Coming soon tag */
-    .coming-soon-tag {
-        background-color: rgba(255, 152, 0, 0.2);
-        color: rgb(255, 152, 0);
-        padding: 2px 6px;
-        border-radius: 4px;
+    .soon-badge {
+        background-color: #ffc107;
+        color: #212529;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.25rem;
         font-size: 0.7rem;
-        margin-left: 8px;
-        vertical-align: middle;
+        margin-left: auto;
+        font-weight: 500;
     }
     
-    /* Coming soon section */
-    .coming-soon-section {
-        background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://placehold.co/600x400');
-        background-size: cover;
-        color: white;
-        padding: 30px;
-        border-radius: 10px;
-        text-align: center;
-        margin: 30px 0;
-        filter: blur(0px); /* Container not blurred */
-    }
-    
-    .coming-soon-section h2 {
-        color: white;
-        margin-bottom: 15px;
-    }
-    
-    .coming-soon-section .content {
-        filter: blur(3px); /* Content inside is blurred */
-        pointer-events: none;
-    }
-    
-    .footer-text {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.8rem;
-        text-align: center;
+    /* Footer styling */
+    .sidebar-footer {
+        position: absolute;
+        bottom: 0;
         padding: 1rem;
-        margin-top: 2rem;
+        width: 100%;
+        font-size: 0.8rem;
+        color: #6c757d;
+        border-top: 1px solid #f1f1f1;
     }
     
     /* Version section */
@@ -185,115 +196,212 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create a simplified sidebar navigation system
 def create_sidebar():
-    # Logo and title section
-    # Function to load and encode image
-    def get_base64_image(image_path):
-        try:
-            with open(image_path, "rb") as img_file:
-                b64_data = base64.b64encode(img_file.read()).decode()
-            return f"data:image/png;base64,{b64_data}"
-        except Exception as e:
-            logger.error(f"Error loading image: {e}")
-            return None
+    # Initialize session state for navigation
+    if "current_page" not in st.session_state:
+        st.session_state["current_page"] = "Home"
     
-    # Path to your image
-    image_base64 = get_base64_image("src/StrataGraph_White_Logo.png")
+    if "expand_vhydro" not in st.session_state:
+        st.session_state["expand_vhydro"] = False
     
-    # Inject image via HTML in the sidebar
-    if image_base64:
+    # Logo and title
+    logo_path = "src/StrataGraph_White_Logo.png"
+    if os.path.exists(logo_path):
+        image_base64 = get_base64_image(logo_path)
+        if image_base64:
+            st.sidebar.markdown(
+                f"""
+                <div class="sidebar-logo">
+                    <img src="data:image/png;base64,{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 150px; margin-bottom: 10px;"/>
+                    <h2 style="margin-top: 10px; color: #333; font-size: 1.5rem;">StrataGraph</h2>
+                    <div style="color: #6c757d; font-size: 1rem;">VHydro 1.0</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+    else:
         st.sidebar.markdown(
-            f"""
-            <div style="text-align: center;">
-                <img src="{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 250px; margin-bottom: 10px;"/>
+            """
+            <div class="sidebar-logo">
+                <h2 style="color: #333; font-size: 1.5rem;">StrataGraph</h2>
+                <div style="color: #6c757d; font-size: 1rem;">VHydro 1.0</div>
             </div>
             """,
             unsafe_allow_html=True
         )
     
-    st.sidebar.markdown(
+    # MAIN NAVIGATION section
+    st.sidebar.markdown('<div class="nav-section">MAIN NAVIGATION</div>', unsafe_allow_html=True)
+    
+    # Home nav item
+    home_active = "active" if st.session_state["current_page"] == "Home" else ""
+    if st.sidebar.markdown(
         f"""
-        <div style="text-align: center;">
-            <h1 style="font-size: 24px; color: white;">StrataGraph</h1>
-            <div style="font-size: 14px; color: gray;">VHydro 1.0</div>
+        <div class="nav-item {home_active}" id="nav-home">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
         </div>
         """,
         unsafe_allow_html=True
-    )
-    
-    # Initialize current page if not exists
-    if "current_page" not in st.session_state:
+    ):
         st.session_state["current_page"] = "Home"
-    
-    # Simple navigation using radio buttons
-    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px;">Navigation</div>', unsafe_allow_html=True)
-    
-    # Main navigation as a simple radio
-    main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
-    selected_main = st.sidebar.radio("", main_pages, index=main_pages.index(st.session_state["current_page"]) 
-                                     if st.session_state["current_page"] in main_pages else 0,
-                                     label_visibility="collapsed")
-    
-    # If VHydro is selected, show sub-pages
-    vhydro_selected = False
-    if selected_main == "VHydro":
-        vhydro_selected = True
-        st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
-        vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
-                      "Facies Classification", "Hydrocarbon Potential Using GCN"]
-        
-        # Find the index of the current page in vhydro_pages if it exists
-        current_index = 0
-        if st.session_state["current_page"] in vhydro_pages:
-            current_index = vhydro_pages.index(st.session_state["current_page"])
-        
-        selected_vhydro = st.sidebar.radio(
-            "", vhydro_pages, index=current_index, label_visibility="collapsed"
-        )
-        st.sidebar.markdown('</div>', unsafe_allow_html=True)
-        
-        # Update session state with selected VHydro page
-        if selected_vhydro != st.session_state["current_page"]:
-            st.session_state["current_page"] = selected_vhydro
-            st.rerun()
-    
-    # Update session state with selected main page
-    if not vhydro_selected and selected_main != st.session_state["current_page"]:
-        st.session_state["current_page"] = selected_main
+        st.session_state["expand_vhydro"] = False
         st.rerun()
     
-    # Version selection section
+    # VHydro nav item - expandable
+    vhydro_active = "active" if st.session_state["current_page"] in ["VHydro", "VHydro Overview", "Data Preparation", "Petrophysical Properties", "Facies Classification", "Hydrocarbon Potential Using GCN"] else ""
+    if st.sidebar.markdown(
+        f"""
+        <div class="nav-item {vhydro_active}" id="nav-vhydro">
+            <span class="nav-icon">📈</span>
+            <span>VHydro</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    ):
+        st.session_state["expand_vhydro"] = not st.session_state["expand_vhydro"]
+        if not st.session_state["expand_vhydro"]:
+            st.session_state["current_page"] = "VHydro Overview"
+        st.rerun()
+    
+    # VHydro submodules
+    if st.session_state["expand_vhydro"] or vhydro_active:
+        # VHydro Overview
+        overview_active = "active" if st.session_state["current_page"] == "VHydro Overview" else ""
+        if st.sidebar.markdown(
+            f"""
+            <div class="nav-submodule {overview_active}" id="nav-vhydro-overview">
+                <span>Overview</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        ):
+            st.session_state["current_page"] = "VHydro Overview"
+            st.rerun()
+        
+        # Data Preparation
+        data_prep_active = "active" if st.session_state["current_page"] == "Data Preparation" else ""
+        if st.sidebar.markdown(
+            f"""
+            <div class="nav-submodule {data_prep_active}" id="nav-data-prep">
+                <span>Data Preparation</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        ):
+            st.session_state["current_page"] = "Data Preparation"
+            st.rerun()
+        
+        # Petrophysical Properties
+        petro_active = "active" if st.session_state["current_page"] == "Petrophysical Properties" else ""
+        if st.sidebar.markdown(
+            f"""
+            <div class="nav-submodule {petro_active}" id="nav-petro">
+                <span>Petrophysical Properties</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        ):
+            st.session_state["current_page"] = "Petrophysical Properties"
+            st.rerun()
+        
+        # Facies Classification
+        facies_active = "active" if st.session_state["current_page"] == "Facies Classification" else ""
+        if st.sidebar.markdown(
+            f"""
+            <div class="nav-submodule {facies_active}" id="nav-facies">
+                <span>Facies Classification</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        ):
+            st.session_state["current_page"] = "Facies Classification"
+            st.rerun()
+        
+        # GCN Analysis
+        gcn_active = "active" if st.session_state["current_page"] == "Hydrocarbon Potential Using GCN" else ""
+        if st.sidebar.markdown(
+            f"""
+            <div class="nav-submodule {gcn_active}" id="nav-gcn">
+                <span>GCN Analysis</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        ):
+            st.session_state["current_page"] = "Hydrocarbon Potential Using GCN"
+            st.rerun()
+    
+    # CO2 Storage nav item
+    co2_active = "active" if st.session_state["current_page"] == "CO2 Storage Applications" else ""
+    if st.sidebar.markdown(
+        f"""
+        <div class="nav-item {co2_active}" id="nav-co2">
+            <span class="nav-icon">💨</span>
+            <span>CO2 Storage</span>
+            <span class="soon-badge">Soon</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    ):
+        st.session_state["current_page"] = "CO2 Storage Applications"
+        st.session_state["expand_vhydro"] = False
+        st.rerun()
+    
+    # SUPPORT section
+    st.sidebar.markdown('<div class="nav-section">SUPPORT</div>', unsafe_allow_html=True)
+    
+    # Help and Contact
+    help_active = "active" if st.session_state["current_page"] == "Help and Contact" else ""
+    if st.sidebar.markdown(
+        f"""
+        <div class="nav-item {help_active}" id="nav-help">
+            <span class="nav-icon">❓</span>
+            <span>Help and Contact</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    ):
+        st.session_state["current_page"] = "Help and Contact"
+        st.session_state["expand_vhydro"] = False
+        st.rerun()
+    
+    # About Us
+    about_active = "active" if st.session_state["current_page"] == "About Us" else ""
+    if st.sidebar.markdown(
+        f"""
+        <div class="nav-item {about_active}" id="nav-about">
+            <span class="nav-icon">ℹ️</span>
+            <span>About Us</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    ):
+        st.session_state["current_page"] = "About Us"
+        st.session_state["expand_vhydro"] = False
+        st.rerun()
+    
+    # Version information
     st.sidebar.markdown(
         """
-        <div style="background-color: rgba(255, 255, 255, 0.1); margin-top: 20px; padding: 10px; border-radius: 5px;">
-            <h4 style="color: white; margin-bottom: 10px;">Versions</h4>
+        <div style="margin-top: 20px; padding: 0.5rem 1rem; background-color: #f8f9fa; border-radius: 5px;">
+            <h4 style="color: #6c757d; font-size: 0.8rem; margin-bottom: 10px;">VERSIONS</h4>
             <div style="display: flex; align-items: center; margin-bottom: 8px;">
                 <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4CAF50; margin-right: 10px;"></div>
-                <span style="color: white;">VHydro 1.0 (Current)</span>
+                <span style="color: #333;">VHydro 1.0 (Current)</span>
             </div>
             <div style="display: flex; align-items: center;">
                 <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #FFA500; margin-right: 10px;"></div>
-                <span style="color: white;">CO2 Storage 2.0 (Coming Soon)</span>
+                <span style="color: #333;">CO2 Storage 2.0 (Coming Soon)</span>
             </div>
         </div>
         """, 
         unsafe_allow_html=True
     )
     
-    # Only show model configuration in analysis pages
-    min_clusters = 5
-    max_clusters = 10
-    
-    if st.session_state["current_page"] == "Facies Classification":
-        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px;">Analysis Parameters</div>', unsafe_allow_html=True)
-        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
-        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
-    
     # Footer
     st.sidebar.markdown(
         """
-        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; text-align: center; position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
+        <div class="sidebar-footer">
             © 2025 StrataGraph. All rights reserved.<br>
             Version 1.0.0
         </div>
@@ -301,11 +409,7 @@ def create_sidebar():
         unsafe_allow_html=True
     )
     
-    return {
-        "page": st.session_state["current_page"],
-        "min_clusters": min_clusters,
-        "max_clusters": max_clusters
-    }
+    return st.session_state["current_page"]
     
 def home_page():
     # Try to load the banner image
