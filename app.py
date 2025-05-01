@@ -239,7 +239,7 @@ def create_sidebar():
     vhydro_selected = False
     if selected_main == "VHydro":
         vhydro_selected = True
-        st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
+        st.sidebar.markdown('<div style="margin-left: 1.5rem; color: white;">', unsafe_allow_html=True)
         vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
                       "Facies Classification", "Hydrocarbon Potential Using GCN"]
         
