@@ -51,44 +51,77 @@ def load_css():
         margin-top: 1rem;
     }
     
+    /* Enhanced nav item styling */
     .nav-item {
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.25rem;
-        border-radius: 4px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 6px;
         cursor: pointer;
         color: rgba(255, 255, 255, 0.8);
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
     
     .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(255, 255, 255, 0.15);
         color: white;
+        transform: translateX(3px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
     
     .nav-item.active {
         background-color: rgba(255, 255, 255, 0.2);
         color: white;
-        border-left: 3px solid white;
+        border-left: 4px solid #4CAF50;
+        padding-left: calc(1rem - 4px);
+        font-weight: bold;
     }
     
+    .nav-item.active:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #4CAF50, #388E3C);
+    }
+    
+    /* Enhanced sub-item styling */
     .nav-sub-item {
-        padding: 0.4rem 1rem 0.4rem 2rem;
-        margin-bottom: 0.15rem;
+        padding: 0.6rem 1rem 0.6rem 2rem;
+        margin-bottom: 0.3rem;
         border-radius: 4px;
         cursor: pointer;
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.9rem;
+        transition: all 0.3s ease;
+        position: relative;
     }
     
     .nav-sub-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(255, 255, 255, 0.15);
         color: white;
+        transform: translateX(3px);
     }
     
     .nav-sub-item.active {
         background-color: rgba(255, 255, 255, 0.15);
         color: white;
-        border-left: 2px solid white;
+        border-left: 3px solid #4CAF50;
+        padding-left: calc(2rem - 3px);
+        font-weight: bold;
+    }
+    
+    /* Selected page banner indicator */
+    .page-banner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, #4CAF50, #8BC34A);
     }
     
     /* Coming soon tag */
@@ -132,12 +165,18 @@ def load_css():
         margin-top: 2rem;
     }
     
-    /* Version section */
+    /* Version section with hover effects */
     .version-section {
         margin-top: 1rem;
         padding: 0.5rem 1rem;
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .version-section:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
     
     .version-section h4 {
@@ -151,6 +190,11 @@ def load_css():
         align-items: center;
         padding: 0.5rem 0;
         color: white;
+        transition: all 0.2s ease;
+    }
+    
+    .version-item:hover {
+        transform: translateX(3px);
     }
     
     .version-indicator {
@@ -166,6 +210,22 @@ def load_css():
     
     .coming-version {
         background-color: #FFA500;
+    }
+    
+    /* Button hover effects */
+    .stButton>button {
+        transition: all 0.3s ease !important;
+    }
+    
+    .stButton>button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    /* Module section divider */
+    .module-divider {
+        margin: 15px 0;
+        border-color: rgba(255,255,255,0.2);
     }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -185,7 +245,7 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create a simplified sidebar navigation system
+# Create a clickable sidebar navigation system with hover effects
 def create_sidebar():
     # Logo and title section
     # Function to load and encode image
@@ -226,42 +286,65 @@ def create_sidebar():
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Simple navigation using radio buttons
-    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px;">Navigation</div>', unsafe_allow_html=True)
+    # Main navigation heading
+    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">Navigation</div>', unsafe_allow_html=True)
     
-    # Main navigation as a simple radio
+    # Define main pages
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
-    selected_main = st.sidebar.radio("", main_pages, index=main_pages.index(st.session_state["current_page"]) 
-                                     if st.session_state["current_page"] in main_pages else 0,
-                                     label_visibility="collapsed")
     
-    # If VHydro is selected, show sub-pages
-    vhydro_selected = False
-    if selected_main == "VHydro":
-        vhydro_selected = True
-        st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
+    # Create clickable navigation menu with HTML/CSS
+    for page in main_pages:
+        active_class = "active" if st.session_state["current_page"] == page or (page == "VHydro" and st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", "Petrophysical Properties", "Facies Classification", "Hydrocarbon Potential Using GCN"]) else ""
+        
+        if st.sidebar.markdown(f'<div class="nav-item {active_class}" id="{page}" onclick="handleNavClick(\'{page}\')">{page}</div>', unsafe_allow_html=True):
+            st.session_state["current_page"] = page
+            st.rerun()
+    
+    # Add JavaScript for handling clicks
+    st.sidebar.markdown("""
+    <script>
+    function handleNavClick(page) {
+        // This function will be called when a nav item is clicked
+        // Set a hidden input value and trigger form submission
+        document.getElementById('nav-click-target').value = page;
+        document.getElementById('nav-form').submit();
+    }
+    </script>
+    
+    <form id="nav-form" method="post">
+        <input type="hidden" id="nav-click-target" name="nav_target">
+    </form>
+    """, unsafe_allow_html=True)
+    
+    # If the current page is VHydro or any VHydro subpage, show the module navigation
+    if st.session_state["current_page"] == "VHydro" or st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", "Petrophysical Properties", "Facies Classification", "Hydrocarbon Potential Using GCN"]:
+        # Add a divider 
+        st.sidebar.markdown('<hr style="margin: 15px 0; border-color: rgba(255,255,255,0.2);">', unsafe_allow_html=True)
+        
+        # Add modules section heading
+        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 10px; margin-bottom: 10px;">VHydro Modules</div>', unsafe_allow_html=True)
+        
+        # Define VHydro subpages
         vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
                       "Facies Classification", "Hydrocarbon Potential Using GCN"]
         
-        # Find the index of the current page in vhydro_pages if it exists
-        current_index = 0
-        if st.session_state["current_page"] in vhydro_pages:
-            current_index = vhydro_pages.index(st.session_state["current_page"])
-        
-        selected_vhydro = st.sidebar.radio(
-            "", vhydro_pages, index=current_index, label_visibility="collapsed"
-        )
-        st.sidebar.markdown('</div>', unsafe_allow_html=True)
-        
-        # Update session state with selected VHydro page
-        if selected_vhydro != st.session_state["current_page"]:
-            st.session_state["current_page"] = selected_vhydro
-            st.rerun()
+        # Create clickable subpage navigation
+        for subpage in vhydro_pages:
+            active_class = "active" if st.session_state["current_page"] == subpage else ""
+            
+            if st.sidebar.markdown(f'<div class="nav-sub-item {active_class}" id="{subpage}" onclick="handleNavClick(\'{subpage}\')">{subpage}</div>', unsafe_allow_html=True):
+                st.session_state["current_page"] = subpage
+                st.rerun()
     
-    # Update session state with selected main page
-    if not vhydro_selected and selected_main != st.session_state["current_page"]:
-        st.session_state["current_page"] = selected_main
-        st.rerun()
+    # Only show model configuration in analysis pages (with some space above)
+    min_clusters = 5
+    max_clusters = 10
+    
+    if st.session_state["current_page"] == "Facies Classification":
+        st.sidebar.markdown('<hr style="margin: 15px 0; border-color: rgba(255,255,255,0.2);">', unsafe_allow_html=True)
+        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 10px;">Analysis Parameters</div>', unsafe_allow_html=True)
+        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
+        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
     
     # Version selection section
     st.sidebar.markdown(
@@ -280,15 +363,6 @@ def create_sidebar():
         """, 
         unsafe_allow_html=True
     )
-    
-    # Only show model configuration in analysis pages
-    min_clusters = 5
-    max_clusters = 10
-    
-    if st.session_state["current_page"] == "Facies Classification":
-        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px;">Analysis Parameters</div>', unsafe_allow_html=True)
-        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
-        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
     
     # Footer
     st.sidebar.markdown(
