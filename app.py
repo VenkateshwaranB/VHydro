@@ -51,40 +51,6 @@ def load_css():
     button {
         transition: all 0.2s ease !important;
     }
-
-    /* Elegant navigation styling */
-    div[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%);
-    }
-    
-    .nav-section-title {
-        font-size: 0.75rem;
-        letter-spacing: 1.5px;
-        color: rgba(255,255,255,0.6);
-        margin: 25px 0 10px 10px;
-        font-weight: 500;
-        text-transform: uppercase;
-    }
-    
-    /* Fix footer at bottom */
-    [data-testid="stSidebar"] > div:first-child {
-        height: 100vh;
-        overflow: auto;
-        position: relative;
-    }
-    
-    .sidebar-footer {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 15px;
-        text-align: center;
-        color: rgba(255,255,255,0.5);
-        font-size: 0.75rem;
-        background: rgba(0,0,0,0.1);
-        border-top: 1px solid rgba(255,255,255,0.05);
-    }
     
     button:hover {
         filter: brightness(105%) !important;
@@ -195,8 +161,8 @@ def create_sidebar():
     st.sidebar.markdown(
         f"""
         <div style="text-align: center;">
-            <h1 style="font-size: 24px; color: white; margin-bottom: 0;">StrataGraph</h1>
-            <div style="font-size: 14px; color: rgba(255,255,255,0.6);">VHydro 1.0</div>
+            <h1 style="font-size: 24px; color: white;">StrataGraph</h1>
+            <div style="font-size: 14px; color: gray;">VHydro 1.0</div>
         </div>
         """,
         unsafe_allow_html=True
@@ -206,14 +172,14 @@ def create_sidebar():
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Navigation header with elegant styling
-    st.sidebar.markdown('<div class="nav-section-title">Navigation</div>', unsafe_allow_html=True)
+    # Navigation header
+    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">Navigation</div>', unsafe_allow_html=True)
     
     # Define main pages
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
     
-    # Create custom navigation buttons with elegant styling
-    for i, page in enumerate(main_pages):
+    # Create navigation menu using simple buttons with custom styling
+    for page in main_pages:
         # Check if current page matches
         is_active = st.session_state["current_page"] == page
         
@@ -224,35 +190,57 @@ def create_sidebar():
         if page == "VHydro" and st.session_state["current_page"] in vhydro_subpages:
             is_active = True
         
-        # Custom button styling with elegant indent and color
-        btn_color = f"rgba({14+i*20},{65+i*10},{148-i*10},0.{7+i})" if is_active else "transparent"
-        border_color = "#4CAF50" if is_active else "transparent"
-        text_color = "white" if is_active else "rgba(255,255,255,0.8)"
-        font_weight = "600" if is_active else "normal"
+        # Apply styling based on active state
+        button_style = ""
+        if is_active:
+            button_style = """
+                background-color: rgba(255, 255, 255, 0.2);
+                border-left: 4px solid #4CAF50;
+                padding-left: 12px;
+                font-weight: bold;
+                color: white;
+            """
+        else:
+            button_style = """
+                background-color: transparent;
+                border-left: 4px solid transparent;
+                padding-left: 12px;
+                color: rgba(255, 255, 255, 0.8);
+            """
         
-        # Apply elegant styling with proper indentation
-        btn_style = f"""
-            <div 
-                onclick="this.getElementsByTagName('button')[0].click()" 
-                style="cursor: pointer; padding: 8px 15px 8px 20px; margin: 2px 10px; 
-                      background: {btn_color}; border-radius: 6px;
-                      border-left: 3px solid {border_color}; transition: all 0.3s ease;">
-                <div style="color: {text_color}; font-weight: {font_weight}; font-size: 0.95rem;">
-                    {page}
-                </div>
-            </div>
-        """
-        
-        # Create the hidden button that will be clicked by the div
-        clicked = st.sidebar.button(page, key=f"nav_{page}", label_visibility="collapsed")
-        
-        # Display the styled div that wraps the button
-        st.sidebar.markdown(btn_style, unsafe_allow_html=True)
-        
-        # Handle navigation action
-        if clicked:
+        # Create the button with custom styling
+        if st.sidebar.button(
+            page,
+            key=f"nav_{page}",
+            use_container_width=True,
+            type="secondary" if is_active else "primary",
+            help=f"Navigate to {page}"
+        ):
             st.session_state["current_page"] = page
             st.rerun()
+        
+        # Apply custom styling to the last clicked button
+        button_key = f"nav_{page}"
+        st.markdown(
+            f"""
+            <style>
+                div[data-testid="stButton"] > button[kind="{button_key}"] {{
+                    {button_style}
+                    margin-bottom: 8px;
+                    border-radius: 4px;
+                    height: auto;
+                    padding-top: 6px;
+                    padding-bottom: 6px;
+                    transition: all 0.2s;
+                }}
+                div[data-testid="stButton"] > button[kind="{button_key}"]:hover {{
+                    background-color: rgba(255, 255, 255, 0.15);
+                    transform: translateX(3px);
+                }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
     
     # Only show VHydro subpages if VHydro or a VHydro subpage is selected
     vhydro_subpages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
@@ -260,69 +248,102 @@ def create_sidebar():
     
     current_page = st.session_state["current_page"]
     if current_page == "VHydro" or current_page in vhydro_subpages:
-        # Module header with elegant styling
-        st.sidebar.markdown('<div class="nav-section-title">VHydro Modules</div>', unsafe_allow_html=True)
+        # Add divider
+        st.sidebar.markdown('<hr style="margin: 15px 0; border-color: rgba(255,255,255,0.2);">', unsafe_allow_html=True)
         
-        # Create elegant subpage navigation
-        for i, subpage in enumerate(vhydro_subpages):
+        # Module header
+        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 10px; margin-bottom: 10px;">VHydro Modules</div>', unsafe_allow_html=True)
+        
+        # Create subpage navigation
+        for subpage in vhydro_subpages:
             is_active = st.session_state["current_page"] == subpage
             
-            # Custom button styling for subpages
-            sub_btn_color = f"rgba(76,175,80,0.{2+i})" if is_active else "transparent"
-            sub_border_color = "#4CAF50" if is_active else "transparent"
-            sub_text_color = "white" if is_active else "rgba(255,255,255,0.7)"
-            sub_font_weight = "500" if is_active else "normal"
+            # Apply styling based on active state
+            button_style = ""
+            if is_active:
+                button_style = """
+                    background-color: rgba(255, 255, 255, 0.15);
+                    border-left: 3px solid #4CAF50;
+                    padding-left: 28px;
+                    font-weight: bold;
+                    color: white;
+                    font-size: 0.9rem;
+                """
+            else:
+                button_style = """
+                    background-color: transparent;
+                    border-left: 3px solid transparent;
+                    padding-left: 28px;
+                    color: rgba(255, 255, 255, 0.7);
+                    font-size: 0.9rem;
+                """
             
-            # Apply elegant styling with increased indentation for subpages
-            sub_btn_style = f"""
-                <div 
-                    onclick="this.getElementsByTagName('button')[0].click()" 
-                    style="cursor: pointer; padding: 6px 15px 6px 30px; margin: 1px 10px 1px 20px; 
-                          background: {sub_btn_color}; border-radius: 5px;
-                          border-left: 2px solid {sub_border_color}; transition: all 0.3s ease;">
-                    <div style="color: {sub_text_color}; font-weight: {sub_font_weight}; font-size: 0.9rem;">
-                        {subpage}
-                    </div>
-                </div>
-            """
-            
-            # Create the hidden button that will be clicked by the div
-            sub_clicked = st.sidebar.button(subpage, key=f"subnav_{subpage}", label_visibility="collapsed")
-            
-            # Display the styled div that wraps the button
-            st.sidebar.markdown(sub_btn_style, unsafe_allow_html=True)
-            
-            # Handle navigation action
-            if sub_clicked:
+            # Create the subpage button with custom styling
+            if st.sidebar.button(
+                subpage,
+                key=f"subnav_{subpage}",
+                use_container_width=True,
+                type="secondary" if is_active else "primary",
+                help=f"Navigate to {subpage}"
+            ):
                 st.session_state["current_page"] = subpage
                 st.rerun()
+            
+            # Apply custom styling to the subpage button
+            button_key = f"subnav_{subpage}"
+            st.markdown(
+                f"""
+                <style>
+                    div[data-testid="stButton"] > button[kind="{button_key}"] {{
+                        {button_style}
+                        margin-bottom: 6px;
+                        border-radius: 4px;
+                        height: auto;
+                        padding-top: 4px;
+                        padding-bottom: 4px;
+                        transition: all 0.2s;
+                    }}
+                    div[data-testid="stButton"] > button[kind="{button_key}"]:hover {{
+                        background-color: rgba(255, 255, 255, 0.1);
+                        transform: translateX(3px);
+                    }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
     
-    # Add version information with elegant styling
-    st.sidebar.markdown('<div class="nav-section-title">Versions</div>', unsafe_allow_html=True)
+    # Only show model configuration in analysis pages
+    min_clusters = 5
+    max_clusters = 10
     
+    if st.session_state["current_page"] == "Facies Classification":
+        st.sidebar.markdown('<hr style="margin: 15px 0; border-color: rgba(255,255,255,0.2);">', unsafe_allow_html=True)
+        st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 10px;">Analysis Parameters</div>', unsafe_allow_html=True)
+        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
+        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    
+    # Version selection section
     st.sidebar.markdown(
         """
-        <div style="background-color: rgba(255,255,255,0.05); border-radius: 6px; 
-                  margin: 5px 10px; padding: 12px;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <div style="width: 10px; height: 10px; border-radius: 50%; 
-                          background-color: #4CAF50; margin-right: 10px;"></div>
-                <span style="color: white; font-size: 0.9rem;">VHydro 1.0 (Current)</span>
+        <div style="background-color: rgba(255, 255, 255, 0.1); margin-top: 20px; padding: 10px; border-radius: 5px;">
+            <h4 style="color: white; margin-bottom: 10px;">Versions</h4>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4CAF50; margin-right: 10px;"></div>
+                <span style="color: white;">VHydro 1.0 (Current)</span>
             </div>
             <div style="display: flex; align-items: center;">
-                <div style="width: 10px; height: 10px; border-radius: 50%; 
-                          background-color: #FFA500; margin-right: 10px;"></div>
-                <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">CO2 Storage 2.0 (Coming Soon)</span>
+                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #FFA500; margin-right: 10px;"></div>
+                <span style="color: white;">CO2 Storage 2.0 (Coming Soon)</span>
             </div>
         </div>
         """, 
         unsafe_allow_html=True
     )
     
-    # Create a fixed footer at the bottom of the sidebar
+    # Footer
     st.sidebar.markdown(
         """
-        <div class="sidebar-footer">
+        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; text-align: center; position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
             © 2025 StrataGraph. All rights reserved.<br>
             Version 1.0.0
         </div>
@@ -330,11 +351,10 @@ def create_sidebar():
         unsafe_allow_html=True
     )
     
-    # Return the settings as before, but without the model parameters
     return {
         "page": st.session_state["current_page"],
-        "min_clusters": 5,
-        "max_clusters": 10
+        "min_clusters": min_clusters,
+        "max_clusters": max_clusters
     }
     
 def home_page():
