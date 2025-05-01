@@ -46,82 +46,15 @@ def load_css():
         background: linear-gradient(180deg, #0e4194 0%, #153a6f 100%); 
     }
     
-    /* Sidebar navigation styling */
-    .sidebar-nav {
-        margin-top: 1rem;
+    /* Button styling enhancements */
+    /* These apply to all buttons in the app for consistency */
+    button {
+        transition: all 0.2s ease !important;
     }
     
-    /* Enhanced nav item styling */
-    .nav-item {
-        padding: 0.75rem 1rem;
-        margin-bottom: 0.5rem;
-        border-radius: 6px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.8);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        transform: translateX(3px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-    
-    .nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-left: 4px solid #4CAF50;
-        padding-left: calc(1rem - 4px);
-        font-weight: bold;
-    }
-    
-    .nav-item.active:after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 5px;
-        height: 100%;
-        background: linear-gradient(to bottom, #4CAF50, #388E3C);
-    }
-    
-    /* Enhanced sub-item styling */
-    .nav-sub-item {
-        padding: 0.6rem 1rem 0.6rem 2rem;
-        margin-bottom: 0.3rem;
-        border-radius: 4px;
-        cursor: pointer;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    .nav-sub-item:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        transform: translateX(3px);
-    }
-    
-    .nav-sub-item.active {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        border-left: 3px solid #4CAF50;
-        padding-left: calc(2rem - 3px);
-        font-weight: bold;
-    }
-    
-    /* Selected page banner indicator */
-    .page-banner {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(to right, #4CAF50, #8BC34A);
+    button:hover {
+        filter: brightness(105%) !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
     }
     
     /* Coming soon tag */
@@ -165,67 +98,20 @@ def load_css():
         margin-top: 2rem;
     }
     
-    /* Version section with hover effects */
-    .version-section {
-        margin-top: 1rem;
-        padding: 0.5rem 1rem;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 5px;
-        transition: all 0.3s ease;
+    /* Custom styles for selected navigation elements */
+    .selected-nav {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #4CAF50;
+        font-weight: bold;
+        color: white !important;
     }
     
-    .version-section:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    
-    .version-section h4 {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-        color: white;
-    }
-    
-    .version-item {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem 0;
-        color: white;
-        transition: all 0.2s ease;
-    }
-    
-    .version-item:hover {
-        transform: translateX(3px);
-    }
-    
-    .version-indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-    
-    .active-version {
-        background-color: #4CAF50;
-    }
-    
-    .coming-version {
-        background-color: #FFA500;
-    }
-    
-    /* Button hover effects */
-    .stButton>button {
-        transition: all 0.3s ease !important;
-    }
-    
-    .stButton>button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    /* Module section divider */
-    .module-divider {
+    /* Divider styles */
+    .nav-divider {
         margin: 15px 0;
-        border-color: rgba(255,255,255,0.2);
+        border-color: rgba(255, 255, 255, 0.2);
+        border-style: solid;
+        border-width: 0 0 1px 0;
     }
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -245,7 +131,7 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
-# Create a clickable sidebar navigation system with hover effects
+# Create a simplified sidebar navigation system with moderate UI enhancements
 def create_sidebar():
     # Logo and title section
     # Function to load and encode image
@@ -286,57 +172,147 @@ def create_sidebar():
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Main navigation heading
+    # Navigation header
     st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">Navigation</div>', unsafe_allow_html=True)
     
     # Define main pages
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
     
-    # Create clickable navigation menu with HTML/CSS
+    # Create navigation menu using simple buttons with custom styling
     for page in main_pages:
-        active_class = "active" if st.session_state["current_page"] == page or (page == "VHydro" and st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", "Petrophysical Properties", "Facies Classification", "Hydrocarbon Potential Using GCN"]) else ""
+        # Check if current page matches
+        is_active = st.session_state["current_page"] == page
         
-        if st.sidebar.markdown(f'<div class="nav-item {active_class}" id="{page}" onclick="handleNavClick(\'{page}\')">{page}</div>', unsafe_allow_html=True):
+        # For VHydro, also check if we're on a VHydro subpage
+        vhydro_subpages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
+                     "Facies Classification", "Hydrocarbon Potential Using GCN"]
+        
+        if page == "VHydro" and st.session_state["current_page"] in vhydro_subpages:
+            is_active = True
+        
+        # Apply styling based on active state
+        button_style = ""
+        if is_active:
+            button_style = """
+                background-color: rgba(255, 255, 255, 0.2);
+                border-left: 4px solid #4CAF50;
+                padding-left: 12px;
+                font-weight: bold;
+                color: white;
+            """
+        else:
+            button_style = """
+                background-color: transparent;
+                border-left: 4px solid transparent;
+                padding-left: 12px;
+                color: rgba(255, 255, 255, 0.8);
+            """
+        
+        # Create the button with custom styling
+        if st.sidebar.button(
+            page,
+            key=f"nav_{page}",
+            use_container_width=True,
+            type="secondary" if is_active else "primary",
+            help=f"Navigate to {page}"
+        ):
             st.session_state["current_page"] = page
             st.rerun()
+        
+        # Apply custom styling to the last clicked button
+        button_key = f"nav_{page}"
+        st.markdown(
+            f"""
+            <style>
+                div[data-testid="stButton"] > button[kind="{button_key}"] {{
+                    {button_style}
+                    margin-bottom: 8px;
+                    border-radius: 4px;
+                    height: auto;
+                    padding-top: 6px;
+                    padding-bottom: 6px;
+                    transition: all 0.2s;
+                }}
+                div[data-testid="stButton"] > button[kind="{button_key}"]:hover {{
+                    background-color: rgba(255, 255, 255, 0.15);
+                    transform: translateX(3px);
+                }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
     
-    # Add JavaScript for handling clicks
-    st.sidebar.markdown("""
-    <script>
-    function handleNavClick(page) {
-        // This function will be called when a nav item is clicked
-        // Set a hidden input value and trigger form submission
-        document.getElementById('nav-click-target').value = page;
-        document.getElementById('nav-form').submit();
-    }
-    </script>
+    # Only show VHydro subpages if VHydro or a VHydro subpage is selected
+    vhydro_subpages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
+                     "Facies Classification", "Hydrocarbon Potential Using GCN"]
     
-    <form id="nav-form" method="post">
-        <input type="hidden" id="nav-click-target" name="nav_target">
-    </form>
-    """, unsafe_allow_html=True)
-    
-    # If the current page is VHydro or any VHydro subpage, show the module navigation
-    if st.session_state["current_page"] == "VHydro" or st.session_state["current_page"] in ["VHydro Overview", "Data Preparation", "Petrophysical Properties", "Facies Classification", "Hydrocarbon Potential Using GCN"]:
-        # Add a divider 
+    current_page = st.session_state["current_page"]
+    if current_page == "VHydro" or current_page in vhydro_subpages:
+        # Add divider
         st.sidebar.markdown('<hr style="margin: 15px 0; border-color: rgba(255,255,255,0.2);">', unsafe_allow_html=True)
         
-        # Add modules section heading
+        # Module header
         st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 10px; margin-bottom: 10px;">VHydro Modules</div>', unsafe_allow_html=True)
         
-        # Define VHydro subpages
-        vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
-                      "Facies Classification", "Hydrocarbon Potential Using GCN"]
-        
-        # Create clickable subpage navigation
-        for subpage in vhydro_pages:
-            active_class = "active" if st.session_state["current_page"] == subpage else ""
+        # Create subpage navigation
+        for subpage in vhydro_subpages:
+            is_active = st.session_state["current_page"] == subpage
             
-            if st.sidebar.markdown(f'<div class="nav-sub-item {active_class}" id="{subpage}" onclick="handleNavClick(\'{subpage}\')">{subpage}</div>', unsafe_allow_html=True):
+            # Apply styling based on active state
+            button_style = ""
+            if is_active:
+                button_style = """
+                    background-color: rgba(255, 255, 255, 0.15);
+                    border-left: 3px solid #4CAF50;
+                    padding-left: 28px;
+                    font-weight: bold;
+                    color: white;
+                    font-size: 0.9rem;
+                """
+            else:
+                button_style = """
+                    background-color: transparent;
+                    border-left: 3px solid transparent;
+                    padding-left: 28px;
+                    color: rgba(255, 255, 255, 0.7);
+                    font-size: 0.9rem;
+                """
+            
+            # Create the subpage button with custom styling
+            if st.sidebar.button(
+                subpage,
+                key=f"subnav_{subpage}",
+                use_container_width=True,
+                type="secondary" if is_active else "primary",
+                help=f"Navigate to {subpage}"
+            ):
                 st.session_state["current_page"] = subpage
                 st.rerun()
+            
+            # Apply custom styling to the subpage button
+            button_key = f"subnav_{subpage}"
+            st.markdown(
+                f"""
+                <style>
+                    div[data-testid="stButton"] > button[kind="{button_key}"] {{
+                        {button_style}
+                        margin-bottom: 6px;
+                        border-radius: 4px;
+                        height: auto;
+                        padding-top: 4px;
+                        padding-bottom: 4px;
+                        transition: all 0.2s;
+                    }}
+                    div[data-testid="stButton"] > button[kind="{button_key}"]:hover {{
+                        background-color: rgba(255, 255, 255, 0.1);
+                        transform: translateX(3px);
+                    }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
     
-    # Only show model configuration in analysis pages (with some space above)
+    # Only show model configuration in analysis pages
     min_clusters = 5
     max_clusters = 10
     
