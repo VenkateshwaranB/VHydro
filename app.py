@@ -51,14 +51,20 @@ def load_css():
         margin-top: 1rem;
     }
 
-    div[data-testid="stRadio"] label {
-        color: white !important;
+    .custom-radio {
+        padding: 8px 15px;
+        margin: 5px 0;
+        cursor: pointer;
+        border-radius: 4px;
+        color: white;
+        transition: background-color 0.3s;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] label {
-        color: white !important;
+    .custom-radio:hover {
+        background-color: rgba(255, 255, 255, 0.1);
     }
-    div[role="radiogroup"] label {
-        color: white !important;
+    .custom-radio.selected {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
     }
     
     .nav-item {
@@ -232,70 +238,53 @@ def create_sidebar():
         unsafe_allow_html=True
     )
     
-    # Initialize current page if not exists
+    # Initialize session state if needed
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "Home"
     
-    # Simple navigation using radio buttons
-    st.sidebar.markdown('<div style="color: white; font-weight: bold; margin-top: 20px;">Navigation</div>', unsafe_allow_html=True)
-    
-    # Original navigation code
+    # Main navigation as custom radio buttons
     main_pages = ["Home", "VHydro", "CO2 Storage Applications", "Help and Contact", "About Us"]
-    selected_main = st.sidebar.radio("", main_pages, index=main_pages.index(st.session_state["current_page"]) 
-                                    if st.session_state["current_page"] in main_pages else 0,
-                                    label_visibility="collapsed")
+    
+    # Create custom radio buttons for main navigation
+    for page in main_pages:
+        is_selected = st.session_state["current_page"] == page or (
+            page == "VHydro" and st.session_state["current_page"] in [
+                "VHydro Overview", "Data Preparation", "Petrophysical Properties", 
+                "Facies Classification", "Hydrocarbon Potential Using GCN"
+            ]
+        )
+        
+        selected_class = "selected" if is_selected else ""
+        
+        if st.sidebar.markdown(
+            f'<div class="custom-radio {selected_class}" id="{page}">{page}</div>', 
+            unsafe_allow_html=True
+        ):
+            st.session_state["current_page"] = page
+            st.rerun()
     
     # If VHydro is selected, show sub-pages
-    vhydro_selected = False
-    if selected_main == "VHydro":
-        vhydro_selected = True
+    if st.session_state["current_page"] == "VHydro" or st.session_state["current_page"] in [
+        "VHydro Overview", "Data Preparation", "Petrophysical Properties", 
+        "Facies Classification", "Hydrocarbon Potential Using GCN"
+    ]:
         st.sidebar.markdown('<div style="margin-left: 1.5rem;">', unsafe_allow_html=True)
         vhydro_pages = ["VHydro Overview", "Data Preparation", "Petrophysical Properties", 
                       "Facies Classification", "Hydrocarbon Potential Using GCN"]
         
-        # Find the index of the current page in vhydro_pages if it exists
-        current_index = 0
-        if st.session_state["current_page"] in vhydro_pages:
-            current_index = vhydro_pages.index(st.session_state["current_page"])
-        
-        selected_vhydro = st.sidebar.radio(
-            "", vhydro_pages, index=current_index, label_visibility="collapsed"
-        )
-        st.sidebar.markdown('</div>', unsafe_allow_html=True)
-        
-        # Update session state with selected VHydro page
-        if selected_vhydro != st.session_state["current_page"]:
-            st.session_state["current_page"] = selected_vhydro
-            st.rerun()
-    
-    # Use JavaScript to forcibly change the color of all radio button text
-    st.sidebar.markdown("""
-    <script>
-        // Function to modify all radio button text to white
-        function makeRadioTextWhite() {
-            // Get all elements within radio buttons
-            const radioLabels = document.querySelectorAll('.stRadio label, [data-testid="stRadio"] label, [role="radiogroup"] label');
+        # Create custom radio buttons for VHydro navigation
+        for page in vhydro_pages:
+            is_selected = st.session_state["current_page"] == page
+            selected_class = "selected" if is_selected else ""
             
-            // Force text color to white for all found elements
-            radioLabels.forEach(label => {
-                label.style.setProperty('color', 'white', 'important');
+            if st.sidebar.markdown(
+                f'<div class="custom-radio {selected_class}" id="{page}">{page}</div>', 
+                unsafe_allow_html=True
+            ):
+                st.session_state["current_page"] = page
+                st.rerun()
                 
-                // Also target any spans inside
-                const spans = label.querySelectorAll('span');
-                spans.forEach(span => {
-                    span.style.setProperty('color', 'white', 'important');
-                });
-            });
-        }
-        
-        // Run immediately and also set up a mutation observer to handle dynamic changes
-        makeRadioTextWhite();
-        
-        // Set up observer to run when DOM changes
-        const observer = new MutationObserver(makeRadioTextWhite);
-        observer.observe(document.body, { childList: true, subtree: true });
-    </script>
-    """, unsafe_allow_html=True)
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
     
     # Version selection section
     st.sidebar.markdown(
