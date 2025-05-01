@@ -41,10 +41,9 @@ def load_css():
                    border-left: 5px solid #0e4194; }
     .feature-header { font-weight: bold; color: #0e4194; margin-bottom: 10px; font-size: 1.2rem; }
     
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
+    /* Updated Sidebar styling */
+    [data-testid="stSidebar"] { 
         background-color: white;
-        color: #333;
     }
     
     /* Logo and title */
@@ -121,7 +120,7 @@ def load_css():
         text-align: center;
     }
     
-    /* Coming soon tag */
+    /* Coming soon badge */
     .soon-badge {
         background-color: #ffc107;
         color: #212529;
@@ -132,15 +131,26 @@ def load_css():
         font-weight: 500;
     }
     
-    /* Footer styling */
-    .sidebar-footer {
-        position: absolute;
-        bottom: 0;
-        padding: 1rem;
-        width: 100%;
-        font-size: 0.8rem;
-        color: #6c757d;
-        border-top: 1px solid #f1f1f1;
+    /* Keep all your other styles */
+    .coming-soon-section {
+        background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://placehold.co/600x400');
+        background-size: cover;
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 30px 0;
+        filter: blur(0px);
+    }
+    
+    .coming-soon-section h2 {
+        color: white;
+        margin-bottom: 15px;
+    }
+    
+    .coming-soon-section .content {
+        filter: blur(3px);
+        pointer-events: none;
     }
     
     /* Version section */
@@ -196,6 +206,7 @@ def load_image(image_path):
         logger.error(f"Error loading image from {image_path}: {e}")
         return None
 
+# Create a modernized sidebar navigation system
 def create_sidebar():
     # Initialize session state for navigation
     if "current_page" not in st.session_state:
@@ -204,21 +215,32 @@ def create_sidebar():
     if "expand_vhydro" not in st.session_state:
         st.session_state["expand_vhydro"] = False
     
-    # Logo and title
-    logo_path = "src/StrataGraph_White_Logo.png"
-    if os.path.exists(logo_path):
-        image_base64 = get_base64_image(logo_path)
-        if image_base64:
-            st.sidebar.markdown(
-                f"""
-                <div class="sidebar-logo">
-                    <img src="data:image/png;base64,{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 150px; margin-bottom: 10px;"/>
-                    <h2 style="margin-top: 10px; color: #333; font-size: 1.5rem;">StrataGraph</h2>
-                    <div style="color: #6c757d; font-size: 1rem;">VHydro 1.0</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    # Logo and title section
+    # Function to load and encode image
+    def get_base64_image(image_path):
+        try:
+            with open(image_path, "rb") as img_file:
+                b64_data = base64.b64encode(img_file.read()).decode()
+            return f"data:image/png;base64,{b64_data}"
+        except Exception as e:
+            logger.error(f"Error loading image: {e}")
+            return None
+    
+    # Path to your image
+    image_base64 = get_base64_image("src/StrataGraph_White_Logo.png")
+    
+    # Inject image via HTML in the sidebar
+    if image_base64:
+        st.sidebar.markdown(
+            f"""
+            <div class="sidebar-logo">
+                <img src="{image_base64}" alt="StrataGraph Logo" style="width: 80%; max-width: 150px; margin-bottom: 10px;"/>
+                <h2 style="margin-top: 10px; color: #333; font-size: 1.5rem;">StrataGraph</h2>
+                <div style="color: #6c757d; font-size: 1rem;">VHydro 1.0</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     else:
         st.sidebar.markdown(
             """
@@ -380,11 +402,20 @@ def create_sidebar():
         st.session_state["expand_vhydro"] = False
         st.rerun()
     
+    # Only show model configuration in analysis pages
+    min_clusters = 5
+    max_clusters = 10
+    
+    if st.session_state["current_page"] == "Facies Classification":
+        st.sidebar.markdown('<div class="nav-section">ANALYSIS PARAMETERS</div>', unsafe_allow_html=True)
+        min_clusters = st.sidebar.slider("Min Clusters", 2, 15, 5)
+        max_clusters = st.sidebar.slider("Max Clusters", min_clusters, 15, 10)
+    
     # Version information
     st.sidebar.markdown(
         """
         <div style="margin-top: 20px; padding: 0.5rem 1rem; background-color: #f8f9fa; border-radius: 5px;">
-            <h4 style="color: #6c757d; font-size: 0.8rem; margin-bottom: 10px;">VERSIONS</h4>
+            <div style="color: #6c757d; font-size: 0.8rem; margin-bottom: 10px;">VERSIONS</div>
             <div style="display: flex; align-items: center; margin-bottom: 8px;">
                 <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4CAF50; margin-right: 10px;"></div>
                 <span style="color: #333;">VHydro 1.0 (Current)</span>
@@ -401,7 +432,7 @@ def create_sidebar():
     # Footer
     st.sidebar.markdown(
         """
-        <div class="sidebar-footer">
+        <div style="color: #6c757d; font-size: 0.8rem; text-align: center; position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
             © 2025 StrataGraph. All rights reserved.<br>
             Version 1.0.0
         </div>
@@ -409,7 +440,11 @@ def create_sidebar():
         unsafe_allow_html=True
     )
     
-    return st.session_state["current_page"]
+    return {
+        "page": st.session_state["current_page"],
+        "min_clusters": min_clusters,
+        "max_clusters": max_clusters
+    }
     
 def home_page():
     # Try to load the banner image
